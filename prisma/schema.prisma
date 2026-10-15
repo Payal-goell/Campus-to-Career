@@ -1,0 +1,304 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+  RECRUITER
+  COORDINATOR
+}
+
+model User {
+  id                String                 @id @default(cuid())
+  email             String                 @unique
+  password          String
+  role              Role                   @default(STUDENT)
+  isVerified        Boolean                @default(true)
+  verificationToken String?
+  isOnboarded       Boolean                @default(false)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  studentProfile    StudentProfile?
+  coordinator       CoordinatorContact?
+  savedResources    UserSavedResource[]
+  roadmapMilestones UserRoadmapMilestone[]
+  applications      PlacementApplication[]
+  inquiries         CoordinatorInquiry[]
+  notifications     Notification[]
+  activityLogs      ActivityLog[]
+
+  @@map("users")
+}
+
+model StudentProfile {
+  id                  String                 @id @default(cuid())
+  userId              String                 @unique
+  user                User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName            String
+  phone               String?
+  avatarUrl           String?
+  collegeId           String?
+  collegeName         String                 @default("Apex Institute of Technology")
+  branch              String
+  currentYear         Int                    @default(1)
+  cgpa                Float?
+  skills              String[]
+  targetRole          String?
+  preferredDomains    String[]
+  extracurricularPreferences String[] @default(["Hackathons & Contests", "Open-Source Projects", "Technical Clubs"])
+  targetPlacementYear Int?
+  targetCompanyTier   String?                @default("Tier-1 Product Tech")
+  primaryGoal         String?
+  profileCompletion   Int                    @default(20)
+  developmentScore    Int                    @default(50)
+  selectedCourseId    String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  projects            StudentProject[]
+  certifications      StudentCertification[]
+
+  @@map("student_profiles")
+}
+
+model StudentProject {
+  id          String         @id @default(cuid())
+  profileId   String
+  profile     StudentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  techStack   String[]
+  githubUrl   String?
+  liveUrl     String?
+  createdAt   DateTime       @default(now())
+
+  @@map("student_projects")
+}
+
+model StudentCertification {
+  id          String         @id @default(cuid())
+  profileId   String
+  profile     StudentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  issuer      String
+  issueDate   DateTime?
+  credentialUrl String?
+  isVerified  Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+
+  @@map("student_certifications")
+}
+
+model Course {
+  id             String   @id @default(cuid())
+  title          String
+  domain         String
+  branch         String
+  description    String
+  typicalSkills  String[]
+  learningPath   String
+  alignmentScore String?
+  createdAt      DateTime @default(now())
+
+  @@map("courses")
+}
+
+model CareerPath {
+  id          String   @id @default(cuid())
+  title       String
+  industry    String
+  description String
+  coreSkills  String[]
+  averageSalary String?
+  demandLevel String   @default("High")
+  createdAt   DateTime @default(now())
+
+  @@map("career_paths")
+}
+
+model Resource {
+  id           String              @id @default(cuid())
+  title        String
+  type         String              // "course", "youtube", "doc", "book", "practice"
+  category     String
+  provider     String
+  url          String
+  isPaid       Boolean             @default(false)
+  level        String              @default("Beginner")
+  rating       Float               @default(4.8)
+  description  String
+  academicYear Int?
+  createdAt    DateTime            @default(now())
+  userSaves    UserSavedResource[]
+
+  @@map("resources")
+}
+
+model UserSavedResource {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  status     String   @default("SAVED") // "SAVED", "IN_PROGRESS", "COMPLETED"
+  savedAt    DateTime @default(now())
+
+  @@unique([userId, resourceId])
+  @@map("user_saved_resources")
+}
+
+model ClubCommittee {
+  id               String         @id @default(cuid())
+  name             String
+  category         String         // "Technical", "Cultural", "Sports", "Social", "Leadership"
+  description      String
+  purpose          String
+  responsibilities String
+  skillsGained     String[]
+  leadCoordinator  String
+  joinUrl          String?
+  recentEventRecap String?
+  imageUrl         String?
+  events           CollegeEvent[]
+
+  @@map("club_committees")
+}
+
+model CollegeEvent {
+  id              String         @id @default(cuid())
+  title           String
+  clubId          String?
+  club            ClubCommittee? @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  category        String         // "Hackathon", "Workshop", "Competition", "Cultural"
+  date            DateTime
+  location        String
+  description     String
+  recap           String?
+  registrationUrl String?
+  createdAt       DateTime       @default(now())
+
+  @@map("college_events")
+}
+
+model RoadmapMilestone {
+  id             String                 @id @default(cuid())
+  year           Int                    // 1, 2, 3, 4
+  theme          String                 // "Explore & Build Foundations", "Build & Experiment", "Specialize & Prepare", "Placement Readiness"
+  title          String
+  description    String
+  category       String                 // "Foundational", "Technical", "Professional", "Placement", "Project", "Extracurricular"
+  domain         String                 @default("General") // "General", "Full-Stack Web", "AI / Machine Learning", "Cloud Systems", "Competitive Programming"
+  difficulty     String                 @default("Intermediate") // "Beginner", "Intermediate", "Advanced"
+  estimatedHours Int                    @default(25)
+  skillsTargeted String[]               @default([])
+  actionItems    String[]               @default([])
+  order          Int
+  userMilestones UserRoadmapMilestone[]
+
+  @@map("roadmap_milestones")
+}
+
+model UserRoadmapMilestone {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  milestoneId String
+  milestone   RoadmapMilestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  completed   Boolean          @default(false)
+  status      String           @default("NOT_STARTED") // "NOT_STARTED", "IN_PROGRESS", "COMPLETED"
+  completedAt DateTime?
+  notes       String?
+
+  @@unique([userId, milestoneId])
+  @@map("user_roadmap_milestones")
+}
+
+model PlacementApplication {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company     String
+  role        String
+  location    String?
+  salary      String?
+  status      String            @default("APPLIED") // "SAVED", "APPLIED", "INTERVIEWING", "OFFERED", "REJECTED"
+  appliedDate DateTime          @default(now())
+  notes       String?
+  interviews  InterviewRecord[]
+
+  @@map("placement_applications")
+}
+
+model InterviewRecord {
+  id            String               @id @default(cuid())
+  applicationId String
+  application   PlacementApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  round         String               // "Online Assessment", "Technical 1", "System Design", "HR"
+  date          DateTime
+  mode          String               @default("Virtual")
+  feedback      String?
+  status        String               @default("SCHEDULED") // "SCHEDULED", "CLEARED", "REJECTED"
+
+  @@map("interview_records")
+}
+
+model CoordinatorContact {
+  id             String               @id @default(cuid())
+  userId         String?              @unique
+  user           User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name           String
+  department     String
+  role           String
+  email          String
+  phone          String?
+  availableHours String
+  inquiries      CoordinatorInquiry[]
+
+  @@map("coordinator_contacts")
+}
+
+model CoordinatorInquiry {
+  id            String             @id @default(cuid())
+  ticketId      String             @unique
+  userId        String
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coordinatorId String
+  coordinator   CoordinatorContact @relation(fields: [coordinatorId], references: [id], onDelete: Cascade)
+  subject       String
+  message       String
+  status        String             @default("PENDING") // "PENDING", "IN_REVIEW", "RESOLVED"
+  response      String?
+  createdAt     DateTime           @default(now())
+
+  @@map("coordinator_inquiries")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  timestamp DateTime @default(now())
+
+  @@map("activity_logs")
+}

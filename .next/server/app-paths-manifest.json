@@ -1,0 +1,12 @@
+{
+  "/campus-life/page": "app/campus-life/page.js",
+  "/personality/page": "app/personality/page.js",
+  "/resume/page": "app/resume/page.js",
+  "/api/v1/dashboard/student/route": "app/api/v1/dashboard/student/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/api/v1/extracurriculars/clubs/route": "app/api/v1/extracurriculars/clubs/route.js",
+  "/training/page": "app/training/page.js",
+  "/api/v1/placement-training/modules/route": "app/api/v1/placement-training/modules/route.js",
+  "/placement/page": "app/placement/page.js",
+  "/api/v1/placement-training/applications/route": "app/api/v1/placement-training/applications/route.js"
+}

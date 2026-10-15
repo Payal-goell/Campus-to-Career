@@ -1,0 +1,6 @@
+/* ═══════════════════════════════════════════════════════════════
+   CAMPUS TO CAREER — DESIGN TOKEN BRIDGE
+   Forwards to /design-tokens/tokens.css
+═══════════════════════════════════════════════════════════════ */
+
+@import '../design-tokens/tokens.css';
