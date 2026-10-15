@@ -2,17 +2,16 @@
   "name": "campus-to-career",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev --name init",
-    "prisma:push": "prisma db push",
-    "prisma:seed": "node scripts/seed.mjs",
-    "test:roadmap": "npx --yes tsx lib/roadmap/engine.test.ts"
-  },
+"scripts": {
+  "dev": "next dev",
+  "build": "prisma generate && next build",
+  "start": "next start",
+  "lint": "next lint",
+  "prisma:generate": "prisma generate",
+  "prisma:migrate": "prisma migrate dev --name init",
+  "prisma:push": "prisma db push",
+  "prisma:seed": "node scripts/seed.mjs"
+},
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@prisma/client": "^5.21.1",
