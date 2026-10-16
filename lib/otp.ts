@@ -32,7 +32,11 @@ export type IssuedOtp = {
   devOtp?: string;
 };
 
-export async function issueEmailOtp(userId: string, email: string): Promise<IssuedOtp | { ok: false; error: string; status: number }> {
+export async function issueEmailOtp(
+  userId: string,
+  email: string,
+  options?: { force?: boolean }
+): Promise<IssuedOtp | { ok: false; error: string; status: number }> {
   const existing = await prisma.user.findUnique({
     where: { id: userId },
     select: { otpSentAt: true, isVerified: true },
@@ -42,7 +46,7 @@ export async function issueEmailOtp(userId: string, email: string): Promise<Issu
     return { ok: false, error: 'This account does not need a code', status: 400 };
   }
 
-  if (existing.otpSentAt && Date.now() - existing.otpSentAt.getTime() < RESEND_COOLDOWN_MS) {
+  if (!options?.force && existing.otpSentAt && Date.now() - existing.otpSentAt.getTime() < RESEND_COOLDOWN_MS) {
     const wait = Math.ceil((RESEND_COOLDOWN_MS - (Date.now() - existing.otpSentAt.getTime())) / 1000);
     return { ok: false, error: `Wait ${wait}s before requesting another code`, status: 429 };
   }
