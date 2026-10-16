@@ -69,7 +69,7 @@ export async function getSessionUser(req: NextRequest): Promise<UserSession | nu
     },
   });
 
-  if (!user) {
+  if (!user || !user.isVerified) {
     return null;
   }
 

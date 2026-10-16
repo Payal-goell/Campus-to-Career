@@ -4,18 +4,17 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { GraduationCap, Lock, Mail, ArrowRight, UserCheck, Shield, AlertCircle } from "lucide-react";
+import { GraduationCap, Lock, Mail, ArrowRight, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
-import { UserRole } from "@/lib/types";
+const DEV_OTP_KEY = "ctc.otp.dev";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<UserRole>("STUDENT");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -24,15 +23,16 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
 
-    const result = await register(email, password, role);
+    const result = await register(email, password, "STUDENT");
     setLoading(false);
 
     if (result.success) {
-      if (role === "STUDENT") {
-        router.push("/verify-email");
+      if (result.devOtp) {
+        sessionStorage.setItem(DEV_OTP_KEY, result.devOtp);
       } else {
-        router.push("/admin");
+        sessionStorage.removeItem(DEV_OTP_KEY);
       }
+      router.push(`/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
     } else {
       setError(result.error || "Registration failed");
     }
@@ -60,38 +60,9 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Role selector */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] block">
-                Select Your Role
-              </label>
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setRole("STUDENT")}
-                  className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
-                    role === "STUDENT"
-                      ? "bg-[var(--color-brand-primary)]/15 border-[var(--color-brand-primary)] text-[var(--color-text-primary)] shadow-sm"
-                      : "bg-[var(--color-surface-raised)] border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
-                  }`}
-                >
-                  <UserCheck className="w-4 h-4 text-[var(--color-brand-primary)]" />
-                  Student
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole("ADMIN")}
-                  className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
-                    role === "ADMIN"
-                      ? "bg-[var(--color-brand-secondary)]/15 border-[var(--color-brand-secondary)] text-[var(--color-text-primary)] shadow-sm"
-                      : "bg-[var(--color-surface-raised)] border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
-                  }`}
-                >
-                  <Shield className="w-4 h-4 text-[var(--color-brand-secondary)]" />
-                  Administrator
-                </button>
-              </div>
-            </div>
+            <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+              Student accounts only. After you submit, a one-time code is created for this email. The account stays locked until that code is entered.
+            </p>
 
             <Input
               label="College Email Address"
@@ -120,7 +91,7 @@ export default function RegisterPage() {
               loading={loading}
               className="w-full mt-2 py-3 shadow-md shadow-[var(--color-brand-primary)]/20"
             >
-              Continue to Profile Setup
+              Email me a verification code
               <ArrowRight className="w-4 h-4 ml-1.5" />
             </Button>
           </form>

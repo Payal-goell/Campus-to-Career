@@ -1,19 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { hashPassword, signAccessToken, signRefreshToken } from '@/lib/auth';
+import { hashPassword } from '@/lib/auth';
+import { issueEmailOtp } from '@/lib/otp';
 import { z } from 'zod';
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['STUDENT', 'ADMIN', 'RECRUITER', 'COORDINATOR']).default('STUDENT'),
+  role: z.enum(['STUDENT']).default('STUDENT'),
 });
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const parsed = registerSchema.safeParse(body);
+    if (body && typeof body === 'object' && 'role' in body && body.role && body.role !== 'STUDENT') {
+      return NextResponse.json(
+        { success: false, error: 'Public registration is limited to student accounts' },
+        { status: 403 }
+      );
+    }
 
+    const parsed = registerSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { success: false, error: parsed.error.errors[0].message },
@@ -21,10 +28,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { email, password, role } = parsed.data;
+    const { email, password } = parsed.data;
+    const normalizedEmail = email.toLowerCase();
 
     const existing = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existing) {
@@ -35,54 +43,33 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await hashPassword(password);
-
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
-        role,
-        isVerified: true,
+        role: 'STUDENT',
+        isVerified: false,
         isOnboarded: false,
       },
     });
 
-    const accessToken = signAccessToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    });
-    const refreshToken = signRefreshToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    });
+    const issued = await issueEmailOtp(user.id, user.email);
+    if (!issued.ok) {
+      return NextResponse.json({ success: false, error: issued.error }, { status: issued.status });
+    }
 
-    const response = NextResponse.json(
+    return NextResponse.json(
       {
         success: true,
-        message: 'User registered successfully. Verification email sent.',
-        userId: user.id,
-        accessToken,
-        refreshToken,
-        user: {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          isOnboarded: user.isOnboarded,
-        },
+        message: issued.emailSent
+          ? 'Account created. Enter the code sent to your email.'
+          : 'Account created. Enter the verification code to activate it.',
+        email: user.email,
+        emailSent: issued.emailSent,
+        devOtp: issued.devOtp,
       },
       { status: 201 }
     );
-
-    response.cookies.set('token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60,
-    });
-
-    return response;
   } catch (error) {
     console.error('Register error:', error);
     return NextResponse.json(

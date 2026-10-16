@@ -26,6 +26,14 @@ export default function LoginPage() {
     const result = await login(email, password);
     setLoading(false);
 
+    if (result.needsVerification) {
+      if (result.devOtp) {
+        sessionStorage.setItem("ctc.otp.dev", result.devOtp);
+      }
+      router.push(`/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+      return;
+    }
+
     if (result.success) {
       if (result.isOnboarded) {
         router.push("/dashboard");

@@ -4,11 +4,20 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { UserRole, UserSession } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 
+interface AuthResult {
+  success: boolean;
+  error?: string;
+  isOnboarded?: boolean;
+  needsVerification?: boolean;
+  devOtp?: string;
+}
+
 interface AuthContextType {
   user: UserSession | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; isOnboarded?: boolean }>;
-  register: (email: string, password: string, role?: UserRole) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<AuthResult>;
+  register: (email: string, password: string, role?: UserRole) => Promise<AuthResult>;
+  verifyOtp: (email: string, otp: string) => Promise<AuthResult>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   quickLogin: (email: string, password: string) => Promise<void>;
@@ -54,6 +63,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       const data = await res.json();
 
+      if (data.needsVerification) {
+        return {
+          success: false,
+          needsVerification: true,
+          error: data.error || 'Verify the code sent to your email',
+          devOtp: data.devOtp,
+        };
+      }
+
       if (!res.ok || !data.success) {
         return { success: false, error: data.error || 'Failed to sign in' };
       }
@@ -78,12 +96,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: data.error || 'Registration failed' };
       }
 
-      if (data.user) {
-        setUser(data.user);
-      }
-      return { success: true };
+      return { success: true, devOtp: data.devOtp };
     } catch {
       return { success: false, error: 'Network error during registration' };
+    }
+  };
+
+  const verifyOtp = async (email: string, otp: string) => {
+    try {
+      const res = await fetch('/api/v1/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Verification failed' };
+      }
+      setUser(data.user);
+      return { success: true, isOnboarded: data.user.isOnboarded };
+    } catch {
+      return { success: false, error: 'Network error during verification' };
     }
   };
 
@@ -117,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         register,
+        verifyOtp,
         logout,
         refreshUser: fetchSession,
         quickLogin,
