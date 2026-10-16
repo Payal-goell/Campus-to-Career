@@ -312,7 +312,7 @@ export default function OnboardingPage() {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] block">
                       Current Academic Year *
@@ -600,7 +600,7 @@ export default function OnboardingPage() {
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] block">
                     Current placement confidence
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {["Exploring", "Building", "Interview-ready"].map((level) => (
                       <button
                         key={level}

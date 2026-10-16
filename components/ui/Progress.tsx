@@ -1,8 +1,5 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { cn } from '@/lib/cn';
-import { motion, useInView } from 'framer-motion';
 
 /* ─── Progress Bar ────────────────────────────────────────────── */
 interface ProgressBarProps {
@@ -36,8 +33,6 @@ export function ProgressBar({
   animated = true,
   className,
 }: ProgressBarProps) {
-  const ref = React.useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-50px' });
   const pct = Math.min(100, Math.max(0, (value / max) * 100));
 
   return (
@@ -48,13 +43,10 @@ export function ProgressBar({
           {showValue && <span className="text-xs font-mono font-bold text-[var(--text-primary)]">{Math.round(pct)}%</span>}
         </div>
       )}
-      <div ref={ref} className={cn('w-full bg-[var(--surface-inset)] rounded-full overflow-hidden', sizeMap[size])}>
-        <motion.div
-          className="h-full rounded-full"
-          style={{ background: colorMap[color] }}
-          initial={{ width: 0 }}
-          animate={inView && animated ? { width: `${pct}%` } : { width: `${pct}%` }}
-          transition={{ duration: 0.8, ease: [0.2, 0, 0, 1], delay: 0.1 }}
+      <div className={cn('w-full bg-[var(--surface-inset)] rounded-full overflow-hidden', sizeMap[size])}>
+        <div
+          className={cn('h-full rounded-full', animated && 'transition-[width] duration-500 ease-out')}
+          style={{ background: colorMap[color], width: `${pct}%` }}
         />
       </div>
     </div>
@@ -87,8 +79,6 @@ export function ProgressRing({
   animated = true,
   className,
 }: ProgressRingProps) {
-  const ref = React.useRef<SVGCircleElement>(null);
-  const inView = useInView({ current: ref.current ? ref.current.closest('svg') : null } as React.RefObject<Element>, { once: true });
   const r = (size - strokeWidth * 2) / 2;
   const circumference = 2 * Math.PI * r;
   const offset = circumference - (value / 100) * circumference;
@@ -102,17 +92,15 @@ export function ProgressRing({
           strokeWidth={strokeWidth}
           fill="none"
         />
-        <motion.circle
-          ref={ref}
+        <circle
           cx={size / 2} cy={size / 2} r={r}
           stroke={color}
           strokeWidth={strokeWidth}
           fill="none"
           strokeLinecap="round"
           strokeDasharray={circumference}
-          initial={{ strokeDashoffset: circumference }}
-          animate={animated ? { strokeDashoffset: offset } : { strokeDashoffset: offset }}
-          transition={{ duration: 1.2, ease: [0.2, 0, 0, 1], delay: 0.2 }}
+          strokeDashoffset={offset}
+          className={animated ? 'transition-[stroke-dashoffset] duration-500 ease-out' : undefined}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -143,37 +131,14 @@ interface AnimatedCountProps {
 
 export function AnimatedCount({
   value,
-  duration: dur = 1.5,
   prefix = '',
   suffix = '',
   decimals = 0,
   className,
 }: AnimatedCountProps) {
-  const ref = React.useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!inView) return;
-    let start = 0;
-    const steps = 60;
-    const increment = value / steps;
-    const interval = (dur * 1000) / steps;
-    const timer = setInterval(() => {
-      start += increment;
-      if (start >= value) {
-        setCount(value);
-        clearInterval(timer);
-      } else {
-        setCount(start);
-      }
-    }, interval);
-    return () => clearInterval(timer);
-  }, [inView, value, dur]);
-
   return (
-    <span ref={ref} className={cn('tabular', className)}>
-      {prefix}{count.toFixed(decimals)}{suffix}
+    <span className={cn('tabular', className)}>
+      {prefix}{value.toFixed(decimals)}{suffix}
     </span>
   );
 }

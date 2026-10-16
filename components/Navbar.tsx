@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Compass, GraduationCap, Map, BookOpen, Users, Briefcase,
   Shield, Bell, Menu, X, LogOut, Sparkles, ChevronDown,
@@ -17,7 +16,6 @@ import { ThemeToggle } from './ui/ThemeToggle';
 import { ThemeStudio } from './ThemeStudio';
 import { Avatar } from './ui/Avatar';
 import { cn } from '@/lib/cn';
-import { fadeDown } from '@/lib/motion';
 import { useRoadmapOptional } from '@/context/RoadmapContext';
 import { ROADMAP_PERSONAS } from '@/lib/roadmap/personas';
 
@@ -154,14 +152,10 @@ export function Navbar() {
           <div className="flex items-center justify-between h-16 flex-nowrap gap-3 min-w-0">
 
             {/* ── Logo ─────────────────────────────────────────── */}
-            <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0" aria-label="Campus to Career home">
-              <motion.div
-                className="w-9 h-9 rounded-xl gradient-brand flex items-center justify-center shadow-[var(--glow-primary)]"
-                whileHover={{ scale: 1.05, rotate: -3 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              >
+            <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0 min-w-0" aria-label="Campus to Career home">
+              <div className="w-9 h-9 rounded-xl gradient-brand flex items-center justify-center shadow-[var(--glow-primary)] transition-transform duration-150 group-hover:scale-105">
                 <GraduationCap className="w-5 h-5 text-white" />
-              </motion.div>
+              </div>
               <div className="hidden sm:flex flex-col leading-none">
                 <span className="font-display font-bold text-base gradient-text tracking-tight">
                   Campus to Career
@@ -196,13 +190,6 @@ export function Navbar() {
                         : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-inset)]'
                     )}
                   >
-                    {isActive && (
-                      <motion.span
-                        layoutId="nav-active"
-                        className="absolute inset-0 rounded-xl bg-[var(--primary-subtle)]"
-                        transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-                      />
-                    )}
                     <span className="relative z-10 flex items-center gap-1.5">
                       <Icon className="w-3.5 h-3.5" aria-hidden />
                       {link.name}
@@ -281,14 +268,9 @@ export function Navbar() {
                   <ChevronDown className={cn('w-3 h-3 transition-transform', roleSwitcherOpen && 'rotate-180')} aria-hidden />
                 </button>
 
-                <AnimatePresence>
                   {roleSwitcherOpen && (
-                    <motion.div
-                      variants={fadeDown}
-                      initial="hidden"
-                      animate="visible"
-                      exit="hidden"
-                      className="absolute right-0 mt-2 w-72 bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-[var(--shadow-xl)] overflow-hidden z-50"
+                    <div
+                      className="absolute right-0 mt-2 w-[min(18rem,calc(100vw-1.5rem))] bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-[var(--shadow-xl)] overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
                       role="listbox"
                       aria-label="Demo accounts"
                     >
@@ -338,9 +320,8 @@ export function Navbar() {
                           </button>
                         ))}
                       </div>
-                    </motion.div>
+                    </div>
                   )}
-                </AnimatePresence>
               </div>
 
               {/* Notification bell */}
@@ -394,7 +375,7 @@ export function Navbar() {
                   </button>
                 </div>
               ) : (
-                <div className="hidden md:flex items-center gap-2 flex-nowrap">
+                <div className="hidden sm:flex items-center gap-2 flex-nowrap">
                   <Link
                     href="/login"
                     className="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-inset)] transition-colors"
@@ -423,40 +404,20 @@ export function Navbar() {
                   'transition-colors focus-visible:outline-2 focus-visible:outline-[var(--border-focus)]'
                 )}
               >
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={mobileOpen ? 'x' : 'menu'}
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0,   opacity: 1 }}
-                    exit={{    rotate: 90,  opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                  </motion.span>
-                </AnimatePresence>
+                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
         </div>
 
         {/* ── Mobile Nav drawer ────────────────────────────────── */}
-        <AnimatePresence>
           {mobileOpen && (
-            <motion.div
+            <div
               id="mobile-nav"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
               className="lg:hidden fixed inset-0 z-50 bg-[var(--overlay)]"
             >
               <button type="button" className="absolute inset-0" aria-label="Close menu" onClick={() => setMobileOpen(false)} />
-              <motion.div
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ duration: 0.25, ease: [0.2, 0, 0, 1] }}
-                className="absolute right-0 top-0 h-full w-[min(100%,20rem)] overflow-y-auto border-l border-[var(--border)] bg-[var(--surface)] px-4 pb-6"
-              >
+              <div className="absolute right-0 top-0 h-full w-[min(100%,20rem)] overflow-y-auto overscroll-contain border-l border-[var(--border)] bg-[var(--surface)] px-4 pb-8">
               <div className="pt-4 grid grid-cols-2 gap-1.5">
                 {links.map((link) => {
                   const Icon = link.icon;
@@ -468,7 +429,7 @@ export function Navbar() {
                       onClick={() => setMobileOpen(false)}
                       aria-current={isActive ? 'page' : undefined}
                       className={cn(
-                        'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium',
+                        'flex items-center gap-2 px-3 min-h-11 rounded-xl text-sm font-medium',
                         'transition-colors duration-fast',
                         isActive
                           ? 'bg-[var(--primary-subtle)] text-[var(--primary)]'
@@ -485,12 +446,12 @@ export function Navbar() {
               {/* Auth row */}
               <div className="mt-4 pt-4 border-t border-[var(--border)]">
                 {user ? (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
                       <Avatar name={user.name ?? 'U'} size="sm" />
-                      <div>
-                        <p className="text-sm font-semibold text-[var(--text-primary)]">{user.name}</p>
-                        <p className="text-xs text-[var(--text-muted)]">{user.email}</p>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{user.name}</p>
+                        <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
                       </div>
                     </div>
                     <button
@@ -514,10 +475,9 @@ export function Navbar() {
                   </div>
                 )}
               </div>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           )}
-        </AnimatePresence>
       </nav>
 
       <NotificationDrawer isOpen={notifOpen} onClose={() => setNotifOpen(false)} />

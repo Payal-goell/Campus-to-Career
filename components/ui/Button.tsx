@@ -1,21 +1,21 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { tapPress } from '@/lib/motion';
 
 /* ─── Variants ────────────────────────────────────────────────── */
 const buttonVariants = cva(
-  // Base styles
   [
     'inline-flex items-center justify-center gap-2 font-semibold leading-none',
-    'rounded-xl transition-all duration-200 ease-out',
+    'rounded-xl transition-colors duration-150 ease-out',
+    'touch-manipulation max-w-full text-center',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-focus)]',
     'disabled:pointer-events-none disabled:opacity-40',
-    'select-none whitespace-nowrap shrink-0 align-middle',
+    'select-none align-middle',
+    'active:scale-[0.98]',
   ],
   {
     variants: {
@@ -23,9 +23,7 @@ const buttonVariants = cva(
         primary: [
           'bg-[var(--gradient-brand)] text-white',
           'shadow-[var(--glow-primary)]',
-          'hover:shadow-[0_0_28px_2px_rgba(99,102,241,0.5)]',
-          'hover:-translate-y-0.5',
-          'active:translate-y-0 active:shadow-none',
+          'hover:brightness-110',
         ],
         secondary: [
           'bg-[var(--surface-raised)] text-[var(--text-primary)]',
@@ -39,8 +37,7 @@ const buttonVariants = cva(
         ],
         destructive: [
           'bg-[var(--danger)] text-white',
-          'hover:opacity-90 hover:-translate-y-0.5',
-          'shadow-[0_0_16px_-3px_var(--danger)]',
+          'hover:opacity-90',
         ],
         outline: [
           'border border-[var(--border)] text-[var(--text-primary)]',
@@ -50,29 +47,27 @@ const buttonVariants = cva(
         accent: [
           'bg-[var(--accent)] text-white',
           'shadow-[var(--glow-accent)]',
-          'hover:shadow-[0_0_28px_2px_rgba(6,182,212,0.4)]',
-          'hover:-translate-y-0.5',
+          'hover:brightness-110',
         ],
         gradient: [
           'gradient-brand text-white',
           'shadow-[var(--glow-primary)]',
-          'hover:shadow-[0_0_35px_4px_rgba(99,102,241,0.55)]',
-          'hover:-translate-y-0.5',
+          'hover:brightness-110',
         ],
         link: [
           'text-[var(--primary)] underline-offset-4',
-          'hover:underline h-auto p-0 rounded-none',
+          'hover:underline h-auto p-0 rounded-none active:scale-100',
         ],
       },
       size: {
-        xs: 'text-xs px-2.5 min-h-8 h-8 rounded-lg',
-        sm: 'text-sm px-3.5 min-h-10 h-10',
+        xs: 'text-xs px-2.5 min-h-8 h-8 rounded-lg shrink-0 whitespace-nowrap',
+        sm: 'text-sm px-3.5 min-h-10 h-10 whitespace-nowrap',
         md: 'text-sm px-5 min-h-11 h-11',
         lg: 'text-base px-6 min-h-12 h-12 rounded-2xl',
         xl: 'text-lg px-8 min-h-14 h-14 rounded-2xl',
-        icon: 'w-10 h-10 min-h-10 rounded-xl p-0',
-        'icon-sm': 'w-8 h-8 min-h-8 rounded-lg p-0',
-        'icon-lg': 'w-11 h-11 min-h-11 rounded-xl p-0',
+        icon: 'w-10 h-10 min-h-10 min-w-10 rounded-xl p-0 shrink-0',
+        'icon-sm': 'w-8 h-8 min-h-8 min-w-8 rounded-lg p-0 shrink-0',
+        'icon-lg': 'w-11 h-11 min-h-11 min-w-11 rounded-xl p-0 shrink-0',
       },
     },
     defaultVariants: {
@@ -95,6 +90,10 @@ export interface ButtonProps
   rel?: string;
 }
 
+function isExternalHref(href: string, target?: string) {
+  return target === '_blank' || /^(https?:|mailto:|tel:)/i.test(href);
+}
+
 /* ─── Component ───────────────────────────────────────────────── */
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -111,6 +110,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       target,
       rel,
       type = 'button',
+      onClick,
       ...props
     },
     ref
@@ -130,31 +130,43 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const classes = cn(buttonVariants({ variant, size }), className);
 
     if (href && !isDisabled) {
+      if (isExternalHref(href, target)) {
+        return (
+          <a
+            href={href}
+            target={target}
+            rel={rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined)}
+            className={classes}
+            onClick={onClick as React.MouseEventHandler<HTMLAnchorElement> | undefined}
+          >
+            {content}
+          </a>
+        );
+      }
+
       return (
-        <motion.a
+        <Link
           href={href}
-          target={target}
-          rel={rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined)}
           className={classes}
-          whileTap={tapPress}
-          onClick={props.onClick as React.MouseEventHandler<HTMLAnchorElement> | undefined}
+          onClick={onClick as React.MouseEventHandler<HTMLAnchorElement> | undefined}
         >
           {content}
-        </motion.a>
+        </Link>
       );
     }
 
     return (
-      <motion.button
+      <button
         ref={ref}
         type={type}
         className={classes}
         disabled={isDisabled}
-        whileTap={isDisabled ? undefined : tapPress}
-        {...(props as React.ComponentProps<typeof motion.button>)}
+        aria-busy={loading || undefined}
+        onClick={onClick}
+        {...props}
       >
         {content}
-      </motion.button>
+      </button>
     );
   }
 );

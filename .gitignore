@@ -1,8 +1,5 @@
+
 node_modules/
-.next/
-.env
-.env.local
-.DS_Storenode_modules/
 .next/
 .env
 .env.local

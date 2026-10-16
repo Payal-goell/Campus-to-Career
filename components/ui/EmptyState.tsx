@@ -1,10 +1,8 @@
 'use client';
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { GraduationCap, Search, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { fadeUp } from '@/lib/motion';
 
 /* ─── Empty State ─────────────────────────────────────────────── */
 interface EmptyStateProps {
@@ -42,13 +40,7 @@ export function EmptyState({
   const sz = sizeMap[size];
 
   return (
-    <AnimatePresence>
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        className={cn('flex flex-col items-center justify-center text-center', sz.wrapper, className)}
-      >
+    <div className={cn('flex flex-col items-center justify-center text-center px-4', sz.wrapper, className)}>
         {/* Illustration container */}
         <div className="relative mb-5">
           <div className={cn(
@@ -59,7 +51,7 @@ export function EmptyState({
             {icon ?? <GraduationCap className="w-1/2 h-1/2" />}
           </div>
           {/* Decorative ring */}
-          <div className="absolute inset-0 rounded-2xl bg-[var(--primary-subtle)] -z-10 scale-110 blur-sm opacity-50" />
+          <div className="absolute inset-0 rounded-2xl bg-[var(--primary-subtle)] -z-10 scale-110 opacity-50" />
         </div>
 
         <h3 className={cn('font-display font-bold text-[var(--text-primary)] mb-2', sz.title)}>
@@ -72,12 +64,12 @@ export function EmptyState({
         )}
 
         {(action || secondaryAction) && (
-          <div className="flex items-center gap-3 flex-wrap justify-center">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto justify-center">
             {action && (
               action.href ? (
                 <a
                   href={action.href}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white gradient-brand shadow-[var(--glow-primary)] hover:-translate-y-0.5 transition-transform"
+                  className="inline-flex items-center justify-center gap-2 px-5 min-h-11 rounded-xl text-sm font-semibold text-white gradient-brand w-full sm:w-auto"
                 >
                   {action.label}
                   <ArrowRight className="w-4 h-4" />
@@ -85,7 +77,7 @@ export function EmptyState({
               ) : (
                 <button
                   onClick={action.onClick}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white gradient-brand shadow-[var(--glow-primary)] hover:-translate-y-0.5 transition-transform"
+                  className="inline-flex items-center justify-center gap-2 px-5 min-h-11 rounded-xl text-sm font-semibold text-white gradient-brand w-full sm:w-auto touch-manipulation"
                 >
                   {action.label}
                   <ArrowRight className="w-4 h-4" />
@@ -102,8 +94,7 @@ export function EmptyState({
             )}
           </div>
         )}
-      </motion.div>
-    </AnimatePresence>
+    </div>
   );
 }
 

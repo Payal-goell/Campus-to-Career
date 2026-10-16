@@ -1,20 +1,42 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import {
-  STORAGE_KEY,
-  applySkillGains,
-  generateRoadmap,
-  personaById,
-  regenerateWithDiff,
-  type AcademicYear,
-  type GeneratedRoadmap,
-  type RoadmapDiff,
-  type RoadmapNode,
-  type StudentProfile,
-} from '@/lib/roadmap';
-import { EXPLORER_PROFILE } from '@/lib/roadmap/profile';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import type {
+  AcademicYear,
+  GeneratedRoadmap,
+  RoadmapDiff,
+  RoadmapNode,
+  StudentProfile,
+} from '@/lib/roadmap/types';
 import { toast } from '@/components/ui/Toast';
+
+type RoadmapEngine = typeof import('@/lib/roadmap');
+
+const STORAGE_KEY = 'ctc.roadmap.v1';
+
+const PLACEHOLDER_PROFILE: StudentProfile = {
+  branch: 'B.Tech first year (RGPV common)',
+  currentYear: 1,
+  skills: [],
+  interestDomains: ['Web Development'],
+  talentInterests: ['Leadership/Volunteering'],
+  targetRole: 'Explorer — still deciding',
+  weeklyHours: 10,
+  completedNodeIds: [],
+  isPersonalized: false,
+  personaId: 'explorer',
+};
+
+const EMPTY_ROADMAP: GeneratedRoadmap = {
+  profile: PLACEHOLDER_PROFILE,
+  nodes: [],
+  usedFallback: true,
+  startHereId: null,
+  yearSummaries: [],
+  wholePerson: { technicalPct: 0, talentPct: 0 },
+  skillsBefore: {},
+  skillsAfter: {},
+};
 
 interface StoredState {
   profile: StudentProfile;
@@ -65,16 +87,18 @@ function writeStore(state: StoredState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function seedPriorYears(profile: StudentProfile): StudentProfile {
+function seedPriorYears(engine: RoadmapEngine, profile: StudentProfile): StudentProfile {
   if (profile.currentYear <= 1) return profile;
-  const draft = generateRoadmap({ ...profile, completedNodeIds: [] });
+  const draft = engine.generateRoadmap({ ...profile, completedNodeIds: [] });
   const prior = draft.nodes.filter((n) => n.year < profile.currentYear).map((n) => n.id);
   return { ...profile, completedNodeIds: Array.from(new Set([...(profile.completedNodeIds ?? []), ...prior])) };
 }
 
 export function RoadmapProvider({ children }: { children: React.ReactNode }) {
+  const engineRef = useRef<RoadmapEngine | null>(null);
+  const [engine, setEngine] = useState<RoadmapEngine | null>(null);
   const [ready, setReady] = useState(false);
-  const [profile, setProfile] = useState<StudentProfile>(EXPLORER_PROFILE);
+  const [profile, setProfile] = useState<StudentProfile>(PLACEHOLDER_PROFILE);
   const [pendingDiff, setPendingDiff] = useState<RoadmapDiff | null>(null);
   const [undoSnapshot, setUndoSnapshot] = useState<StudentProfile | null>(null);
   const [pendingReveal, setPendingReveal] = useState(false);
@@ -82,22 +106,52 @@ export function RoadmapProvider({ children }: { children: React.ReactNode }) {
   const [previewFuture, setPreviewFuture] = useState(false);
   const [lastOpenedId, setLastOpenedId] = useState<string | null>(null);
 
-  const roadmap = useMemo(() => generateRoadmap(profile), [profile]);
+  const roadmap = useMemo(
+    () => (engine ? engine.generateRoadmap(profile) : { ...EMPTY_ROADMAP, profile }),
+    [engine, profile]
+  );
 
   useEffect(() => {
-    const stored = readStore();
-    if (stored?.profile) {
-      setProfile(stored.profile);
-      setPendingDiff(stored.pendingDiff);
-      setPendingReveal(Boolean(stored.pendingReveal));
-      setSelectedYear(stored.profile.currentYear);
-      setLastOpenedId(stored.lastOpenedId ?? null);
-    } else {
-      setProfile(EXPLORER_PROFILE);
-      setSelectedYear(EXPLORER_PROFILE.currentYear);
-      writeStore({ profile: EXPLORER_PROFILE, lastNodes: generateRoadmap(EXPLORER_PROFILE).nodes, pendingDiff: null });
+    let alive = true;
+    const load = () => {
+      import('@/lib/roadmap').then((mod) => {
+        if (!alive) return;
+        engineRef.current = mod;
+        const stored = readStore();
+        if (stored?.profile) {
+          setProfile(stored.profile);
+          setPendingDiff(stored.pendingDiff);
+          setPendingReveal(Boolean(stored.pendingReveal));
+          setSelectedYear(stored.profile.currentYear);
+          setLastOpenedId(stored.lastOpenedId ?? null);
+        } else {
+          const seeded = mod.EXPLORER_PROFILE;
+          setProfile(seeded);
+          setSelectedYear(seeded.currentYear);
+          writeStore({
+            profile: seeded,
+            lastNodes: mod.generateRoadmap(seeded).nodes,
+            pendingDiff: null,
+          });
+        }
+        setEngine(mod);
+        setReady(true);
+      });
+    };
+
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(load, { timeout: 700 });
+      return () => {
+        alive = false;
+        window.cancelIdleCallback(id);
+      };
     }
-    setReady(true);
+
+    const timer = window.setTimeout(load, 0);
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+    };
   }, []);
 
   const persist = useCallback((next: StoredState) => {
@@ -115,8 +169,10 @@ export function RoadmapProvider({ children }: { children: React.ReactNode }) {
 
   const saveProfile = useCallback(
     (next: StudentProfile, opts?: { reveal?: boolean; diffAgainst?: RoadmapNode[] }) => {
+      const current = engineRef.current;
+      if (!current) return;
       const against = opts?.diffAgainst ?? roadmap.nodes;
-      const { roadmap: generated, diff } = regenerateWithDiff(against, next);
+      const { roadmap: generated, diff } = current.regenerateWithDiff(against, next);
       const hasDiff = diff.added.length + diff.removed.length + diff.moved.length > 0;
       setUndoSnapshot(profile);
       setProfile(next);
@@ -135,19 +191,38 @@ export function RoadmapProvider({ children }: { children: React.ReactNode }) {
 
   const applyPersona = useCallback(
     (id: string) => {
-      const persona = personaById(id);
-      if (!persona) return;
-      const seeded = seedPriorYears(persona.profile);
-      saveProfile(seeded);
-      toast.success(`Loaded ${persona.label}`, persona.desc);
+      const run = (current: RoadmapEngine) => {
+        const persona = current.personaById(id);
+        if (!persona) return;
+        const seeded = seedPriorYears(current, persona.profile);
+        saveProfile(seeded);
+        toast.success(`Loaded ${persona.label}`, persona.desc);
+      };
+      if (engineRef.current) {
+        run(engineRef.current);
+        return;
+      }
+      import('@/lib/roadmap').then((mod) => {
+        engineRef.current = mod;
+        setEngine(mod);
+        setReady(true);
+        run(mod);
+      });
     },
     [saveProfile]
   );
 
   const previewProfile = useCallback(
     (partial: Partial<StudentProfile>) => {
+      const current = engineRef.current;
       const next = { ...profile, ...partial };
-      return regenerateWithDiff(roadmap.nodes, next);
+      if (!current) {
+        return {
+          roadmap: { ...EMPTY_ROADMAP, profile: next },
+          diff: { added: [], removed: [], moved: [], summary: '' },
+        };
+      }
+      return current.regenerateWithDiff(roadmap.nodes, next);
     },
     [profile, roadmap.nodes]
   );
@@ -168,7 +243,8 @@ export function RoadmapProvider({ children }: { children: React.ReactNode }) {
 
       let skills = profile.skills;
       if (status === 'completed' && node.status !== 'completed') {
-        skills = applySkillGains(profile, node.skillGain);
+        const current = engineRef.current;
+        skills = current ? current.applySkillGains(profile, node.skillGain) : profile.skills;
         toast.success('Level up', node.skillGain.map((g) => `${g.skill} +${g.levels}`).join(', ') || node.title);
       }
 
@@ -226,9 +302,14 @@ export function RoadmapProvider({ children }: { children: React.ReactNode }) {
     }
     setProfile(undoSnapshot);
     setPendingDiff(null);
-    persist({ profile: undoSnapshot, lastNodes: generateRoadmap(undoSnapshot).nodes, pendingDiff: null });
+    const current = engineRef.current;
+    persist({
+      profile: undoSnapshot,
+      lastNodes: current ? current.generateRoadmap(undoSnapshot).nodes : roadmap.nodes,
+      pendingDiff: null,
+    });
     toast.info('Roadmap change undone');
-  }, [persist, undoSnapshot]);
+  }, [persist, roadmap.nodes, undoSnapshot]);
 
   const dismissReveal = useCallback(() => {
     setPendingReveal(false);

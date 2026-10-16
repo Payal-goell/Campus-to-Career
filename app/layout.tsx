@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { JetBrains_Mono, Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { RoadmapProvider } from '@/context/RoadmapContext';
@@ -7,6 +8,27 @@ import { Footer } from '@/components/Footer';
 import { ThemeProvider } from '@/lib/theme/ThemeProvider';
 import { themeInitScript } from '@/lib/theme/theme-script';
 import { ToastProvider } from '@/components/ui/Toast';
+
+const sans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-sans',
+});
+
+const display = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  display: 'swap',
+  variable: '--font-display',
+});
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  display: 'swap',
+  variable: '--font-mono',
+});
 
 export const metadata: Metadata = {
   title: 'Campus to Career — Whole-Person Student Development & Career Platform',
@@ -31,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         {/* ── Zero-FOUC Blocking Theme Initializer ── */}
         <script
@@ -44,17 +66,11 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
           <RoadmapProvider>
-            {/* Aurora ambient mesh background */}
-            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden" aria-hidden>
-              <div className="absolute inset-0 bg-gradient-aurora opacity-75" />
-              <div className="absolute top-[-15%] left-[-5%] w-[600px] h-[600px] rounded-full bg-primary/10 blur-[140px]" />
-              <div className="absolute top-[30%] right-[-10%] w-[500px] h-[500px] rounded-full bg-accent/10 blur-[120px]" />
-              <div className="absolute bottom-[-10%] left-[25%] w-[500px] h-[500px] rounded-full bg-[var(--chart-3)]/[0.06] blur-[130px]" />
-            </div>
+            <div className="ambient-bg" aria-hidden />
 
             <Navbar />
 
-            <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <main className="flex-1 w-full min-w-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
               {children}
             </main>
 

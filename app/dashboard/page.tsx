@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { useAuth } from "@/context/AuthContext";
 import {
   Compass,
@@ -28,10 +29,21 @@ import { Badge } from "@/components/ui/Badge";
 import { ProgressBar } from "@/components/ui/Progress";
 import { Avatar } from "@/components/ui/Avatar";
 import { ScoreMeter } from "@/components/ScoreMeter";
-import { SkillGapChart } from "@/components/SkillGapChart";
-import { ResumeAnalyzerModal } from "@/components/ResumeAnalyzerModal";
 import { TodayPlan } from "@/components/dashboard/TodayPlan";
 import { DashboardOverview } from "@/lib/types";
+
+const SkillGapChart = dynamic(
+  () => import("@/components/SkillGapChart").then((m) => m.SkillGapChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-72 rounded-2xl skeleton" aria-hidden />,
+  }
+);
+
+const ResumeAnalyzerModal = dynamic(
+  () => import("@/components/ResumeAnalyzerModal").then((m) => m.ResumeAnalyzerModal),
+  { ssr: false }
+);
 
 export default function StudentDashboardPage() {
   const router = useRouter();
@@ -96,8 +108,8 @@ export default function StudentDashboardPage() {
   return (
     <div className="space-y-8 py-6">
       {/* Top Banner / Welcome Header */}
-      <Card variant="raised" className="p-6 sm:p-8 border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/90 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
-        <div className="flex items-center gap-5">
+      <Card variant="raised" className="p-5 sm:p-8 border border-[var(--color-border-subtle)] bg-[var(--color-surface)] relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xl">
+        <div className="flex items-center gap-4 sm:gap-5 min-w-0">
           <Avatar
             src={student.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80"}
             name={student.fullName}
@@ -105,8 +117,8 @@ export default function StudentDashboardPage() {
             online
           />
           <div className="space-y-1">
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] tracking-tight">{student.fullName}</h1>
+            <div className="flex flex-wrap items-center gap-2.5 min-w-0">
+              <h1 className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] tracking-tight break-words">{student.fullName}</h1>
               <Badge variant="primary" size="sm">
                 Year {student.currentYear}
               </Badge>
@@ -121,7 +133,7 @@ export default function StudentDashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <Button
             variant="outline"
             size="sm"
@@ -335,10 +347,12 @@ export default function StudentDashboardPage() {
       </div>
 
       {/* Resume Analyzer Modal */}
-      <ResumeAnalyzerModal
-        isOpen={showResumeModal}
-        onClose={() => setShowResumeModal(false)}
-      />
+      {showResumeModal && (
+        <ResumeAnalyzerModal
+          isOpen={showResumeModal}
+          onClose={() => setShowResumeModal(false)}
+        />
+      )}
     </div>
   );
 }

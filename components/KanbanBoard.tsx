@@ -132,13 +132,13 @@ export function KanbanBoard({ initialApplications, onRefresh }: KanbanBoardProps
       </div>
 
       {/* Columns Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3.5 overflow-x-auto pb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 pb-4">
         {COLUMNS.map((col) => {
           const colApps = applications.filter((a) => a.status === col.id);
           return (
             <div
               key={col.id}
-              className="glass-panel rounded-2xl p-3 min-w-[240px] flex flex-col min-h-[380px]"
+              className="rounded-2xl p-3 min-w-0 md:min-w-[200px] flex flex-col min-h-[280px] md:min-h-[380px] border border-[var(--border)] bg-[var(--surface)]"
             >
               {/* Column Header */}
               <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">

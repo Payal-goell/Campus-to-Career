@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
 
 /* ─── Composable Radix Tabs Exports ────────────────────────── */
@@ -79,15 +78,13 @@ export function Tabs({ tabs, variant = "underline", className, children, ...prop
           >
             {/* Sliding active indicator */}
             {activeTab === tab.value && (
-              <motion.span
-                layoutId={`tab-indicator-${props.defaultValue ?? "default"}`}
+              <span
                 className={cn(
                   "absolute inset-0 z-0",
                   variant === "underline" && "bottom-0 top-auto h-0.5 rounded-t-full bg-[var(--color-brand-primary)]",
                   (variant === "pill" || variant === "segment") &&
                     "bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border-subtle)]"
                 )}
-                transition={{ type: "spring", stiffness: 400, damping: 35 }}
               />
             )}
             <span className="relative z-10 flex items-center gap-2">

@@ -4,16 +4,16 @@ import { GraduationCap, Github, Linkedin, Mail, Heart, Sparkles } from "lucide-r
 
 export function Footer() {
   return (
-    <footer className="w-full border-t border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 backdrop-blur-xl mt-24 pt-16 pb-12 transition-colors duration-200">
+    <footer className="w-full border-t border-[var(--color-border-subtle)] bg-[var(--color-surface)] mt-16 sm:mt-24 pt-12 sm:pt-16 pb-12 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-[var(--color-border-subtle)]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 pb-12 border-b border-[var(--color-border-subtle)]">
           {/* Brand Info */}
           <div className="space-y-4 md:col-span-1">
             <Link href="/" className="inline-flex items-center gap-2.5 group">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] p-2 flex items-center justify-center shadow-md shadow-[var(--color-brand-primary)]/20 group-hover:scale-105 transition-transform">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-base bg-gradient-to-r from-[var(--color-brand-primary)] via-[var(--color-brand-secondary)] to-[var(--color-accent)] bg-clip-text text-transparent">
+              <span className="font-bold text-base gradient-text">
                 Campus to Career
               </span>
             </Link>

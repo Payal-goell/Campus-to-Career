@@ -2,9 +2,7 @@
 
 import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/cn';
-import { hoverLift } from '@/lib/motion';
 
 /* ─── Variants ────────────────────────────────────────────────── */
 const cardVariants = cva(
@@ -55,21 +53,11 @@ export interface CardProps
 /* ─── Component ───────────────────────────────────────────────── */
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant, padding, animate = false, tilt = false, children, ...props }, ref) => {
-    const classes = cn(cardVariants({ variant, padding }), className);
-
-    if (animate) {
-      return (
-        <motion.div
-          ref={ref}
-          className={classes}
-          whileHover={tilt ? { scale: 1.01, y: -2 } : hoverLift}
-          transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
-          {...(props as React.ComponentProps<typeof motion.div>)}
-        >
-          {children}
-        </motion.div>
-      );
-    }
+    const classes = cn(
+      cardVariants({ variant, padding }),
+      (animate || tilt) && 'card-interactive',
+      className
+    );
 
     return (
       <div ref={ref} className={classes} {...props}>

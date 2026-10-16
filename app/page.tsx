@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   Compass,
   GraduationCap,
@@ -25,8 +24,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
-import { AnimatedCount, ProgressRing } from "@/components/ui/Progress";
-import { fadeUp, stagger, staggerItem } from "@/lib/motion";
+import { AnimatedCount } from "@/components/ui/Progress";
 
 export default function HomePage() {
   const journeyYears = [
@@ -110,54 +108,39 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="space-y-28 py-10">
-      {/* Hero Section */}
-      <motion.section
-        initial="hidden"
-        animate="visible"
-        variants={stagger(0.12)}
-        className="relative text-center pt-8 pb-12 space-y-6 max-w-4xl mx-auto"
-      >
-        {/* Subtle pill tag */}
-        <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[var(--color-brand-primary)]/20 bg-[var(--color-brand-primary)]/10 text-xs font-semibold text-[var(--color-brand-primary)] shadow-sm">
-          <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-          <span>The Unified Student Development & Placement Operating System</span>
-        </motion.div>
+    <div className="space-y-16 sm:space-y-24 py-6 sm:py-10">
+      <section className="relative text-center pt-4 sm:pt-8 pb-8 sm:pb-12 space-y-6 max-w-4xl mx-auto">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[var(--color-brand-primary)]/20 bg-[var(--color-brand-primary)]/10 text-xs font-semibold text-[var(--color-brand-primary)] shadow-sm max-w-full">
+          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+          <span className="text-left">The Unified Student Development & Placement Operating System</span>
+        </div>
 
-        <motion.h1 variants={fadeUp} className="text-4xl sm:text-6xl font-black tracking-tight text-[var(--color-text-primary)] leading-[1.12]">
-          From Campus Ambition to <br />
-          <span className="bg-gradient-to-r from-[var(--color-brand-primary)] via-[var(--color-brand-secondary)] to-[var(--color-accent)] bg-clip-text text-transparent">
+        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[var(--color-text-primary)] leading-[1.12] text-balance">
+          From Campus Ambition to <br className="hidden sm:block" />
+          <span className="gradient-text">
             Dream Career Trajectory.
           </span>
-        </motion.h1>
+        </h1>
 
-        <motion.p variants={fadeUp} className="text-base sm:text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed">
+        <p className="text-sm sm:text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed px-1">
           No more fragmented WhatsApp groups or disjointed websites. Campus to Career consolidates academic roadmaps, vetted learning resources, club recaps, and placement interview tracking into one elegant hub.
-        </motion.p>
+        </p>
 
-        {/* Primary CTAs */}
-        <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <Link href="/register" className="w-full sm:w-auto">
-            <Button variant="gradient" size="lg" className="w-full sm:w-auto shadow-lg shadow-[var(--color-brand-primary)]/25">
-              Get started
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
-          <Link href="/explore" className="w-full sm:w-auto">
-            <Button variant="secondary" size="lg" className="w-full sm:w-auto">
-              Explore (public)
-              <ChevronRight className="w-4 h-4 ml-1 opacity-70" />
-            </Button>
-          </Link>
-          <Link href="/login" className="w-full sm:w-auto">
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
-              Login / Sign up
-            </Button>
-          </Link>
-        </motion.div>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-2">
+          <Button variant="gradient" size="lg" href="/register" className="w-full sm:w-auto">
+            Get started
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+          <Button variant="secondary" size="lg" href="/explore" className="w-full sm:w-auto">
+            Explore (public)
+            <ChevronRight className="w-4 h-4 ml-1 opacity-70" />
+          </Button>
+          <Button variant="outline" size="lg" href="/login" className="w-full sm:w-auto">
+            Login / Sign up
+          </Button>
+        </div>
 
-        {/* Live Metric Bento Pills */}
-        <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-10 text-left">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-8 text-left">
           <Card variant="stat" className="p-4">
             <span className="text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] block">
               <AnimatedCount value={1250} suffix="+" />
@@ -182,8 +165,8 @@ export default function HomePage() {
             </span>
             <span className="text-xs text-[var(--color-text-muted)] font-medium">Placement Offer Rate</span>
           </Card>
-        </motion.div>
-      </motion.section>
+        </div>
+      </section>
 
       {/* 4-Year Journey Showcase */}
       <section className="space-y-10">
@@ -287,7 +270,7 @@ export default function HomePage() {
       </section>
 
       {/* Transparent Development Score Explainer */}
-      <section className="rounded-3xl p-8 sm:p-12 border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/80 backdrop-blur-xl relative overflow-hidden shadow-lg">
+      <section className="rounded-3xl p-5 sm:p-12 border border-[var(--color-border-subtle)] bg-[var(--color-surface)] relative overflow-hidden shadow-lg">
         <div className="max-w-3xl space-y-5">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20">
             <CheckCircle className="w-3.5 h-3.5" />
@@ -318,12 +301,10 @@ export default function HomePage() {
             </li>
           </ul>
           <div className="pt-4">
-            <Link href="/dashboard">
-              <Button variant="primary">
+            <Button variant="primary" href="/dashboard" className="w-full sm:w-auto">
                 Check Your Baseline Score Now
                 <ArrowRight className="w-3.5 h-3.5 ml-2" />
               </Button>
-            </Link>
           </div>
         </div>
       </section>

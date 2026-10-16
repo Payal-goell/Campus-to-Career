@@ -6,7 +6,8 @@
    Strict WCAG 2.2 AA compliant. No component uses raw colors.
 ═══════════════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* Fonts are self-hosted in the root layout (next/font) so the first paint
+   is not blocked on a Google Fonts stylesheet. */
 
 /* ─── Shared Base Variables ──────────────────────────────────────────────── */
 :root {
@@ -16,10 +17,6 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
-
-  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
 
   --ease-fast: cubic-bezier(0.2, 0, 0, 1);
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);

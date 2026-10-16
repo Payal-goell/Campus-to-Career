@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Palette, Shuffle, Check, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useTheme } from '@/lib/theme/ThemeProvider';
-import { PALETTES, PaletteId } from '@/design-tokens/tokens';
+import { PALETTES } from '@/design-tokens/tokens';
 import { ThemeToggle } from './ui/ThemeToggle';
 
 const paletteList = Object.values(PALETTES);
@@ -23,21 +22,21 @@ export function ThemeStudio() {
   return (
     <div className="relative">
       {/* Studio Trigger */}
-      <motion.button
+      <button
         id="theme-studio-trigger"
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label="Open Theme Studio"
         className={cn(
-          'relative w-9 h-9 rounded-xl flex items-center justify-center',
+          'relative w-10 h-10 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center',
           'border border-border bg-inset text-text-muted',
           'hover:bg-raised hover:border-border-strong hover:text-text-primary',
           'transition-colors duration-[150ms] ease-standard',
           'focus-visible:outline-2 focus-visible:outline-ring',
+          'active:scale-95 touch-manipulation',
           open && 'border-primary/40 bg-primary/10 text-primary',
         )}
-        whileTap={{ scale: 0.9 }}
       >
         <Palette className="w-4 h-4" aria-hidden />
         {/* Active palette dot */}
@@ -49,41 +48,30 @@ export function ThemeStudio() {
           }}
           aria-hidden
         />
-      </motion.button>
+      </button>
 
-      {/* Studio Panel */}
-      <AnimatePresence>
-        {open && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="fixed inset-0 z-40"
-              onClick={() => {
-                previewPalette(null);
-                setOpen(false);
-              }}
-              aria-hidden
-            />
+      {open && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => {
+              previewPalette(null);
+              setOpen(false);
+            }}
+            aria-hidden
+          />
 
-            {/* Panel */}
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Theme Studio"
-              initial={{ opacity: 0, scale: 0.95, y: -8 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -8 }}
-              transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
-              className={cn(
-                'absolute right-0 top-12 z-50',
-                'w-[320px] rounded-2xl overflow-hidden',
-                'bg-surface border border-border shadow-xl',
-              )}
-            >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Theme Studio"
+            className={cn(
+              'z-50 w-[min(18rem,calc(100vw-1.5rem))] rounded-2xl overflow-hidden',
+              'bg-surface border border-border shadow-xl',
+              'absolute right-0 top-12',
+              'max-sm:fixed max-sm:right-3 max-sm:top-[4.25rem]',
+            )}
+          >
               {/* Header */}
               <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-border">
                 <div>
@@ -113,7 +101,7 @@ export function ThemeStudio() {
                     const colors = resolvedTheme === 'dark' ? p.dark : p.light;
                     const isActive = palette === p.id;
                     return (
-                      <motion.button
+                      <button
                         key={p.id}
                         onMouseEnter={() => previewPalette(p.id)}
                         onMouseLeave={() => !isActive && previewPalette(null)}
@@ -123,11 +111,10 @@ export function ThemeStudio() {
                         }}
                         aria-label={`Apply ${p.name} palette`}
                         aria-pressed={isActive}
-                        whileHover={{ scale: 1.04 }}
-                        whileTap={{ scale: 0.97 }}
                         className={cn(
                           'relative flex flex-col items-center gap-1.5 p-2.5 rounded-xl',
-                          'border transition-all duration-[150ms]',
+                          'border transition-colors duration-[150ms]',
+                          'active:scale-[0.98] touch-manipulation',
                           isActive
                             ? 'border-primary/60 bg-primary/8 shadow-glow'
                             : 'border-border hover:border-border-strong hover:bg-inset',
@@ -156,17 +143,11 @@ export function ThemeStudio() {
                           {p.name}
                         </span>
                         {isActive && (
-                          <motion.span
-                            layoutId="palette-check"
-                            className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                          >
+                          <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
                             <Check className="w-2.5 h-2.5 text-primary-foreground" />
-                          </motion.span>
+                          </span>
                         )}
-                      </motion.button>
+                      </button>
                     );
                   })}
                 </div>
@@ -204,10 +185,9 @@ export function ThemeStudio() {
                   {PALETTES[palette]?.description}
                 </p>
               </div>
-            </motion.div>
+            </div>
           </>
         )}
-      </AnimatePresence>
     </div>
   );
 }

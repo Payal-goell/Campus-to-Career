@@ -31,10 +31,10 @@ export const ease = {
 
 /** Fade up — standard entrance for most elements */
 export const fadeUp: Variants = {
-  hidden:  { opacity: 0, y: 16 },
+  hidden:  { opacity: 1, y: 0 },
   visible: {
     opacity: 1, y: 0,
-    transition: { duration: duration.base, ease: ease.standard },
+    transition: { duration: duration.fast, ease: ease.standard },
   },
   exit: {
     opacity: 0, y: -8,
@@ -44,10 +44,10 @@ export const fadeUp: Variants = {
 
 /** Fade down — used for dropdowns */
 export const fadeDown: Variants = {
-  hidden:  { opacity: 0, y: -8 },
+  hidden:  { opacity: 1, y: 0 },
   visible: {
     opacity: 1, y: 0,
-    transition: { duration: duration.base, ease: ease.standard },
+    transition: { duration: duration.fast, ease: ease.standard },
   },
   exit: {
     opacity: 0, y: -8,
@@ -57,10 +57,10 @@ export const fadeDown: Variants = {
 
 /** Scale in — cards, modals */
 export const scaleIn: Variants = {
-  hidden:  { opacity: 0, scale: 0.94 },
+  hidden:  { opacity: 1, scale: 1 },
   visible: {
     opacity: 1, scale: 1,
-    transition: { duration: duration.base, ease: ease.emphasized },
+    transition: { duration: duration.fast, ease: ease.emphasized },
   },
   exit: {
     opacity: 0, scale: 0.96,
@@ -102,8 +102,8 @@ export const fadeInOut: Variants = {
 };
 
 /** Stagger container — wraps staggered children */
-export const stagger = (staggerChildren = 0.07, delayChildren = 0): Variants => ({
-  hidden:  { opacity: 0 },
+export const stagger = (staggerChildren = 0.04, delayChildren = 0): Variants => ({
+  hidden:  { opacity: 1 },
   visible: {
     opacity: 1,
     transition: { staggerChildren, delayChildren },
@@ -112,19 +112,19 @@ export const stagger = (staggerChildren = 0.07, delayChildren = 0): Variants => 
 
 /** Stagger item — use as children of stagger container */
 export const staggerItem: Variants = {
-  hidden:  { opacity: 0, y: 12 },
+  hidden:  { opacity: 1, y: 0 },
   visible: {
     opacity: 1, y: 0,
-    transition: { duration: duration.base, ease: ease.standard },
+    transition: { duration: duration.fast, ease: ease.standard },
   },
 };
 
 /** Page transition */
 export const pageTransition: Variants = {
-  hidden:  { opacity: 0, y: 8 },
+  hidden:  { opacity: 1, y: 0 },
   visible: {
     opacity: 1, y: 0,
-    transition: { duration: duration.slow, ease: ease.emphasized },
+    transition: { duration: duration.fast, ease: ease.emphasized },
   },
   exit: {
     opacity: 0, y: -8,

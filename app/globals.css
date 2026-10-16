@@ -35,7 +35,7 @@
   body {
     background-color: var(--bg);
     color: var(--text-primary);
-    font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: var(--font-sans, system-ui), system-ui, sans-serif;
     font-size: clamp(0.875rem, 0.85rem + 0.125vw, 1rem);
     line-height: 1.6;
     min-height: 100dvh;
@@ -58,7 +58,7 @@
 
   /* Heading hierarchy */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display), 'Space Grotesk', system-ui, sans-serif;
+    font-family: var(--font-display, var(--font-sans, system-ui)), system-ui, sans-serif;
     font-weight: 700;
     letter-spacing: -0.025em;
     line-height: 1.2;
@@ -67,7 +67,15 @@
 
   /* Monospace */
   code, kbd, pre, samp, [data-mono] {
-    font-family: var(--font-mono), 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: var(--font-mono, ui-monospace), ui-monospace, monospace;
+  }
+
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  img, svg, video {
+    max-width: 100%;
   }
 
   /* Smooth scrollbar */
@@ -135,16 +143,23 @@
   /* Glass surface */
   .glass {
     background: var(--surface-overlay);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border);
   }
 
   .glass-panel {
     background: var(--surface-overlay);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border-strong);
+  }
+
+  @media (min-width: 768px) {
+    .glass {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .glass-panel {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
   }
 
   .glass-card {
@@ -309,12 +324,38 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none;
   }
-  .no-transitions * {
-    transition: none !important;
-    animation-duration: 0s !important;
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Soft page wash. Radial gradients stay on the compositor and avoid
+   the large blur filters that made scrolling and taps feel late. */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(42rem 42rem at -10% -10%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 70%),
+    radial-gradient(36rem 36rem at 110% 20%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 68%),
+    var(--gradient-aurora);
+  opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+  .ambient-bg {
+    background:
+      radial-gradient(18rem 18rem at 0% 0%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 70%),
+      var(--bg);
+    opacity: 1;
   }
 }

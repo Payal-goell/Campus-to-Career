@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { motion } from "framer-motion";
-import { fadeUp } from "@/lib/motion";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -48,13 +46,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6">
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        className="w-full max-w-md"
-      >
-        <Card variant="raised" className="p-8 sm:p-10 border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/90 backdrop-blur-2xl shadow-2xl space-y-6">
+      <div className="w-full max-w-md">
+        <Card variant="raised" className="p-6 sm:p-10 border border-[var(--color-border-subtle)] bg-[var(--color-surface)] shadow-xl space-y-6">
           <div className="text-center space-y-2.5">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] p-3 mx-auto flex items-center justify-center shadow-lg shadow-[var(--color-brand-primary)]/20">
               <GraduationCap className="w-6 h-6 text-white" />
@@ -121,7 +114,7 @@ export default function LoginPage() {
               </span>
               <Badge variant="accent" size="sm">Demo Mode</Badge>
             </div>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-2.5">
               {demoAccounts.map((acc) => (
                 <button
                   key={acc.email}
@@ -147,7 +140,7 @@ export default function LoginPage() {
             </Link>
           </div>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }
