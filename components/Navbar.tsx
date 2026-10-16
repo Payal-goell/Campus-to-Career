@@ -48,10 +48,10 @@ const supportingLinks = [
 ];
 
 const demoAccounts = [
-  { label: 'Aarav Sharma', email: 'student@college.edu',  role: 'STUDENT',     desc: 'Y2 CSE · UIT-RGPV · 8.7 CGPA' },
-  { label: 'Fresh Start',  email: 'newbie@college.edu',   role: 'STUDENT',     desc: 'Needs onboarding'      },
-  { label: 'Prof. Meera Joshi', email: 'sarah.c@college.edu', role: 'COORDINATOR', desc: 'TPO / Placement Cell, RGPV' },
-  { label: 'Admin',        email: 'admin@college.edu',   role: 'ADMIN',       desc: 'College admin (UIT-RGPV)'   },
+  { label: 'Aarav Sharma', email: 'student@college.edu',  password: 'Password123!', role: 'STUDENT',     desc: 'Y2 CSE · UIT-RGPV · 8.7 CGPA' },
+  { label: 'Fresh Start',  email: 'newbie@college.edu',   password: 'Password123!', role: 'STUDENT',     desc: 'Needs onboarding'      },
+  { label: 'Prof. Meera Joshi', email: 'sarah.c@college.edu', password: 'CoordPass123!', role: 'COORDINATOR', desc: 'TPO / Placement Cell, RGPV' },
+  { label: 'Admin',        email: 'admin@college.edu',   password: 'AdminPass123!', role: 'ADMIN',       desc: 'College admin (UIT-RGPV)'   },
 ];
 
 export function Navbar() {
@@ -302,7 +302,7 @@ export function Navbar() {
                             key={acc.email}
                             role="option"
                             aria-selected={user?.email === acc.email}
-                            onClick={() => { quickLogin(acc.email, 'Password123!'); setRoleSwitcherOpen(false); }}
+                            onClick={() => { quickLogin(acc.email, acc.password); setRoleSwitcherOpen(false); }}
                             className={cn(
                               'w-full text-left px-3 py-2.5 rounded-xl text-sm',
                               'hover:bg-[var(--surface-inset)] transition-colors',
@@ -451,7 +451,7 @@ export function Navbar() {
                     <button
                       key={acc.email}
                       type="button"
-                      onClick={() => { quickLogin(acc.email, 'Password123!'); setMobileOpen(false); }}
+                      onClick={() => { quickLogin(acc.email, acc.password); setMobileOpen(false); }}
                       className="w-full text-left px-3 py-2.5 min-h-11 rounded-xl hover:bg-[var(--surface-inset)]"
                     >
                       <span className="block text-xs font-semibold text-[var(--text-primary)]">{acc.label}</span>

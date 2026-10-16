@@ -56,7 +56,20 @@ function sessionResponse(user: {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid login request' },
+        { status: 400 }
+      );
+    }
+
+    if (body && typeof body === 'object' && 'email' in body && typeof body.email === 'string') {
+      body.email = body.email.trim();
+    }
+
     const parsed = loginSchema.safeParse(body);
 
     if (!parsed.success) {
@@ -84,7 +97,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const isMatch = await comparePassword(password, user.password);
+    let isMatch = false;
+    try {
+      isMatch = await comparePassword(password, user.password);
+    } catch {
+      isMatch = false;
+    }
     if (!isMatch) {
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
@@ -93,20 +111,22 @@ export async function POST(req: NextRequest) {
     }
 
     if (!user.isVerified) {
-      const issued = await issueEmailOtp(user.id, user.email);
-      return NextResponse.json(
-        {
-          success: false,
-          needsVerification: true,
-          email: user.email,
-          error: issued.ok
-            ? 'Verify the code sent to your email before signing in.'
-            : issued.error,
-          emailSent: issued.ok ? issued.emailSent : false,
-          devOtp: issued.ok ? issued.devOtp : undefined,
-        },
-        { status: 403 }
-      );
+      let issued: Awaited<ReturnType<typeof issueEmailOtp>> | null = null;
+      try {
+        issued = await issueEmailOtp(user.id, user.email);
+      } catch (error) {
+        console.error('Login OTP error:', error);
+      }
+      return NextResponse.json({
+        success: false,
+        needsVerification: true,
+        email: user.email,
+        error: issued?.ok
+          ? 'Verify the code sent to your email before signing in.'
+          : issued?.error || 'Enter the verification code for this account before signing in.',
+        emailSent: issued?.ok ? issued.emailSent : false,
+        devOtp: issued?.ok ? issued.devOtp : undefined,
+      });
     }
 
     return sessionResponse(user);

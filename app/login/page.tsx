@@ -46,10 +46,10 @@ export default function LoginPage() {
   };
 
   const demoAccounts = [
-    { label: "Aarav Sharma (Y2 CSE, UIT-RGPV)", email: "student@college.edu", role: "Active Student" },
-    { label: "New Student (Setup)", email: "newbie@college.edu", role: "Needs Onboarding" },
-    { label: "Prof. Meera Joshi (TPO)", email: "sarah.c@college.edu", role: "Placement Coordinator" },
-    { label: "Campus Admin", email: "admin@college.edu", role: "Administrator" },
+    { label: "Aarav Sharma (Y2 CSE, UIT-RGPV)", email: "student@college.edu", password: "Password123!", role: "Active Student" },
+    { label: "New Student (Setup)", email: "newbie@college.edu", password: "Password123!", role: "Needs Onboarding" },
+    { label: "Prof. Meera Joshi (TPO)", email: "sarah.c@college.edu", password: "CoordPass123!", role: "Placement Coordinator" },
+    { label: "Campus Admin", email: "admin@college.edu", password: "AdminPass123!", role: "Administrator" },
   ];
 
   return (
@@ -127,7 +127,7 @@ export default function LoginPage() {
                 <button
                   key={acc.email}
                   type="button"
-                  onClick={() => quickLogin(acc.email, "Password123!")}
+                  onClick={() => quickLogin(acc.email, acc.password)}
                   className="p-2.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-surface-raised)] hover:border-[var(--color-border-focus)] hover:bg-[var(--color-surface-overlay)] text-left transition-all text-xs group"
                 >
                   <span className="font-semibold text-[var(--color-text-primary)] block text-xs truncate group-hover:text-[var(--color-brand-primary)]">
