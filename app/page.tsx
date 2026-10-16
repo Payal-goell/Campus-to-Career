@@ -140,7 +140,7 @@ export default function HomePage() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-8 text-left">
+        <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-8 text-left">
           <Card variant="stat" className="p-4">
             <span className="text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] block">
               <AnimatedCount value={1250} suffix="+" />

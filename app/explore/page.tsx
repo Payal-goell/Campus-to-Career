@@ -135,7 +135,7 @@ export default function ExplorePage() {
       {tab === 'careers' && !branch && (
         <div className="space-y-4">
           <p className="text-sm text-[var(--text-secondary)]">Tap your branch. You’ll see 2–3 jobs, one at a time.</p>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-5 gap-3">
             {SISTEC_BRANCHES.map((b) => (
               <button
                 key={b.code}

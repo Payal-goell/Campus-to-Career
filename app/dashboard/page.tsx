@@ -155,7 +155,7 @@ export default function StudentDashboardPage() {
 
       <TodayPlan />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { href: '/profile', label: 'Profile completion', value: `${data.profileCompletion}%`, icon: Target },
           { href: '/analytics', label: 'Development score', value: String(data.developmentScore), icon: Award },

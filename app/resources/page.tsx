@@ -151,7 +151,7 @@ export default function ResourcesPage() {
       </Card>
 
       {/* Tabs by format */}
-      <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
+      <div className="flex items-center gap-2.5 overflow-x-auto pb-1 max-w-full">
         {typeTabs.map((tab) => {
           const Icon = tab.icon;
           const isSelected = selectedType === tab.id;

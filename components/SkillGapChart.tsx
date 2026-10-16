@@ -41,7 +41,7 @@ export function SkillGapChart({ data }: SkillGapChartProps) {
 
   return (
     <Card variant="default" className="p-6 flex flex-col justify-between h-full">
-      <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="p-2.5 rounded-xl bg-fuchsia-500/10 text-fuchsia-500">
             <Target className="w-5 h-5" />
@@ -62,7 +62,7 @@ export function SkillGapChart({ data }: SkillGapChartProps) {
       </div>
 
       {/* Bar Chart Container */}
-      <div className="h-64 w-full">
+      <div className="h-56 sm:h-64 w-full min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}

@@ -62,10 +62,11 @@ export function NotificationDrawer({
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md glass-panel border-l border-white/10 p-6 flex flex-col shadow-2xl">
+      <div className="absolute inset-0" onClick={onClose} />
+      <div className="absolute inset-y-0 right-0 flex w-full sm:w-auto sm:max-w-md">
+        <div className="w-full sm:w-[28rem] h-full bg-[var(--surface)] border-l border-[var(--border)] p-4 sm:p-6 flex flex-col shadow-2xl min-h-0">
           {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-white/10">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
               <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
                 <Bell className="w-5 h-5" />
@@ -83,7 +84,7 @@ export function NotificationDrawer({
               </button>
               <button
                 onClick={onClose}
-                className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                className="w-11 h-11 rounded-lg flex items-center justify-center hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>

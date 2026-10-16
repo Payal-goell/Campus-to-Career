@@ -46,9 +46,9 @@ export function Tabs({ tabs, variant = "underline", className, children, ...prop
     >
       <TabsPrimitive.List
         className={cn(
-          "flex",
-          variant === "underline" && "border-b border-[var(--color-border-subtle)] gap-1",
-          variant === "pill" && "gap-1 p-1 bg-[var(--color-surface-overlay)] rounded-xl w-fit",
+          "flex max-w-full",
+          variant === "underline" && "border-b border-[var(--color-border-subtle)] gap-1 overflow-x-auto",
+          variant === "pill" && "flex-wrap gap-1 p-1 bg-[var(--color-surface-overlay)] rounded-xl w-full",
           variant === "segment" && "grid bg-[var(--color-surface-overlay)] rounded-xl p-1"
         )}
         style={variant === "segment" ? { gridTemplateColumns: `repeat(${tabs.length}, 1fr)` } : undefined}
@@ -59,7 +59,7 @@ export function Tabs({ tabs, variant = "underline", className, children, ...prop
             key={tab.value}
             value={tab.value}
             className={cn(
-              "relative inline-flex items-center gap-2 font-semibold text-sm",
+              "relative inline-flex items-center gap-2 font-semibold text-sm min-h-11",
               "transition-colors duration-200 outline-none",
               "focus-visible:ring-2 focus-visible:ring-[var(--color-border-focus)] focus-visible:rounded-lg",
               "disabled:pointer-events-none disabled:opacity-40",

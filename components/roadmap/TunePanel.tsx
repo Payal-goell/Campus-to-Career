@@ -53,7 +53,7 @@ export function TunePanel({
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <button type="button" className="absolute inset-0 bg-[var(--overlay)]" aria-label="Close panel" onClick={onClose} />
-      <aside className="relative w-full max-w-lg h-full overflow-y-auto bg-[var(--surface)] border-l border-[var(--border)] p-6 space-y-5">
+      <aside className="relative w-full max-w-lg h-full overflow-y-auto overscroll-contain bg-[var(--surface)] border-l border-[var(--border)] p-4 sm:p-6 space-y-5">
         <div className="flex items-center justify-between">
           <h2 className="font-display font-bold text-lg text-[var(--text-primary)]">Tune my roadmap</h2>
           <button type="button" onClick={onClose} className="w-11 h-11 rounded-xl flex items-center justify-center hover:bg-[var(--surface-inset)]" aria-label="Close">

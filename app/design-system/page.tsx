@@ -104,7 +104,7 @@ export default function DesignSystemPage() {
                 With Icon
               </Button>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <Button size="xs">Size XS</Button>
               <Button size="sm">Size SM</Button>
               <Button size="md">Size MD</Button>

@@ -89,14 +89,14 @@ export function JourneyMap({
     <div className="space-y-2">
       <div
         ref={scroller}
-        className="relative overflow-x-auto overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)]"
+        className="relative max-w-full overflow-x-auto overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)]"
         role="application"
         aria-label={`Year ${year} journey map`}
         tabIndex={0}
         onKeyDown={onKeyDown}
       >
         <div
-          className={cn('p-4 sm:p-5 min-w-min', yearLocked && !previewFuture && 'opacity-70')}
+          className={cn('p-3 sm:p-5', yearLocked && !previewFuture && 'opacity-70')}
           style={{ zoom }}
         >
           <div className="mb-4 h-1.5 rounded-full bg-[var(--surface-inset)] overflow-hidden">
@@ -106,11 +106,11 @@ export function JourneyMap({
             />
           </div>
 
-          <div className="flex md:grid gap-4" style={{ gridTemplateColumns: `repeat(${Math.max(1, grouped.length)}, minmax(240px, 1fr))` }}>
+          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))' }}>
             {grouped.map((g) => (
               <section
                 key={g.period}
-                className="flex flex-col gap-3 min-w-[240px] rounded-2xl border border-[var(--border)] bg-[var(--surface-inset)]/40 p-3"
+                className="flex flex-col gap-3 min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--surface-inset)]/40 p-3"
               >
                 <header className="sticky top-0 z-[1] rounded-xl bg-[var(--surface)] border border-[var(--border)] px-3 py-2">
                   <p className="text-[10px] font-mono text-[var(--text-muted)]">{g.period}</p>
@@ -144,7 +144,7 @@ export function JourneyMap({
         </div>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex gap-2 overflow-x-auto pb-1 max-w-full">
         {grouped.map((g) => {
           const done = nodes.filter((n) => n.period === g.period && n.status === 'completed').length;
           return (

@@ -55,7 +55,7 @@ export function NodeDrawer({
         role="dialog"
         aria-modal
         aria-labelledby="node-drawer-title"
-        className="relative w-full max-w-xl h-full overflow-y-auto bg-[var(--surface)] border-l border-[var(--border)] shadow-[var(--shadow-xl)] p-6"
+        className="relative w-full max-w-xl h-full overflow-y-auto overscroll-contain bg-[var(--surface)] border-l border-[var(--border)] shadow-[var(--shadow-xl)] p-4 sm:p-6"
       >
         <button
           type="button"

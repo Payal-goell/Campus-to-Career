@@ -247,7 +247,7 @@ export function KanbanBoard({ initialApplications, onRefresh }: KanbanBoardProps
       {/* Add Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-          <div className="glass-panel rounded-2xl max-w-md w-full p-6 border border-white/15 shadow-2xl">
+          <div className="glass-panel rounded-2xl max-w-md w-full max-h-[min(90dvh,40rem)] overflow-y-auto p-4 sm:p-6 border border-white/15 shadow-2xl">
             <h3 className="text-base font-bold text-white mb-1">Add Job / Internship Application</h3>
             <p className="text-xs text-slate-400 mb-4">Record role details, target stipend, and application status.</p>
 

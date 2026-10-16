@@ -243,7 +243,7 @@ export default function RoadmapPage() {
       <SummaryStrip roadmap={roadmap} year={selectedYear} nextActions={nextActions} />
 
       <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
           <Filter className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0" />
           {PILLAR_FILTERS.map((chip) => {
             const active = filter === chip.id;
@@ -265,7 +265,7 @@ export default function RoadmapPage() {
           })}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <label className="relative flex-1 min-w-[180px]">
+          <label className="relative flex-1 min-w-0 w-full sm:min-w-[12rem]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
             <input
               value={query}

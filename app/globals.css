@@ -27,6 +27,7 @@
 
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 4.5rem;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -74,8 +75,27 @@
     touch-action: manipulation;
   }
 
-  img, svg, video {
+  img, svg, video, canvas {
     max-width: 100%;
+    height: auto;
+  }
+
+  img, video {
+    object-fit: cover;
+  }
+
+  p, h1, h2, h3, h4, li, td, th, label, figcaption {
+    overflow-wrap: break-word;
+  }
+
+  input, select, textarea {
+    max-width: 100%;
+  }
+
+  @media (max-width: 640px) {
+    input, select, textarea {
+      font-size: 16px;
+    }
   }
 
   /* Smooth scrollbar */

@@ -148,15 +148,15 @@ export function Navbar() {
         role="navigation"
         aria-label="Main navigation"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 flex-nowrap gap-3 min-w-0">
+        <div className="max-w-7xl mx-auto px-3 min-[375px]:px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 flex-nowrap gap-2 min-w-0">
 
             {/* ── Logo ─────────────────────────────────────────── */}
             <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0 min-w-0" aria-label="Campus to Career home">
               <div className="w-9 h-9 rounded-xl gradient-brand flex items-center justify-center shadow-[var(--glow-primary)] transition-transform duration-150 group-hover:scale-105">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <div className="hidden sm:flex flex-col leading-none">
+              <div className="hidden lg:flex flex-col leading-none min-w-0">
                 <span className="font-display font-bold text-base gradient-text tracking-tight">
                   Campus to Career
                 </span>
@@ -244,13 +244,13 @@ export function Navbar() {
             </div>
 
             {/* ── Right Side Controls ───────────────────────────── */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               {/* Theme controls — always visible */}
               <ThemeToggle />
               <ThemeStudio />
 
               {/* Quick role switcher */}
-              <div className="relative hidden sm:block">
+              <div className="relative hidden lg:block">
                 <button
                   onClick={() => setRoleSwitcherOpen(!roleSwitcherOpen)}
                   aria-haspopup="listbox"
@@ -344,7 +344,7 @@ export function Navbar() {
 
               {/* User avatar / auth CTAs */}
               {user ? (
-                <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-[var(--border)]">
+                <div className="hidden lg:flex items-center gap-2 pl-2 border-l border-[var(--border)]">
                   <Link
                     href="/dashboard"
                     className="flex items-center gap-2 hover:opacity-80 transition-opacity focus-visible:outline-2 focus-visible:outline-[var(--border-focus)] rounded-lg"
@@ -375,7 +375,7 @@ export function Navbar() {
                   </button>
                 </div>
               ) : (
-                <div className="hidden sm:flex items-center gap-2 flex-nowrap">
+                <div className="hidden lg:flex items-center gap-2 flex-nowrap">
                   <Link
                     href="/login"
                     className="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-inset)] transition-colors"
@@ -398,7 +398,7 @@ export function Navbar() {
                 aria-expanded={mobileOpen}
                 aria-controls="mobile-nav"
                 className={cn(
-                  'lg:hidden w-9 h-9 rounded-xl flex items-center justify-center',
+                  'lg:hidden w-11 h-11 rounded-xl flex items-center justify-center',
                   'text-[var(--text-muted)] hover:text-[var(--text-primary)]',
                   'hover:bg-[var(--surface-inset)] border border-[var(--border)]',
                   'transition-colors focus-visible:outline-2 focus-visible:outline-[var(--border-focus)]'
@@ -444,7 +444,21 @@ export function Navbar() {
               </div>
 
               {/* Auth row */}
-              <div className="mt-4 pt-4 border-t border-[var(--border)]">
+              <div className="mt-4 pt-4 border-t border-[var(--border)] space-y-3">
+                <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">Demo profiles</p>
+                <div className="max-h-48 overflow-y-auto space-y-1">
+                  {demoAccounts.map((acc) => (
+                    <button
+                      key={acc.email}
+                      type="button"
+                      onClick={() => { quickLogin(acc.email, 'Password123!'); setMobileOpen(false); }}
+                      className="w-full text-left px-3 py-2.5 min-h-11 rounded-xl hover:bg-[var(--surface-inset)]"
+                    >
+                      <span className="block text-xs font-semibold text-[var(--text-primary)]">{acc.label}</span>
+                      <span className="block text-[11px] text-[var(--text-muted)]">{acc.desc}</span>
+                    </button>
+                  ))}
+                </div>
                 {user ? (
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2 min-w-0">
