@@ -3,6 +3,7 @@ import { getSessionUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { REFERENCE_BOOKS } from '@/data/reference-books';
 import { FREE_COURSES } from '@/data/free-courses';
+import { isDatabaseError } from '@/lib/demo-accounts';
 
 export async function GET(req: NextRequest) {
   try {
@@ -35,17 +36,27 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const resources = await prisma.resource.findMany({
-      where,
-      orderBy: [{ rating: 'desc' }, { createdAt: 'desc' }],
-    });
+    let resources: Awaited<ReturnType<typeof prisma.resource.findMany>> = [];
+    try {
+      resources = await prisma.resource.findMany({
+        where,
+        orderBy: [{ rating: 'desc' }, { createdAt: 'desc' }],
+      });
+    } catch (error) {
+      if (!isDatabaseError(error)) throw error;
+      console.error('Resources database unavailable:', error);
+    }
 
     let savedMap = new Map<string, string>();
-    if (session) {
-      const userSaves = await prisma.userSavedResource.findMany({
-        where: { userId: session.id },
-      });
-      savedMap = new Map(userSaves.map((s) => [s.resourceId, s.status]));
+    if (session && !session.id.startsWith('demo-')) {
+      try {
+        const userSaves = await prisma.userSavedResource.findMany({
+          where: { userId: session.id },
+        });
+        savedMap = new Map(userSaves.map((s) => [s.resourceId, s.status]));
+      } catch (error) {
+        if (!isDatabaseError(error)) throw error;
+      }
     }
 
     const formatted = resources.map((r) => ({

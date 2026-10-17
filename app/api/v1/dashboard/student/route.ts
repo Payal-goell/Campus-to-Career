@@ -1,12 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { demoAccountFromToken, demoStudentDashboard } from '@/lib/demo-accounts';
 
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionUser(req);
     if (!session) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const demo = demoAccountFromToken(session.id, session.email);
+    if (demo) {
+      if (demo.id === 'demo-student') {
+        return NextResponse.json(demoStudentDashboard());
+      }
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Profile not found. Please complete onboarding first.',
+          requiresOnboarding: true,
+        },
+        { status: 404 }
+      );
     }
 
     const profile = await prisma.studentProfile.findUnique({

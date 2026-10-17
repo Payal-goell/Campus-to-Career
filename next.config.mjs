@@ -3,6 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   experimental: {
+    serverComponentsExternalPackages: ['@prisma/client', 'prisma'],
     optimizePackageImports: [
       'lucide-react',
       'framer-motion',
@@ -15,6 +16,9 @@ const nextConfig = {
       '@radix-ui/react-tabs',
       '@radix-ui/react-tooltip',
     ],
+  },
+  outputFileTracingIncludes: {
+    '/api/**/*': ['./node_modules/.prisma/**/*', './node_modules/@prisma/client/**/*'],
   },
 };
 

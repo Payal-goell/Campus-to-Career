@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { comparePassword, signAccessToken, signRefreshToken } from '@/lib/auth';
 import { issueEmailOtp } from '@/lib/otp';
+import { demoLoginUser, findDemoAccount, isDatabaseError } from '@/lib/demo-accounts';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -72,6 +73,8 @@ async function readBody(req: NextRequest): Promise<unknown> {
 }
 
 export async function POST(req: NextRequest) {
+  let email = '';
+  let password = '';
   try {
     const body = await readBody(req);
     if (body === null) {
@@ -94,16 +97,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const email = parsed.data.email.toLowerCase();
-    const { password } = parsed.data;
+    email = parsed.data.email.toLowerCase();
+    password = parsed.data.password;
 
-    const user = await prisma.user.findUnique({
-      where: { email },
-      include: {
-        studentProfile: true,
-        coordinator: true,
-      },
-    });
+    let user;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email },
+        include: {
+          studentProfile: true,
+          coordinator: true,
+        },
+      });
+    } catch (dbError) {
+      const demo = findDemoAccount(email, password);
+      if (demo) return sessionResponse(demoLoginUser(demo));
+      throw dbError;
+    }
 
     if (!user) {
       return NextResponse.json(
@@ -146,14 +156,22 @@ export async function POST(req: NextRequest) {
 
     return sessionResponse(user);
   } catch (error) {
+    const demo = findDemoAccount(email, password);
+    if (demo) return sessionResponse(demoLoginUser(demo));
+
     const message = error instanceof Error ? error.message : 'Internal server error during login';
     console.error('Login error:', message);
+    const databaseDown = isDatabaseError(error);
     return NextResponse.json(
       {
         success: false,
-        error: process.env.NODE_ENV === 'production' ? 'Internal server error during login' : message,
+        error: databaseDown
+          ? 'The site database is not reachable from this server. Connect a hosted Postgres URL in the Vercel DATABASE_URL setting, then redeploy.'
+          : process.env.NODE_ENV === 'production'
+            ? 'Internal server error during login'
+            : message,
       },
-      { status: 500 }
+      { status: databaseDown ? 503 : 500 }
     );
   }
 }
