@@ -3,16 +3,35 @@ import { prisma } from '@/lib/prisma';
 import { CLUB_PHOTOS, SISTEC_CLUBS, photoForEvent } from '@/data/sistec-campus';
 import { isDatabaseError } from '@/lib/demo-accounts';
 
+function staticClubs() {
+  return SISTEC_CLUBS.map((club) => ({
+    ...club,
+    imageUrl: club.imageUrl || CLUB_PHOTOS[club.id] || null,
+    events: club.events.map((event) => ({ ...event, imageUrl: photoForEvent(event.id, event.category) })),
+  }));
+}
+
 export async function GET() {
   try {
-    const clubs = await prisma.clubCommittee.findMany({
-      include: {
-        events: {
-          orderBy: { date: 'asc' },
+    const clubs = await Promise.race([
+      prisma.clubCommittee.findMany({
+        include: {
+          events: {
+            orderBy: { date: 'asc' as const },
+          },
         },
-      },
-      orderBy: { name: 'asc' },
-    });
+        orderBy: { name: 'asc' as const },
+      }),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 400)),
+    ]);
+
+    if (!clubs) {
+      return NextResponse.json({
+        success: true,
+        source: 'SISTec official events + campus clubs',
+        clubs: staticClubs(),
+      });
+    }
 
     const dbClubs = clubs.map((c) => ({
       id: c.id,
@@ -54,15 +73,10 @@ export async function GET() {
   } catch (error) {
     console.error('Clubs fetch error:', error);
     if (isDatabaseError(error)) {
-      const clubs = SISTEC_CLUBS.map((club) => ({
-        ...club,
-        imageUrl: club.imageUrl || CLUB_PHOTOS[club.id] || null,
-        events: club.events.map((event) => ({ ...event, imageUrl: photoForEvent(event.id, event.category) })),
-      }));
       return NextResponse.json({
         success: true,
         source: 'SISTec official events + campus clubs',
-        clubs,
+        clubs: staticClubs(),
       });
     }
     return NextResponse.json(

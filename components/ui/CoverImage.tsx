@@ -8,11 +8,13 @@ export function CoverImage({
   alt = '',
   className,
   position = '50% 28%',
+  priority = false,
 }: {
   src?: string | null;
   alt?: string;
   className?: string;
   position?: string;
+  priority?: boolean;
 }) {
   if (!src) {
     return <div className={cn('bg-[var(--surface-inset)]', className)} aria-hidden />;
@@ -23,7 +25,10 @@ export function CoverImage({
       <img
         src={src}
         alt={alt}
-        className="w-full h-full object-cover"
+        loading={priority ? 'eager' : 'lazy'}
+        decoding="async"
+        fetchPriority={priority ? 'high' : 'auto'}
+        className="block w-full h-full object-cover"
         style={{ objectPosition: position }}
       />
     </div>
