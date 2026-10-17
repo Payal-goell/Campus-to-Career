@@ -24,19 +24,22 @@ export default function LoginPage() {
     }
   }, [authLoading, user, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const submittedEmail = String(data.get("email") || email).trim();
+    const submittedPassword = String(data.get("password") || password);
     setError("");
     setLoading(true);
 
-    const result = await login(email, password);
+    const result = await login(submittedEmail, submittedPassword);
     setLoading(false);
 
     if (result.needsVerification) {
       if (result.devOtp) {
         sessionStorage.setItem("ctc.otp.dev", result.devOtp);
       }
-      router.push(`/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+      router.push(`/verify-email?email=${encodeURIComponent(submittedEmail.toLowerCase())}`);
       return;
     }
 
@@ -82,7 +85,9 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="College Email Address"
+              name="email"
               type="email"
+              autoComplete="email"
               required
               placeholder="aarav.sharma@uitrgpv.ac.in"
               value={email}
@@ -100,7 +105,9 @@ export default function LoginPage() {
                 </span>
               </div>
               <Input
+                name="password"
                 type="password"
+                autoComplete="current-password"
                 required
                 placeholder="••••••••••••"
                 value={password}
