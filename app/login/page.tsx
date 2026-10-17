@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -12,11 +12,17 @@ import { Badge } from "@/components/ui/Badge";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, quickLogin } = useAuth();
+  const { login, quickLogin, user, isLoading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace(user.isOnboarded ? "/dashboard" : "/onboarding");
+    }
+  }, [authLoading, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,7 +133,12 @@ export default function LoginPage() {
                 <button
                   key={acc.email}
                   type="button"
-                  onClick={() => quickLogin(acc.email, acc.password)}
+                  onClick={async () => {
+                    const result = await quickLogin(acc.email, acc.password);
+                    if (!result.success && !result.needsVerification) {
+                      setError(result.error || "Could not sign in");
+                    }
+                  }}
                   className="p-2.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-surface-raised)] hover:border-[var(--color-border-focus)] hover:bg-[var(--color-surface-overlay)] text-left transition-all text-xs group"
                 >
                   <span className="font-semibold text-[var(--color-text-primary)] block text-xs truncate group-hover:text-[var(--color-brand-primary)]">

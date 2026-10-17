@@ -20,7 +20,7 @@ interface AuthContextType {
   verifyOtp: (email: string, otp: string) => Promise<AuthResult>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
-  quickLogin: (email: string, password: string) => Promise<void>;
+  quickLogin: (email: string, password: string) => Promise<AuthResult>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -133,14 +133,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const quickLogin = async (email: string, password: string) => {
     setIsLoading(true);
     const result = await login(email, password);
-    if (result.success) {
-      if (result.isOnboarded) {
-        router.push('/dashboard');
-      } else {
-        router.push('/onboarding');
-      }
+    if (result.needsVerification) {
+      router.push(`/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+    } else if (result.success) {
+      router.push(result.isOnboarded ? '/dashboard' : '/onboarding');
     }
     setIsLoading(false);
+    return result;
   };
 
   return (

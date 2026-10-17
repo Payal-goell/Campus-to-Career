@@ -54,12 +54,27 @@ function sessionResponse(user: {
   return response;
 }
 
+async function readBody(req: NextRequest): Promise<unknown> {
+  const text = await req.text();
+  if (!text.trim()) return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    const params = new URLSearchParams(text);
+    if (params.has('email') || params.has('password')) {
+      return {
+        email: params.get('email') ?? '',
+        password: params.get('password') ?? '',
+      };
+    }
+    return null;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
-    let body: unknown;
-    try {
-      body = await req.json();
-    } catch {
+    const body = await readBody(req);
+    if (body === null) {
       return NextResponse.json(
         { success: false, error: 'Invalid login request' },
         { status: 400 }
@@ -74,7 +89,7 @@ export async function POST(req: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: parsed.error.errors[0].message },
+        { success: false, error: parsed.error.issues[0]?.message || 'Invalid login' },
         { status: 400 }
       );
     }
@@ -131,9 +146,13 @@ export async function POST(req: NextRequest) {
 
     return sessionResponse(user);
   } catch (error) {
-    console.error('Login error:', error);
+    const message = error instanceof Error ? error.message : 'Internal server error during login';
+    console.error('Login error:', message);
     return NextResponse.json(
-      { success: false, error: 'Internal server error during login' },
+      {
+        success: false,
+        error: process.env.NODE_ENV === 'production' ? 'Internal server error during login' : message,
+      },
       { status: 500 }
     );
   }
