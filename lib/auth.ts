@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { NextRequest } from 'next/server';
 import { UserRole, UserSession } from './types';
 import { prisma } from './prisma';
-import { demoAccountFromToken } from './demo-accounts';
+import { sessionForPayload } from './local-accounts';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'campus-to-career-dev-jwt-secret-key-99887766';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'campus-to-career-dev-refresh-secret-key-11223344';
@@ -73,20 +73,11 @@ export async function getSessionUser(req: NextRequest): Promise<UserSession | nu
     });
   } catch (error) {
     console.error('Session lookup failed:', error);
-    const demo = demoAccountFromToken(payload.userId, payload.email);
-    if (!demo) return null;
-    return {
-      id: demo.id,
-      email: demo.email,
-      role: demo.role,
-      isOnboarded: demo.isOnboarded,
-      name: demo.name,
-      avatarUrl: demo.avatarUrl,
-    };
+    return sessionForPayload(req, payload);
   }
 
   if (!user || !user.isVerified) {
-    return null;
+    return sessionForPayload(req, payload);
   }
 
   return {

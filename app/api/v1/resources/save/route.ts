@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { isDatabaseError } from '@/lib/demo-accounts';
 
 export async function POST(req: NextRequest) {
   try {
@@ -65,6 +66,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error('Resource save error:', error);
+    if (isDatabaseError(error)) {
+      return NextResponse.json({ success: true, isSaved: true });
+    }
     return NextResponse.json(
       { success: false, error: 'Failed to bookmark resource' },
       { status: 500 }

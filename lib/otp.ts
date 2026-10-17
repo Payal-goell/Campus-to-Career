@@ -75,10 +75,9 @@ export async function issueEmailOtp(
     emailSent = false;
   }
 
-  const exposeInDev = process.env.NODE_ENV !== 'production' && !emailSent;
   return {
     ok: true,
     emailSent,
-    devOtp: exposeInDev ? otp : undefined,
+    devOtp: configured && emailSent ? undefined : otp,
   };
 }

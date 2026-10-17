@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { demoAccountFromToken } from '@/lib/demo-accounts';
+import { demoAccountFromToken, isDatabaseError } from '@/lib/demo-accounts';
+import { readLocalAccounts } from '@/lib/local-accounts';
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,18 +12,21 @@ export async function GET(req: NextRequest) {
     }
 
     const demo = demoAccountFromToken(session.id, session.email);
-    if (demo) {
+    const local = readLocalAccounts(req).find((account) => account.id === session.id);
+    if (demo || local) {
       return NextResponse.json({
         success: true,
         user: {
-          id: demo.id,
-          email: demo.email,
-          role: demo.role,
-          isOnboarded: demo.isOnboarded,
-          name: demo.name,
-          avatarUrl: demo.avatarUrl ?? null,
-          studentProfile: null,
-          coordinator: demo.role === 'COORDINATOR' ? { name: demo.name, email: demo.email } : null,
+          id: session.id,
+          email: session.email,
+          role: session.role,
+          isOnboarded: session.isOnboarded,
+          name: session.name,
+          avatarUrl: session.avatarUrl ?? local?.profile?.avatarUrl ?? null,
+          studentProfile: local?.profile
+            ? { id: `${session.id}-profile`, userId: session.id, ...local.profile }
+            : null,
+          coordinator: session.role === 'COORDINATOR' ? { name: session.name, email: session.email } : null,
         },
       });
     }
@@ -62,6 +66,9 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error('Auth me error:', error);
+    if (isDatabaseError(error)) {
+      return NextResponse.json({ success: true, user: null });
+    }
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

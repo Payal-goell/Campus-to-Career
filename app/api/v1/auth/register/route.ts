@@ -2,7 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/auth';
-import { issueEmailOtp } from '@/lib/otp';
+import { generateOtp, hashOtp, issueEmailOtp } from '@/lib/otp';
+import { sendOtpEmail } from '@/lib/mail';
+import { isDatabaseError } from '@/lib/demo-accounts';
+import {
+  LocalAccount,
+  newLocalId,
+  readLocalAccounts,
+  upsertLocalAccount,
+  writeLocalAccounts,
+} from '@/lib/local-accounts';
 import { z } from 'zod';
 
 const registerSchema = z.object({
@@ -13,8 +22,17 @@ const registerSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    if (body && typeof body === 'object' && typeof body.email === 'string') {
+    let body: Record<string, unknown>;
+    try {
+      const parsedBody = await req.json();
+      if (!parsedBody || typeof parsedBody !== 'object' || Array.isArray(parsedBody)) {
+        return NextResponse.json({ success: false, error: 'Invalid registration request' }, { status: 400 });
+      }
+      body = parsedBody as Record<string, unknown>;
+    } catch {
+      return NextResponse.json({ success: false, error: 'Invalid registration request' }, { status: 400 });
+    }
+    if (typeof body.email === 'string') {
       body.email = body.email.trim();
     }
     if (body && typeof body === 'object' && 'role' in body && body.role && body.role !== 'STUDENT') {
@@ -35,9 +53,15 @@ export async function POST(req: NextRequest) {
     const { email, password } = parsed.data;
     const normalizedEmail = email.trim().toLowerCase();
 
-    const existing = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
+    let existing;
+    try {
+      existing = await prisma.user.findUnique({
+        where: { email: normalizedEmail },
+      });
+    } catch (error) {
+      if (!isDatabaseError(error)) throw error;
+      return registerWithoutDatabase(req, normalizedEmail, password);
+    }
 
     if (existing) {
       return resumeUnverifiedAccount(existing);
@@ -60,6 +84,7 @@ export async function POST(req: NextRequest) {
         const raced = await prisma.user.findUnique({ where: { email: normalizedEmail } });
         if (raced) return resumeUnverifiedAccount(raced);
       }
+      if (isDatabaseError(error)) return registerWithoutDatabase(req, normalizedEmail, password);
       throw error;
     }
   } catch (error) {
@@ -75,6 +100,68 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+async function registerWithoutDatabase(req: NextRequest, email: string, password: string) {
+  const accounts = readLocalAccounts(req);
+  const existing = accounts.find((account) => account.email === email);
+  if (existing?.isVerified) {
+    return NextResponse.json(
+      { success: false, error: 'This email is already registered. Sign in instead.' },
+      { status: 409 }
+    );
+  }
+
+  if (existing?.otpSentAt && Date.now() - new Date(existing.otpSentAt).getTime() < 60_000) {
+    const wait = Math.ceil((60_000 - (Date.now() - new Date(existing.otpSentAt).getTime())) / 1000);
+    return NextResponse.json(
+      { success: false, error: `Wait ${wait}s before requesting another code` },
+      { status: 429 }
+    );
+  }
+
+  const otp = generateOtp();
+  const now = new Date();
+  const account: LocalAccount = {
+    id: existing?.id || newLocalId(),
+    email,
+    password: await hashPassword(password),
+    role: 'STUDENT',
+    isVerified: false,
+    isOnboarded: existing?.isOnboarded || false,
+    verificationToken: hashOtp(otp),
+    otpExpiresAt: new Date(now.getTime() + 10 * 60 * 1000).toISOString(),
+    otpSentAt: now.toISOString(),
+    otpAttempts: 0,
+    name: existing?.name,
+    avatarUrl: existing?.avatarUrl,
+    profile: existing?.profile,
+  };
+
+  let emailSent = false;
+  let configured = false;
+  try {
+    const delivery = await sendOtpEmail(email, otp);
+    emailSent = delivery.ok;
+    configured = delivery.configured;
+  } catch (error) {
+    console.error('OTP email failed:', error);
+  }
+
+  const response = NextResponse.json(
+    {
+      success: true,
+      message: emailSent
+        ? 'Account created. Enter the code sent to your email.'
+        : 'Account created. Enter the verification code to activate it.',
+      email,
+      emailSent,
+      devOtp: configured && emailSent ? undefined : otp,
+    },
+    { status: 201 }
+  );
+  writeLocalAccounts(response, upsertLocalAccount(accounts, account));
+  return response;
 }
 
 async function resumeUnverifiedAccount(user: { id: string; email: string; isVerified: boolean }) {

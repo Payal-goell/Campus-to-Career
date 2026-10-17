@@ -3,12 +3,47 @@ import { prisma } from '@/lib/prisma';
 import { comparePassword, signAccessToken, signRefreshToken } from '@/lib/auth';
 import { issueEmailOtp } from '@/lib/otp';
 import { demoLoginUser, findDemoAccount, isDatabaseError } from '@/lib/demo-accounts';
+import { readLocalAccounts } from '@/lib/local-accounts';
 import { z } from 'zod';
 
 const loginSchema = z.object({
   email: z.string().trim().min(1, 'Email is required').email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
 });
+
+async function loginLocalAccount(req: NextRequest, email: string, password: string) {
+  const account = readLocalAccounts(req).find((item) => item.email === email);
+  if (!account?.password) return null;
+  let matches = false;
+  try {
+    matches = await comparePassword(password, account.password);
+  } catch {
+    matches = false;
+  }
+  if (!matches) return null;
+  if (!account.isVerified) {
+    return NextResponse.json({
+      success: false,
+      needsVerification: true,
+      email: account.email,
+      error: 'Verify the code sent to your email before signing in.',
+    });
+  }
+  return sessionResponse({
+    id: account.id,
+    email: account.email,
+    role: account.role,
+    isOnboarded: account.isOnboarded,
+    studentProfile: account.profile
+      ? {
+          fullName: account.profile.fullName,
+          avatarUrl: account.profile.avatarUrl ?? null,
+          developmentScore: account.profile.developmentScore,
+        }
+      : null,
+    coordinator: account.role === 'COORDINATOR' ? { name: account.name || account.email.split('@')[0] } : null,
+  });
+}
 
 function sessionResponse(user: {
   id: string;
@@ -110,12 +145,16 @@ export async function POST(req: NextRequest) {
         },
       });
     } catch (dbError) {
+      const localResponse = await loginLocalAccount(req, email, password);
+      if (localResponse) return localResponse;
       const demo = findDemoAccount(email, password);
       if (demo) return sessionResponse(demoLoginUser(demo));
       throw dbError;
     }
 
     if (!user) {
+      const localResponse = await loginLocalAccount(req, email, password);
+      if (localResponse) return localResponse;
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
         { status: 401 }
@@ -156,6 +195,8 @@ export async function POST(req: NextRequest) {
 
     return sessionResponse(user);
   } catch (error) {
+    const localResponse = await loginLocalAccount(req, email, password);
+    if (localResponse) return localResponse;
     const demo = findDemoAccount(email, password);
     if (demo) return sessionResponse(demoLoginUser(demo));
 

@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { isDatabaseError } from '@/lib/demo-accounts';
+import {
+  LocalAccount,
+  LocalProfile,
+  readLocalAccounts,
+  upsertLocalAccount,
+  writeLocalAccounts,
+} from '@/lib/local-accounts';
 import { z } from 'zod';
 
 const onboardingSchema = z.object({
@@ -59,7 +67,59 @@ export async function POST(req: NextRequest) {
     if (careerPreferences.targetRole) score += 5;
     score = Math.min(Math.max(score, 50), 95);
 
-    const profile = await prisma.studentProfile.upsert({
+    const profileData: LocalProfile = {
+      fullName: basicInfo.fullName,
+      phone: basicInfo.phone || null,
+      avatarUrl: basicInfo.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+      collegeName: academicDetails.collegeName || 'University Institute of Technology, RGPV, Bhopal',
+      branch: academicDetails.branch,
+      currentYear: academicDetails.currentYear,
+      cgpa: academicDetails.cgpa || null,
+      skills: currentSkills,
+      targetRole: careerPreferences.targetRole,
+      preferredDomains: careerPreferences.preferredDomains,
+      primaryGoal: goals.primaryGoal,
+      profileCompletion: 85,
+      developmentScore: score,
+    };
+
+    const saveLocally = () => {
+      const accounts = readLocalAccounts(req);
+      const existing = accounts.find((account) => account.id === session.id);
+      const account: LocalAccount = {
+        id: session.id,
+        email: session.email,
+        password: existing?.password || '',
+        role: session.role,
+        isVerified: true,
+        isOnboarded: true,
+        verificationToken: null,
+        otpExpiresAt: null,
+        otpSentAt: null,
+        otpAttempts: 0,
+        name: profileData.fullName,
+        avatarUrl: profileData.avatarUrl,
+        developmentScore: score,
+        profile: profileData,
+      };
+      const response = NextResponse.json({
+        success: true,
+        message: 'Onboarding profile initialized successfully.',
+        initialScore: score,
+        dashboardUrl: '/dashboard',
+        profile: { id: `${session.id}-profile`, userId: session.id, ...profileData },
+      });
+      writeLocalAccounts(response, upsertLocalAccount(accounts, account));
+      return response;
+    };
+
+    if (session.id.startsWith('local-') || session.id.startsWith('demo-')) {
+      return saveLocally();
+    }
+
+    let profile;
+    try {
+      profile = await prisma.studentProfile.upsert({
       where: { userId: session.id },
       create: {
         userId: session.id,
@@ -130,8 +190,18 @@ export async function POST(req: NextRequest) {
       dashboardUrl: '/dashboard',
       profile,
     });
+    } catch (error) {
+      if (!isDatabaseError(error)) throw error;
+      return saveLocally();
+    }
   } catch (error) {
     console.error('Onboarding error:', error);
+    if (isDatabaseError(error)) {
+      return NextResponse.json(
+        { success: false, error: 'The site database is not reachable. Sign in and try onboarding again.' },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
       { success: false, error: 'Internal server error during onboarding' },
       { status: 500 }

@@ -2,12 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { demoAccountFromToken, demoStudentDashboard } from '@/lib/demo-accounts';
+import { dashboardForAccount, readLocalAccounts } from '@/lib/local-accounts';
 
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionUser(req);
     if (!session) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const local = readLocalAccounts(req).find((account) => account.id === session.id);
+    const localDashboard = local ? dashboardForAccount(local) : null;
+    if (localDashboard) {
+      return NextResponse.json(localDashboard);
     }
 
     const demo = demoAccountFromToken(session.id, session.email);

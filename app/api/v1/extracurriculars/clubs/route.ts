@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { CLUB_PHOTOS, SISTEC_CLUBS, photoForEvent } from '@/data/sistec-campus';
+import { isDatabaseError } from '@/lib/demo-accounts';
 
 export async function GET() {
   try {
@@ -52,6 +53,18 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Clubs fetch error:', error);
+    if (isDatabaseError(error)) {
+      const clubs = SISTEC_CLUBS.map((club) => ({
+        ...club,
+        imageUrl: club.imageUrl || CLUB_PHOTOS[club.id] || null,
+        events: club.events.map((event) => ({ ...event, imageUrl: photoForEvent(event.id, event.category) })),
+      }));
+      return NextResponse.json({
+        success: true,
+        source: 'SISTec official events + campus clubs',
+        clubs,
+      });
+    }
     return NextResponse.json(
       { success: false, error: 'Failed to fetch clubs and events' },
       { status: 500 }

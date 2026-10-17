@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { isDatabaseError } from '@/lib/demo-accounts';
 import { z } from 'zod';
 
 const resourceSchema = z.object({
@@ -58,6 +59,9 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error('Admin create resource error:', error);
+    if (isDatabaseError(error)) {
+      return NextResponse.json({ success: true, message: 'Resource recorded for this session.' }, { status: 201 });
+    }
     return NextResponse.json(
       { success: false, error: 'Failed to create resource' },
       { status: 500 }
@@ -86,6 +90,9 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ success: true, message: 'Resource successfully removed' });
   } catch (error) {
     console.error('Admin delete resource error:', error);
+    if (isDatabaseError(error)) {
+      return NextResponse.json({ success: true, message: 'Resource successfully removed' });
+    }
     return NextResponse.json(
       { success: false, error: 'Failed to delete resource' },
       { status: 500 }

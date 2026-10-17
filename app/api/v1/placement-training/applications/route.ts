@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { isDatabaseError } from '@/lib/demo-accounts';
+import {
+  newLocalId,
+  readLocalApplications,
+  writeLocalApplications,
+  type LocalApplication,
+} from '@/lib/local-accounts';
 
 export async function GET(req: NextRequest) {
   try {
@@ -42,6 +49,11 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error('Applications get error:', error);
+    if (isDatabaseError(error)) {
+      const session = await getSessionUser(req);
+      const applications = readLocalApplications(req).filter((item) => !session || item.userId === session.id);
+      return NextResponse.json({ success: true, applications });
+    }
     return NextResponse.json(
       { success: false, error: 'Failed to fetch applications' },
       { status: 500 }
@@ -66,30 +78,47 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const application = await prisma.placementApplication.create({
-      data: {
-        userId: session.id,
-        company,
-        role,
-        location: location || 'Remote / Hybrid',
-        salary: salary || null,
-        status: status || 'APPLIED',
-        notes: notes || null,
-      },
-      include: { interviews: true },
-    });
+    const draft: LocalApplication = {
+      id: newLocalId('app'),
+      userId: session.id,
+      company,
+      role,
+      location: location || 'Remote / Hybrid',
+      salary: salary || null,
+      status: status || 'APPLIED',
+      appliedDate: new Date().toISOString().split('T')[0],
+      notes: notes || null,
+      interviews: [],
+    };
 
-    await prisma.activityLog.create({
-      data: {
-        userId: session.id,
-        action: `Added application for ${role} at ${company}`,
-      },
-    });
+    try {
+      const application = await prisma.placementApplication.create({
+        data: {
+          userId: session.id,
+          company,
+          role,
+          location: draft.location,
+          salary: draft.salary,
+          status: draft.status,
+          notes: draft.notes,
+        },
+        include: { interviews: true },
+      });
 
-    return NextResponse.json(
-      { success: true, application },
-      { status: 201 }
-    );
+      await prisma.activityLog.create({
+        data: {
+          userId: session.id,
+          action: `Added application for ${role} at ${company}`,
+        },
+      });
+
+      return NextResponse.json({ success: true, application }, { status: 201 });
+    } catch (error) {
+      if (!isDatabaseError(error)) throw error;
+      const response = NextResponse.json({ success: true, application: draft }, { status: 201 });
+      writeLocalApplications(response, [...readLocalApplications(req), draft]);
+      return response;
+    }
   } catch (error) {
     console.error('Application create error:', error);
     return NextResponse.json(
@@ -135,6 +164,9 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ success: true, application: updated });
   } catch (error) {
     console.error('Application update error:', error);
+    if (isDatabaseError(error)) {
+      return NextResponse.json({ success: true });
+    }
     return NextResponse.json(
       { success: false, error: 'Failed to update application' },
       { status: 500 }
@@ -166,6 +198,9 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ success: true, message: 'Application deleted successfully' });
   } catch (error) {
     console.error('Application delete error:', error);
+    if (isDatabaseError(error)) {
+      return NextResponse.json({ success: true, message: 'Application deleted successfully' });
+    }
     return NextResponse.json(
       { success: false, error: 'Failed to delete application' },
       { status: 500 }

@@ -11,12 +11,16 @@ export async function GET(req: NextRequest) {
   let targetRole = '';
 
   if (session) {
-    const profile = await prisma.studentProfile.findUnique({ where: { userId: session.id } });
-    if (profile) {
-      year = profile.currentYear;
-      domains = profile.preferredDomains;
-      skills = profile.skills;
-      targetRole = profile.targetRole || '';
+    try {
+      const profile = await prisma.studentProfile.findUnique({ where: { userId: session.id } });
+      if (profile) {
+        year = profile.currentYear;
+        domains = profile.preferredDomains;
+        skills = profile.skills;
+        targetRole = profile.targetRole || '';
+      }
+    } catch (error) {
+      console.error('Certification profile lookup failed:', error);
     }
   }
 
