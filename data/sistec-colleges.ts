@@ -53,7 +53,8 @@ export const SISTEC_CAMPUSES = [
     phone: '+91 88719 99122',
     email: 'admissions@sistec.ac.in',
     site: 'https://www.sistece.ac.in/programmes-offered',
-    image: 'https://www.sistec.ac.in/assets/upload/header/sgi-header-2025-2.jpg',
+    // Real Ratibad campus photo (not the wide SGI header logo strip)
+    image: 'https://sistecr.ac.in/assets/admin/upload/slider//135224image.jpg',
     about:
       'Undergraduate B.Tech (4 years, RGPV) with CSE, CSE-IoT, Electrical, ECE, and Mechanical. M.Tech Power Systems at PG.',
     highlights: ['60 seats / programme', 'RGPV B.Tech', 'IoT specialisation', 'M.Tech Power Systems'],
