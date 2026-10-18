@@ -35,6 +35,7 @@ export default function CampusLifePage() {
   const [storyIndex, setStoryIndex] = useState(0);
   const [openClub, setOpenClub] = useState<string | null>(null);
   const touchX = useRef<number | null>(null);
+  const stripRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -64,24 +65,36 @@ export default function CampusLifePage() {
     return list;
   }, [clubs]);
 
-  const filteredRecaps = recaps.filter((event) => {
-    if (category === 'all') return true;
-    const club = clubs.find((item) => item.id === event.clubId);
-    return club?.category.toLowerCase() === category.toLowerCase() || event.category.toLowerCase() === category.toLowerCase();
-  });
+  const filteredRecaps = useMemo(
+    () =>
+      recaps.filter((event) => {
+        if (category === 'all') return true;
+        const club = clubs.find((item) => item.id === event.clubId);
+        return (
+          club?.category.toLowerCase() === category.toLowerCase() ||
+          event.category.toLowerCase() === category.toLowerCase()
+        );
+      }),
+    [recaps, clubs, category]
+  );
 
   const filteredClubs =
     category === 'all' ? clubs : clubs.filter((club) => club.category.toLowerCase() === category.toLowerCase());
 
   const safeIndex = filteredRecaps.length ? storyIndex % filteredRecaps.length : 0;
   const featured = filteredRecaps[safeIndex];
-  const mosaic = featured
-    ? [featured, ...filteredRecaps.filter((event) => event.id !== featured.id)]
+  const wallTiles = featured
+    ? [featured, ...filteredRecaps.filter((event) => event.id !== featured.id)].slice(0, 12)
     : [];
 
   const go = (dir: number) => {
     if (!filteredRecaps.length) return;
     setStoryIndex((index) => (index + dir + filteredRecaps.length) % filteredRecaps.length);
+  };
+
+  const selectStory = (id: string) => {
+    const next = filteredRecaps.findIndex((item) => item.id === id);
+    if (next >= 0) setStoryIndex(next);
   };
 
   useEffect(() => {
@@ -97,6 +110,11 @@ export default function CampusLifePage() {
   }, [featured?.id, filteredRecaps, safeIndex]);
 
   useEffect(() => {
+    const node = stripRef.current?.querySelector<HTMLElement>(`[data-story-id="${featured?.id}"]`);
+    node?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, [featured?.id]);
+
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (view !== 'story') return;
       const target = event.target as HTMLElement | null;
@@ -108,15 +126,31 @@ export default function CampusLifePage() {
     return () => window.removeEventListener('keydown', onKey);
   }, [view, filteredRecaps.length]);
 
+  const onStageTouchStart = (event: React.TouchEvent) => {
+    touchX.current = event.changedTouches[0]?.clientX ?? null;
+  };
+
+  const onStageTouchEnd = (event: React.TouchEvent) => {
+    if (touchX.current == null) return;
+    const delta = (event.changedTouches[0]?.clientX ?? touchX.current) - touchX.current;
+    if (Math.abs(delta) < 36) {
+      touchX.current = null;
+      return;
+    }
+    if (delta > 0) go(-1);
+    else go(1);
+    touchX.current = null;
+  };
+
   return (
-    <div className="space-y-5 py-2">
+    <div className="space-y-4 sm:space-y-5 py-2 overflow-x-clip">
       <PageHeader
         badge="Campus story"
         title="SISTec events, then the club behind them"
-        description="Tap a photo. Arrow keys and swipe move through the wall."
+        description="Tap a photo. Swipe the stage or use the arrows — same flow on phone and desktop."
         actions={
-          <div className="flex flex-wrap gap-2">
-            <div className="flex p-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)]">
+          <div className="flex w-full sm:w-auto flex-wrap gap-2">
+            <div className="flex flex-1 sm:flex-none p-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)]">
               {(
                 [
                   ['story', 'Photo story'],
@@ -127,7 +161,7 @@ export default function CampusLifePage() {
                   key={id}
                   type="button"
                   onClick={() => setView(id)}
-                  className={`h-9 px-3 rounded-xl text-xs font-bold ${
+                  className={`flex-1 sm:flex-none h-10 sm:h-9 px-3 rounded-xl text-xs font-bold ${
                     view === id ? 'bg-[var(--primary)] text-[var(--primary-fg)]' : 'text-[var(--text-muted)]'
                   }`}
                 >
@@ -140,6 +174,7 @@ export default function CampusLifePage() {
               size="sm"
               href="https://www.sistec.ac.in/events-and-gallery"
               target="_blank"
+              className="shrink-0"
               rightIcon={<ExternalLink className="w-3.5 h-3.5" />}
             >
               sistec.ac.in
@@ -148,46 +183,101 @@ export default function CampusLifePage() {
         }
       />
 
-      <div className="flex flex-wrap gap-1.5">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => setCategory(cat)}
-            className={`h-9 px-3 rounded-full text-xs font-bold capitalize ${
-              category === cat ? 'bg-emerald-600 text-white' : 'border border-[var(--border)] text-[var(--text-muted)]'
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
+      <div className="-mx-3 min-[375px]:-mx-4 sm:mx-0 px-3 min-[375px]:px-4 sm:px-0 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-1.5 min-w-max sm:min-w-0 sm:flex-wrap pb-0.5">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setCategory(cat)}
+              className={`h-9 px-3 rounded-full text-xs font-bold capitalize shrink-0 ${
+                category === cat ? 'bg-emerald-600 text-white' : 'border border-[var(--border)] text-[var(--text-muted)]'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
       </div>
 
       {view === 'story' && featured && (
-        <section
-          className="-mx-3 min-[375px]:-mx-4 sm:-mx-6 lg:-mx-8 overflow-hidden border-y border-[var(--border)] bg-black"
-          onTouchStart={(event) => {
-            touchX.current = event.changedTouches[0]?.clientX ?? null;
-          }}
-          onTouchEnd={(event) => {
-            if (touchX.current == null) return;
-            const delta = (event.changedTouches[0]?.clientX ?? touchX.current) - touchX.current;
-            if (delta > 40) go(-1);
-            if (delta < -40) go(1);
-            touchX.current = null;
-          }}
-        >
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-0">
-            {mosaic.map((event, index) => {
+        <section className="-mx-3 min-[375px]:-mx-4 sm:-mx-6 lg:-mx-8 overflow-hidden border-y border-[var(--border)] bg-black">
+          {/* Phone: one stage + filmstrip. Desktop: dense mosaic wall. */}
+          <div
+            className="relative sm:hidden h-[min(52dvh,360px)] min-h-[220px] touch-pan-y"
+            onTouchStart={onStageTouchStart}
+            onTouchEnd={onStageTouchEnd}
+          >
+            <CoverImage
+              src={featured.imageUrl}
+              alt={featured.title}
+              priority
+              className="absolute inset-0 h-full w-full"
+            />
+            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-3.5 pointer-events-none">
+              <Badge variant="success" size="sm">
+                {featured.category}
+              </Badge>
+              <span className="block text-white font-black text-base leading-tight mt-1.5 line-clamp-2">
+                {featured.title}
+              </span>
+              <span className="block text-white/80 text-[11px] mt-1 truncate">
+                {featured.clubName} · {featured.date}
+              </span>
+            </span>
+            <button
+              type="button"
+              aria-label="Previous event"
+              onClick={() => go(-1)}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/45 text-white inline-flex items-center justify-center backdrop-blur-sm"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next event"
+              onClick={() => go(1)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/45 text-white inline-flex items-center justify-center backdrop-blur-sm"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div
+            ref={stripRef}
+            className="sm:hidden flex gap-0 overflow-x-auto overscroll-x-contain snap-x snap-mandatory scrollbar-hide border-t border-white/10"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+            {filteredRecaps.map((event) => {
               const selected = event.id === featured.id;
               return (
                 <button
                   key={event.id}
                   type="button"
-                  onClick={() => {
-                    const next = filteredRecaps.findIndex((item) => item.id === event.id);
-                    if (next >= 0) setStoryIndex(next);
-                  }}
+                  data-story-id={event.id}
+                  onClick={() => selectStory(event.id)}
+                  className={`relative shrink-0 w-[18vw] min-w-[64px] max-w-[84px] aspect-square overflow-hidden snap-start ${
+                    selected ? 'ring-2 ring-inset ring-white' : ''
+                  }`}
+                >
+                  <CoverImage
+                    src={event.imageUrl}
+                    alt={event.title}
+                    className="absolute inset-0 h-full w-full"
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="hidden sm:grid grid-cols-4 gap-0">
+            {wallTiles.map((event, index) => {
+              const selected = event.id === featured.id;
+              return (
+                <button
+                  key={event.id}
+                  type="button"
+                  onClick={() => selectStory(event.id)}
                   className={`relative block overflow-hidden text-left aspect-square ${
                     index === 0 ? 'col-span-2 row-span-2' : ''
                   } ${selected ? 'ring-2 ring-inset ring-white' : ''}`}
@@ -199,11 +289,11 @@ export default function CampusLifePage() {
                     className="absolute inset-0 h-full w-full"
                   />
                   {index === 0 && (
-                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-3 sm:p-5 pointer-events-none">
+                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-5 pointer-events-none">
                       <Badge variant="success" size="sm">
                         {event.category}
                       </Badge>
-                      <span className="block text-white font-black text-base sm:text-2xl mt-2 leading-tight">{event.title}</span>
+                      <span className="block text-white font-black text-2xl mt-2 leading-tight">{event.title}</span>
                       <span className="block text-white/80 text-xs mt-1">
                         {event.clubName} · {event.date} · {event.location}
                       </span>
@@ -213,16 +303,17 @@ export default function CampusLifePage() {
               );
             })}
           </div>
-          <div className="flex items-center justify-between gap-3 px-3 sm:px-5 py-3 bg-[var(--surface)]">
-            <p className="text-sm text-[var(--text-secondary)] leading-snug line-clamp-2 min-w-0">
+
+          <div className="flex flex-col gap-3 px-3 sm:px-5 py-3 bg-[var(--surface)] sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-[var(--text-secondary)] leading-snug line-clamp-3 sm:line-clamp-2 min-w-0">
               {featured.recap || featured.description}
             </p>
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 aria-label="Previous event"
                 onClick={() => go(-1)}
-                className="w-9 h-9 rounded-full border border-[var(--border)] inline-flex items-center justify-center"
+                className="hidden sm:inline-flex w-9 h-9 rounded-full border border-[var(--border)] items-center justify-center"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -230,13 +321,17 @@ export default function CampusLifePage() {
                 type="button"
                 aria-label="Next event"
                 onClick={() => go(1)}
-                className="w-9 h-9 rounded-full border border-[var(--border)] inline-flex items-center justify-center"
+                className="hidden sm:inline-flex w-9 h-9 rounded-full border border-[var(--border)] items-center justify-center"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
+              <span className="text-[11px] font-mono text-[var(--text-muted)] sm:hidden">
+                {safeIndex + 1}/{filteredRecaps.length}
+              </span>
               <Button
                 size="sm"
                 variant="outline"
+                className="flex-1 sm:flex-none"
                 onClick={() => {
                   setOpenClub(featured.clubId);
                   setView('clubs');
@@ -244,13 +339,28 @@ export default function CampusLifePage() {
               >
                 Open club
               </Button>
+              {featured.registrationUrl && (
+                <Button
+                  size="sm"
+                  variant="gradient"
+                  className="flex-1 sm:flex-none"
+                  href={featured.registrationUrl}
+                  target="_blank"
+                >
+                  Recap
+                </Button>
+              )}
             </div>
           </div>
         </section>
       )}
 
       {view === 'story' && !featured && (
-        <EmptyState title="No photos in this filter" description="Try All or Cultural." action={{ label: 'Show all', onClick: () => setCategory('all') }} />
+        <EmptyState
+          title="No photos in this filter"
+          description="Try All or Cultural."
+          action={{ label: 'Show all', onClick: () => setCategory('all') }}
+        />
       )}
 
       {view === 'clubs' && filteredClubs.length === 0 && (
@@ -269,7 +379,10 @@ export default function CampusLifePage() {
             return (
               <Card key={club.id} className="overflow-hidden p-0 flex flex-col [content-visibility:auto]">
                 <div className="grid grid-cols-3 gap-0">
-                  {(photos.length ? photos : [{ id: club.id, imageUrl: club.imageUrl, title: club.name }]).map((photo) => (
+                  {(photos.length
+                    ? photos
+                    : [{ id: club.id, imageUrl: club.imageUrl, title: club.name }]
+                  ).map((photo) => (
                     <button
                       key={photo.id}
                       type="button"
@@ -285,34 +398,50 @@ export default function CampusLifePage() {
                         }
                       }}
                     >
-                      <CoverImage src={photo.imageUrl} alt={photo.title} className="absolute inset-0 h-full w-full" />
+                      <CoverImage
+                        src={photo.imageUrl}
+                        alt={photo.title}
+                        className="absolute inset-0 h-full w-full"
+                      />
                     </button>
                   ))}
                 </div>
-                <div className="p-4 space-y-2">
+                <div className="p-3.5 sm:p-4 space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="primary" size="sm">
                       {club.category}
                     </Badge>
-                    <span className="text-[11px] text-[var(--text-muted)] inline-flex items-center gap-1">
-                      <Users className="w-3 h-3" /> {club.leadCoordinator}
+                    <span className="text-[11px] text-[var(--text-muted)] inline-flex items-center gap-1 min-w-0">
+                      <Users className="w-3 h-3 shrink-0" />
+                      <span className="truncate">{club.leadCoordinator}</span>
                     </span>
                   </div>
                   <h2 className="font-black text-sm leading-snug">{club.name}</h2>
                   <p className="text-xs text-[var(--text-secondary)] line-clamp-2">{club.description}</p>
                   <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant={open ? 'secondary' : 'outline'} onClick={() => setOpenClub(open ? null : club.id)}>
+                    <Button
+                      size="sm"
+                      variant={open ? 'secondary' : 'outline'}
+                      className="flex-1 min-[420px]:flex-none"
+                      onClick={() => setOpenClub(open ? null : club.id)}
+                    >
                       {open ? 'Hide' : 'Events & join'}
                     </Button>
                     {club.joinUrl && (
-                      <Button size="sm" variant="gradient" href={club.joinUrl} target="_blank">
+                      <Button
+                        size="sm"
+                        variant="gradient"
+                        className="flex-1 min-[420px]:flex-none"
+                        href={club.joinUrl}
+                        target="_blank"
+                      >
                         Official page
                       </Button>
                     )}
                   </div>
                 </div>
                 {open && (
-                  <div className="border-t border-[var(--border)] px-4 py-3 space-y-3">
+                  <div className="border-t border-[var(--border)] px-3.5 sm:px-4 py-3 space-y-3">
                     <p className="text-xs text-[var(--text-secondary)]">{club.purpose}</p>
                     <div className="flex flex-wrap gap-1.5">
                       {club.skillsGained.map((skill) => (
