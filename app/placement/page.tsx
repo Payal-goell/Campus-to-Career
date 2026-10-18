@@ -14,12 +14,21 @@ import {
   MessageSquare,
   Calculator,
 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { CoverImage } from "@/components/ui/CoverImage";
 import { KanbanBoard } from "@/components/KanbanBoard";
 import { ResumeAnalyzerModal } from "@/components/ResumeAnalyzerModal";
 import { ApplicationItem, PlacementModuleCategory } from "@/lib/types";
+import {
+  SISTEC_CERT_PARTNERS,
+  SISTEC_COMPANIES,
+  SISTEC_DREAM_OFFER_GALLERY,
+  SISTEC_PLACEMENT_STATS,
+  SISTEC_TRAINING_PROGRAMS,
+} from "@/data/sistec-placement";
 
 export default function PlacementPage() {
   const [categories, setCategories] = useState<PlacementModuleCategory[]>([]);
@@ -75,7 +84,8 @@ export default function PlacementPage() {
             Placement Training & Recruitment Hub
           </h1>
           <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-1.5 max-w-2xl leading-relaxed">
-            Prepare for top-tier software engineering screens, corporate behavioral interviews, aptitude filters, and track every stage of your job applications.
+            Built around SISTec Training & Placement facts: {SISTEC_PLACEMENT_STATS.jobOffersBatch2025} offers,
+            {' '}{SISTEC_PLACEMENT_STATS.averagePackageLpa} average, {SISTEC_PLACEMENT_STATS.highestPackage}, and recruiters like TCS, Infosys, Wipro, Accenture, Cognizant, and Deloitte.
           </p>
         </div>
 
@@ -90,6 +100,108 @@ export default function PlacementPage() {
           Launch AI Resume ATS Scanner
         </Button>
       </Card>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { label: 'Job offers (batch)', value: SISTEC_PLACEMENT_STATS.jobOffersBatch2025 },
+          { label: 'Average package', value: SISTEC_PLACEMENT_STATS.averagePackageLpa },
+          { label: 'Highest package', value: SISTEC_PLACEMENT_STATS.highestPackage },
+          { label: 'Placement rate', value: SISTEC_PLACEMENT_STATS.campusPlacementRate },
+        ].map((stat) => (
+          <Card key={stat.label} className="p-4 text-center">
+            <p className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-bold">{stat.label}</p>
+            <p className="text-sm sm:text-base font-black text-emerald-600 mt-1.5 leading-snug">{stat.value}</p>
+          </Card>
+        ))}
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-bold text-[var(--color-text-primary)]">SISTec campus recruiters</h2>
+            <p className="text-xs text-[var(--color-text-secondary)]">
+              Companies and CoE partners named on sistec.ac.in Training & Placement / CSE pages
+            </p>
+          </div>
+          <Button size="sm" variant="outline" href="/explore">
+            Explore by branch
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+          {SISTEC_COMPANIES.filter((c) => c.category !== 'CoE partner').slice(0, 9).map((company) => (
+            <Card key={company.name} className="p-4 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-bold text-sm leading-snug">{company.name}</h3>
+                <Badge variant="outline" size="sm">
+                  {company.category}
+                </Badge>
+              </div>
+              <p className="text-[11px] text-[var(--color-text-secondary)] line-clamp-2">{company.note}</p>
+              <p className="text-[11px] text-[var(--color-text-muted)]">
+                Roles: {company.roles.slice(0, 2).join(' · ')}
+              </p>
+            </Card>
+          ))}
+        </div>
+        <p className="text-[11px] text-[var(--color-text-muted)]">
+          Full list with CoE partners (Netlink, Zarthi, Gaia, Bosch, UltraTech, Eicher, Renault Nissan) is on{' '}
+          <Link href="/explore" className="text-[var(--color-brand-primary)] font-semibold hover:underline">
+            Explore → Companies
+          </Link>
+          .
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-bold text-[var(--color-text-primary)]">T&P programs on campus</h2>
+          <p className="text-xs text-[var(--color-text-secondary)]">Pod AI, Headstart, Sagar Manthan, Glory, and cert partners from the official T&P page</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+          {SISTEC_TRAINING_PROGRAMS.slice(0, 4).map((program) => (
+            <Card key={program.id} className="overflow-hidden p-0 flex flex-col">
+              {'image' in program && program.image ? (
+                <CoverImage src={program.image} alt={program.name} className="aspect-[16/9] w-full" />
+              ) : null}
+              <div className="p-4 space-y-2 flex-1 flex flex-col">
+                <Badge variant="primary" size="sm">
+                  {program.kind}
+                </Badge>
+                <h3 className="font-bold text-sm">{program.name}</h3>
+                <p className="text-[11px] text-[var(--color-text-secondary)] leading-relaxed flex-1">{program.blurb}</p>
+                <Button size="sm" variant="outline" href={program.url} target="_blank">
+                  Open on sistec.ac.in
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-3 items-center">
+          {SISTEC_CERT_PARTNERS.map((partner) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={partner.name}
+              src={partner.logo}
+              alt={partner.name}
+              title={`${partner.name}: ${partner.focus}`}
+              className="h-10 w-auto max-w-[88px] object-contain rounded-lg bg-white border border-[var(--color-border-subtle)] px-2 py-1"
+              loading="lazy"
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-lg font-bold text-[var(--color-text-primary)]">Dream offer gallery</h2>
+          <p className="text-xs text-[var(--color-text-secondary)]">Official dream-offer photos from the SISTec Training & Placement page</p>
+        </div>
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-0 overflow-hidden rounded-2xl border border-[var(--color-border-subtle)]">
+          {SISTEC_DREAM_OFFER_GALLERY.map((item) => (
+            <CoverImage key={item.id} src={item.image} alt="" className="aspect-square w-full" />
+          ))}
+        </div>
+      </div>
 
       {/* Training Categories Section */}
       <div className="space-y-4">

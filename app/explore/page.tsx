@@ -1,25 +1,32 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, ExternalLink, MapPin, Phone } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Building2, ExternalLink, MapPin, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { CoverImage } from '@/components/ui/CoverImage';
 import { SISTEC_BRANCHES, SISTEC_CAMPUSES } from '@/data/sistec-colleges';
+import {
+  SISTEC_COMPANIES,
+  SISTEC_PLACEMENT_STATS,
+  companiesForBranch,
+} from '@/data/sistec-placement';
 import { toast } from '@/components/ui/Toast';
 
-type Tab = 'sistec' | 'branches' | 'careers';
+type Tab = 'sistec' | 'branches' | 'careers' | 'companies';
 
 export default function ExplorePage() {
   const [tab, setTab] = useState<Tab>('sistec');
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [pickedRole, setPickedRole] = useState<number>(0);
+  const [companyFilter, setCompanyFilter] = useState<string>('all');
 
   const branch = SISTEC_BRANCHES.find((b) => b.code === selectedBranch);
   const roles = branch?.careers ?? [];
   const role = roles[pickedRole] ?? roles[0];
+  const branchCompanies = selectedBranch ? companiesForBranch(selectedBranch) : [];
 
   const campusForBranch = useMemo(() => {
     if (!branch) return null;
@@ -28,13 +35,40 @@ export default function ExplorePage() {
     );
   }, [branch]);
 
+  const companyCategories = useMemo(
+    () => ['all', ...Array.from(new Set(SISTEC_COMPANIES.map((c) => c.category)))],
+    []
+  );
+
+  const filteredCompanies =
+    companyFilter === 'all'
+      ? SISTEC_COMPANIES
+      : SISTEC_COMPANIES.filter((c) => c.category === companyFilter);
+
   return (
     <div className="space-y-8 py-6">
       <PageHeader
         badge="Explore SISTec"
-        title="Campus → branch → job"
-        description="Pick where you study, then your branch. We show only a few matching jobs — not a long list."
+        title="Campus → branch → jobs → companies"
+        description="Seats, careers, and recruiters pulled from sistec.ac.in courses and Training & Placement pages."
       />
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+        {[
+          { label: 'Job offers', value: SISTEC_PLACEMENT_STATS.jobOffersBatch2025 },
+          { label: 'Average package', value: SISTEC_PLACEMENT_STATS.averagePackageLpa },
+          { label: 'Highest package', value: SISTEC_PLACEMENT_STATS.highestPackage.replace(' by BNY Mellon', '') },
+          { label: 'Campus drives', value: SISTEC_PLACEMENT_STATS.campusOpportunities },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-3 text-center"
+          >
+            <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-bold">{stat.label}</p>
+            <p className="text-sm sm:text-base font-black text-emerald-600 mt-1">{stat.value}</p>
+          </div>
+        ))}
+      </div>
 
       <div className="flex flex-wrap gap-1.5 p-1.5 rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)] w-fit">
         {(
@@ -42,6 +76,7 @@ export default function ExplorePage() {
             ['sistec', '1. Campuses'],
             ['branches', '2. Branches'],
             ['careers', '3. Jobs'],
+            ['companies', '4. Companies'],
           ] as const
         ).map(([id, label]) => (
           <button
@@ -105,7 +140,7 @@ export default function ExplorePage() {
                   <Badge variant="outline" size="sm">
                     {b.code}
                   </Badge>
-                  <span className="text-[11px] text-[var(--text-muted)]">{b.seats} seats</span>
+                  <span className="text-[11px] text-[var(--text-muted)] text-right">{b.seats}</span>
                 </div>
                 <h3 className="font-bold text-sm leading-snug">{b.name}</h3>
                 <p className="text-xs text-[var(--text-secondary)] line-clamp-2">{b.youLearn}</p>
@@ -134,7 +169,9 @@ export default function ExplorePage() {
 
       {tab === 'careers' && !branch && (
         <div className="space-y-4">
-          <p className="text-sm text-[var(--text-secondary)]">Tap your branch. You’ll see 2–3 jobs, one at a time.</p>
+          <p className="text-sm text-[var(--text-secondary)]">
+            Tap your branch. Job titles map to companies named on sistec.ac.in T&P / CSE pages.
+          </p>
           <div className="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-5 gap-3">
             {SISTEC_BRANCHES.map((b) => (
               <button
@@ -150,7 +187,7 @@ export default function ExplorePage() {
                 <div className="p-3 space-y-1">
                   <p className="text-[11px] font-black tracking-wide">{b.code}</p>
                   <p className="text-[11px] text-[var(--text-secondary)] line-clamp-2 leading-snug">{b.name}</p>
-                  <p className="text-[10px] text-[var(--text-muted)]">{b.careers.length} jobs</p>
+                  <p className="text-[10px] text-[var(--text-muted)]">{b.careers.length} jobs · {b.seats}</p>
                 </div>
               </button>
             ))}
@@ -227,6 +264,20 @@ export default function ExplorePage() {
                     ))}
                   </div>
                 </div>
+                {(role.sampleCompanies?.length || branchCompanies.length > 0) && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1.5">
+                      Companies that hire this path
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(role.sampleCompanies || branchCompanies.slice(0, 8).map((c) => c.name)).map((name) => (
+                        <Badge key={name} variant="success" size="sm">
+                          {name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2 pt-1">
                   <Button
                     variant="gradient"
@@ -235,8 +286,8 @@ export default function ExplorePage() {
                   >
                     Use this as my target
                   </Button>
-                  <Button variant="outline" href="/certifications">
-                    Free certs for this
+                  <Button variant="outline" onClick={() => setTab('companies')}>
+                    All recruiters
                   </Button>
                   <Button size="sm" variant="outline" href={branch.site} target="_blank">
                     SISTec branch page
@@ -253,10 +304,95 @@ export default function ExplorePage() {
             )}
             <p className="text-xs font-bold">{branch.campuses.join(' · ')}</p>
             <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">{branch.youLearn}</p>
+            <p className="text-[11px] text-[var(--text-muted)]">{branch.seats}</p>
             <Button size="sm" variant="outline" onClick={() => setTab('branches')}>
               All branches
             </Button>
           </Card>
+        </div>
+      )}
+
+      {tab === 'companies' && (
+        <div className="space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-black">Campus recruiters & CoE partners</h2>
+              <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-2xl">
+                Named on sistec.ac.in Training & Placement, CSE department, Centres of Excellence, and Placement Bulletin
+                2023-VI. Stats: {SISTEC_PLACEMENT_STATS.jobOffersBatch2025} offers · {SISTEC_PLACEMENT_STATS.campusPlacementRate}{' '}
+                placements · {SISTEC_PLACEMENT_STATS.highestPackage}.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              href={SISTEC_PLACEMENT_STATS.sourceUrl}
+              target="_blank"
+              rightIcon={<ExternalLink className="w-3.5 h-3.5" />}
+            >
+              Official T&P
+            </Button>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5">
+            {companyCategories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setCompanyFilter(cat)}
+                className={`h-9 px-3 rounded-full text-xs font-bold capitalize ${
+                  companyFilter === cat
+                    ? 'bg-emerald-600 text-white'
+                    : 'border border-[var(--border)] text-[var(--text-muted)]'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+            {filteredCompanies.map((company) => (
+              <Card key={company.name} className="p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  {company.logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={company.logo}
+                      alt=""
+                      className="w-12 h-12 object-contain rounded-xl bg-white border border-[var(--border)] p-1.5"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-[var(--surface-inset)] inline-flex items-center justify-center">
+                      <Building2 className="w-5 h-5 text-[var(--primary)]" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-sm leading-snug">{company.name}</h3>
+                    <Badge variant="outline" size="sm" className="mt-1">
+                      {company.category}
+                    </Badge>
+                  </div>
+                </div>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{company.note}</p>
+                <div>
+                  <p className="text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Roles seen on campus</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {company.roles.map((r) => (
+                      <Badge key={r} variant="success" size="sm">
+                        {r}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">Branches</p>
+                  <p className="text-[11px] text-[var(--text-secondary)]">{company.branches.join(' · ')}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       )}
     </div>
