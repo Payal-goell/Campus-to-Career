@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import {
-  Compass, GraduationCap, Map, BookOpen, Users, Briefcase,
+  Compass, Map, BookOpen, Users, Briefcase,
   Shield, Bell, Menu, X, LogOut, Sparkles, ChevronDown,
   UserCheck, MoreHorizontal, User, Wrench, FolderKanban, Medal,
   Bot, BarChart3, FileText, MessageSquare, Heart,
@@ -14,6 +14,7 @@ import {
 import { NotificationDrawer } from './NotificationDrawer';
 import { ThemeToggle } from './ui/ThemeToggle';
 import { ThemeStudio } from './ThemeStudio';
+import { BrandMark } from './BrandMark';
 import { Avatar } from './ui/Avatar';
 import { cn } from '@/lib/cn';
 import { useRoadmapOptional } from '@/context/RoadmapContext';
@@ -165,9 +166,7 @@ export function Navbar() {
 
             {/* ── Logo ─────────────────────────────────────────── */}
             <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0 min-w-0" aria-label="Campus to Career home">
-              <div className="w-9 h-9 rounded-xl gradient-brand flex items-center justify-center shadow-[var(--glow-primary)] transition-transform duration-150 group-hover:scale-105">
-                <GraduationCap className="w-5 h-5 text-white" />
-              </div>
+              <BrandMark size={36} />
               <div className="hidden lg:flex flex-col leading-none min-w-0">
                 <span className="font-display font-bold text-base gradient-text tracking-tight">
                   Campus to Career

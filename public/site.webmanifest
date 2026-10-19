@@ -4,8 +4,8 @@
   "description": "Student growth and placement platform from campus to career.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f766e",
-  "theme_color": "#10b981",
+  "background_color": "#0B1F2A",
+  "theme_color": "#0F766E",
   "icons": [
     {
       "src": "/icon-192.png",

@@ -8,6 +8,7 @@ import { Footer } from '@/components/Footer';
 import { ThemeProvider } from '@/lib/theme/ThemeProvider';
 import { themeInitScript } from '@/lib/theme/theme-script';
 import { ToastProvider } from '@/components/ui/Toast';
+import { InteractiveFavicon } from '@/components/InteractiveFavicon';
 
 const sans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -80,6 +81,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col antialiased bg-bg text-text-primary selection:bg-primary/20 selection:text-primary">
         <ThemeProvider>
+          <InteractiveFavicon />
           <AuthProvider>
           <RoadmapProvider>
             <div className="ambient-bg" aria-hidden />

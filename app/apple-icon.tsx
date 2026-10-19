@@ -3,7 +3,7 @@ import { ImageResponse } from 'next/og';
 export const size = { width: 180, height: 180 };
 export const contentType = 'image/png';
 
-/** Home-screen icon with monogram + full website name. */
+/** Home-screen icon: unique dual-C mark + website name. */
 export default function AppleIcon() {
   return new ImageResponse(
     (
@@ -16,7 +16,7 @@ export default function AppleIcon() {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 40,
-          background: 'linear-gradient(145deg, #34d399 0%, #10b981 38%, #0f766e 100%)',
+          background: 'linear-gradient(145deg, #0B1F2A 0%, #0F766E 100%)',
           color: 'white',
           fontFamily: 'ui-sans-serif, system-ui, sans-serif',
         }}
@@ -24,40 +24,47 @@ export default function AppleIcon() {
         <div
           style={{
             display: 'flex',
-            fontSize: 52,
-            fontWeight: 800,
-            letterSpacing: '-0.05em',
-            lineHeight: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+            marginBottom: 10,
           }}
         >
-          C2C
+          <div
+            style={{
+              display: 'flex',
+              width: 42,
+              height: 54,
+              borderRadius: 28,
+              border: '8px solid #5EEAD4',
+              borderRightColor: 'transparent',
+            }}
+          />
+          <div
+            style={{
+              display: 'flex',
+              width: 42,
+              height: 54,
+              borderRadius: 28,
+              border: '8px solid #FBBF24',
+              borderLeftColor: 'transparent',
+            }}
+          />
         </div>
-        <div
-          style={{
-            display: 'flex',
-            marginTop: 10,
-            marginBottom: 12,
-            width: 56,
-            height: 4,
-            borderRadius: 999,
-            background: 'rgba(255,255,255,0.9)',
-          }}
-        />
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: 700,
-            letterSpacing: '0.02em',
-            lineHeight: 1.2,
-            opacity: 0.96,
-            textAlign: 'center',
+            letterSpacing: '0.04em',
+            lineHeight: 1.25,
+            opacity: 0.95,
           }}
         >
           <span style={{ display: 'flex' }}>Campus to</span>
-          <span style={{ display: 'flex' }}>Career</span>
+          <span style={{ display: 'flex', color: '#FBBF24' }}>Career</span>
         </div>
       </div>
     ),
