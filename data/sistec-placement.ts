@@ -14,7 +14,9 @@ export const SISTEC_PLACEMENT_STATS = {
   jobOffersBatch2025: '1150+',
   averagePackageLpa: '4.8 LPA',
   highestPackage: '22 LPA by BNY Mellon',
+  /** Official campus placement rate — keep identical on home, explore, placement, and admin. */
   campusPlacementRate: '96%',
+  campusPlacementRateValue: 96,
   internships: '100%',
   campusOpportunities: '200+',
   mous: '30+',

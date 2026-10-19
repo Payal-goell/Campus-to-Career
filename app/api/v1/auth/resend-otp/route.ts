@@ -31,16 +31,33 @@ function resendLocal(req: NextRequest, email: string) {
     otpSentAt: now.toISOString(),
     otpAttempts: 0,
   };
-  return sendOtpEmail(email, otp).then((delivery) => {
-    const response = NextResponse.json({
-      success: true,
-      message: delivery.ok ? 'A new code was sent to your email.' : 'A new verification code is ready.',
-      emailSent: delivery.ok,
-      devOtp: delivery.configured && delivery.ok ? undefined : otp,
+  return sendOtpEmail(email, otp)
+    .then((delivery) => {
+      const hideCode =
+        (delivery.configured && delivery.ok) ||
+        (delivery.configured && process.env.NODE_ENV === 'production' && !delivery.ok);
+      const response = NextResponse.json({
+        success: true,
+        message: delivery.ok
+          ? `A new code was sent to ${email}.`
+          : 'A new verification code is ready.',
+        emailSent: delivery.ok,
+        devOtp: hideCode ? undefined : otp,
+      });
+      writeLocalAccounts(response, upsertLocalAccount(accounts, updated));
+      return response;
+    })
+    .catch((error) => {
+      console.error('Resend local OTP failed for', email, error);
+      const response = NextResponse.json({
+        success: true,
+        message: 'A new verification code is ready.',
+        emailSent: false,
+        devOtp: process.env.NODE_ENV === 'production' ? undefined : otp,
+      });
+      writeLocalAccounts(response, upsertLocalAccount(accounts, updated));
+      return response;
     });
-    writeLocalAccounts(response, upsertLocalAccount(accounts, updated));
-    return response;
-  });
 }
 
 const resendSchema = z.object({
@@ -84,7 +101,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: issued.emailSent
-        ? 'A new code was sent to your email.'
+        ? `A new code was sent to ${email}.`
         : 'A new verification code is ready.',
       emailSent: issued.emailSent,
       devOtp: issued.devOtp,

@@ -145,18 +145,22 @@ async function registerWithoutDatabase(req: NextRequest, email: string, password
     emailSent = delivery.ok;
     configured = delivery.configured;
   } catch (error) {
-    console.error('OTP email failed:', error);
+    console.error('OTP email failed for', email, error);
   }
+
+  const hideCode =
+    (configured && emailSent) ||
+    (configured && process.env.NODE_ENV === 'production' && !emailSent);
 
   const response = NextResponse.json(
     {
       success: true,
       message: emailSent
-        ? 'Account created. Enter the code sent to your email.'
+        ? `Account created. Enter the code sent to ${email}.`
         : 'Account created. Enter the verification code to activate it.',
       email,
       emailSent,
-      devOtp: configured && emailSent ? undefined : otp,
+      devOtp: hideCode ? undefined : otp,
     },
     { status: 201 }
   );
@@ -185,7 +189,7 @@ async function sendRegistrationCode(userId: string, email: string, force = false
     {
       success: true,
       message: issued.emailSent
-        ? 'Account created. Enter the code sent to your email.'
+        ? `Account created. Enter the code sent to ${email}.`
         : 'Account created. Enter the verification code to activate it.',
       email,
       emailSent: issued.emailSent,

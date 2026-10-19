@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Palette, Shuffle, Check, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useTheme } from '@/lib/theme/ThemeProvider';
@@ -13,6 +13,15 @@ export function ThemeStudio() {
   const { palette, setPalette, previewPalette, resolvedTheme } = useTheme();
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    const close = () => {
+      previewPalette(null);
+      setOpen(false);
+    };
+    window.addEventListener('ctc-close-theme-studio', close);
+    return () => window.removeEventListener('ctc-close-theme-studio', close);
+  }, [previewPalette]);
+
   const handleSurprise = () => {
     const others = paletteList.filter((p) => p.id !== palette);
     const pick = others[Math.floor(Math.random() * others.length)];
@@ -24,7 +33,10 @@ export function ThemeStudio() {
       {/* Studio Trigger */}
       <button
         id="theme-studio-trigger"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          window.dispatchEvent(new Event('ctc-close-nav-more'));
+          setOpen((o) => !o);
+        }}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label="Open Theme Studio"
@@ -66,10 +78,10 @@ export function ThemeStudio() {
             aria-modal="true"
             aria-label="Theme Studio"
             className={cn(
-              'z-50 w-[min(18rem,calc(100vw-1.5rem))] rounded-2xl overflow-hidden',
+              'z-[95] w-[min(18rem,calc(100vw-1.5rem))] rounded-2xl overflow-hidden',
               'bg-surface border border-border shadow-xl',
               'absolute right-0 top-12',
-              'max-sm:fixed max-sm:right-3 max-sm:top-[4.25rem]',
+              'max-sm:fixed max-sm:right-3 max-sm:left-auto max-sm:top-[4.25rem]',
             )}
           >
               {/* Header */}

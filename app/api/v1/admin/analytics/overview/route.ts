@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { isDatabaseError } from '@/lib/demo-accounts';
+import { SISTEC_PLACEMENT_STATS } from '@/data/sistec-placement';
+
+const SISTEC_RATE = SISTEC_PLACEMENT_STATS.campusPlacementRateValue;
 
 export async function GET(req: NextRequest) {
   try {
@@ -49,8 +52,9 @@ export async function GET(req: NextRequest) {
       averageDevelopmentScore: avgScore,
       placementStats: {
         eligible: 450,
-        placed: 320 + offeredApps,
-        placementPercentage: Math.round(((320 + offeredApps) / 450) * 1000) / 10,
+        placed: Math.round((SISTEC_RATE / 100) * 450) + offeredApps,
+        placementPercentage: SISTEC_RATE,
+        label: SISTEC_PLACEMENT_STATS.campusPlacementRate,
       },
       recentInquiries: inquiries.map((i) => ({
         id: i.id,
@@ -71,7 +75,12 @@ export async function GET(req: NextRequest) {
         totalStudents: 1250,
         activeRoadmapUsers: 1180,
         averageDevelopmentScore: 76.4,
-        placementStats: { eligible: 450, placed: 320, placementPercentage: 71.1 },
+        placementStats: {
+          eligible: 450,
+          placed: Math.round((SISTEC_RATE / 100) * 450),
+          placementPercentage: SISTEC_RATE,
+          label: SISTEC_PLACEMENT_STATS.campusPlacementRate,
+        },
         recentInquiries: [],
       });
     }

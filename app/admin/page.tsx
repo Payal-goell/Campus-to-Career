@@ -206,14 +206,14 @@ export default function AdminPortalPage() {
 
           <Card variant="stat" className="p-5">
             <div className="flex items-center justify-between text-[var(--color-text-muted)] text-xs">
-              <span>Placement Drive Offers</span>
+              <span>Placement rate</span>
               <Shield className="w-4 h-4 text-amber-500" />
             </div>
             <div className="text-3xl font-black text-amber-500 font-mono">
               {analytics.placementStats.placementPercentage}%
             </div>
             <span className="text-[11px] text-[var(--color-text-muted)]">
-              {analytics.placementStats.placed} of {analytics.placementStats.eligible} placed
+              Official SISTec campus rate (same on Home / Explore / Placement)
             </span>
           </Card>
         </div>

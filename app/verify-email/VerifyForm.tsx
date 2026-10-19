@@ -90,15 +90,22 @@ function VerifyEmailForm() {
           {done
             ? 'Your code matched this account. Taking you to profile setup.'
             : email
-              ? `Enter the 6-digit code created for ${email}. It expires in 10 minutes and will not work for any other account.`
+              ? `Enter the 6-digit code sent to ${email}. It expires in 10 minutes and will not work for any other account.`
               : 'Enter the 6-digit code created for your account. It expires in 10 minutes.'}
         </p>
 
         {devOtp && !done && (
           <div className="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-surface-raised)] px-3 py-2 text-left text-xs text-[var(--text-secondary)]">
-            Mail is not configured on this server, so the code for this account is shown here:{' '}
+            Mail delivery is not configured yet, so the code for{' '}
+            <span className="font-semibold text-[var(--text-primary)]">{email || 'this account'}</span> is shown here:{' '}
             <span className="font-mono font-bold tracking-[0.2em] text-[var(--text-primary)]">{devOtp}</span>
           </div>
+        )}
+
+        {!devOtp && !done && email && (
+          <p className="text-[11px] text-[var(--text-muted)]">
+            Check the inbox (and spam folder) for {email}. Use “Send a new code” if nothing arrives.
+          </p>
         )}
 
         {error && (

@@ -58,7 +58,7 @@ export default function ExplorePage() {
           { label: 'Job offers', value: SISTEC_PLACEMENT_STATS.jobOffersBatch2025 },
           { label: 'Average package', value: SISTEC_PLACEMENT_STATS.averagePackageLpa },
           { label: 'Highest package', value: SISTEC_PLACEMENT_STATS.highestPackage.replace(' by BNY Mellon', '') },
-          { label: 'Campus drives', value: SISTEC_PLACEMENT_STATS.campusOpportunities },
+          { label: 'Placement rate', value: SISTEC_PLACEMENT_STATS.campusPlacementRate },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -319,8 +319,8 @@ export default function ExplorePage() {
               <h2 className="text-lg font-black">Campus recruiters & CoE partners</h2>
               <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-2xl">
                 Named on sistec.ac.in Training & Placement, CSE department, Centres of Excellence, and Placement Bulletin
-                2023-VI. Stats: {SISTEC_PLACEMENT_STATS.jobOffersBatch2025} offers · {SISTEC_PLACEMENT_STATS.campusPlacementRate}{' '}
-                placements · {SISTEC_PLACEMENT_STATS.highestPackage}.
+                2023-VI. Stats: {SISTEC_PLACEMENT_STATS.jobOffersBatch2025} offers · placement rate{' '}
+                {SISTEC_PLACEMENT_STATS.campusPlacementRate} · {SISTEC_PLACEMENT_STATS.highestPackage}.
               </p>
             </div>
             <Button

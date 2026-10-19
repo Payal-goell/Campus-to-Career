@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { AnimatedCount } from "@/components/ui/Progress";
+import { SISTEC_PLACEMENT_STATS } from "@/data/sistec-placement";
 
 export default function HomePage() {
   const journeyYears = [
@@ -161,9 +162,9 @@ export default function HomePage() {
           </Card>
           <Card variant="stat" className="p-4">
             <span className="text-2xl sm:text-3xl font-black text-purple-500 block">
-              <AnimatedCount value={71.1} decimals={1} suffix="%" />
+              <AnimatedCount value={SISTEC_PLACEMENT_STATS.campusPlacementRateValue} suffix="%" />
             </span>
-            <span className="text-xs text-[var(--color-text-muted)] font-medium">Placement Offer Rate</span>
+            <span className="text-xs text-[var(--color-text-muted)] font-medium">Placement rate</span>
           </Card>
         </div>
       </section>

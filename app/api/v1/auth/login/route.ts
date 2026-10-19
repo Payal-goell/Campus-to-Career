@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { comparePassword, signAccessToken, signRefreshToken } from '@/lib/auth';
-import { issueEmailOtp } from '@/lib/otp';
+import { generateOtp, hashOtp, issueEmailOtp } from '@/lib/otp';
+import { sendOtpEmail } from '@/lib/mail';
 import { demoLoginUser, findDemoAccount, isDatabaseError } from '@/lib/demo-accounts';
-import { readLocalAccounts } from '@/lib/local-accounts';
+import { readLocalAccounts, upsertLocalAccount, writeLocalAccounts } from '@/lib/local-accounts';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -22,12 +23,39 @@ async function loginLocalAccount(req: NextRequest, email: string, password: stri
   }
   if (!matches) return null;
   if (!account.isVerified) {
-    return NextResponse.json({
+    const otp = generateOtp();
+    const now = new Date();
+    const updated = {
+      ...account,
+      verificationToken: hashOtp(otp),
+      otpExpiresAt: new Date(now.getTime() + 10 * 60 * 1000).toISOString(),
+      otpSentAt: now.toISOString(),
+      otpAttempts: 0,
+    };
+    let emailSent = false;
+    let configured = false;
+    try {
+      const delivery = await sendOtpEmail(account.email, otp);
+      emailSent = delivery.ok;
+      configured = delivery.configured;
+    } catch (error) {
+      console.error('Login local OTP email failed:', error);
+    }
+    const hideCode =
+      (configured && emailSent) ||
+      (configured && process.env.NODE_ENV === 'production' && !emailSent);
+    const response = NextResponse.json({
       success: false,
       needsVerification: true,
       email: account.email,
-      error: 'Verify the code sent to your email before signing in.',
+      error: emailSent
+        ? `Verify the code sent to ${account.email} before signing in.`
+        : 'Enter the verification code for this account before signing in.',
+      emailSent,
+      devOtp: hideCode ? undefined : otp,
     });
+    writeLocalAccounts(response, upsertLocalAccount(readLocalAccounts(req), updated));
+    return response;
   }
   return sessionResponse({
     id: account.id,

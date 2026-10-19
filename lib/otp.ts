@@ -63,21 +63,31 @@ export async function issueEmailOtp(
     },
   });
 
+  const recipient = email.trim().toLowerCase();
   let emailSent = false;
   let configured = false;
   try {
-    const delivery = await sendOtpEmail(email, otp);
+    const delivery = await sendOtpEmail(recipient, otp);
     emailSent = delivery.ok;
     configured = delivery.configured;
+    if (!delivery.ok && delivery.error) {
+      console.error('OTP email delivery error:', delivery.error, '→', recipient);
+    }
   } catch (error) {
-    console.error('OTP email failed:', error);
+    console.error('OTP email failed for', recipient, error);
     configured = true;
     emailSent = false;
   }
 
+  // Never expose the code when mail was delivered to the user's inbox.
+  // In production, also hide it when mail is configured but failed (so users retry resend).
+  const hideCode =
+    (configured && emailSent) ||
+    (configured && process.env.NODE_ENV === 'production' && !emailSent);
+
   return {
     ok: true,
     emailSent,
-    devOtp: configured && emailSent ? undefined : otp,
+    devOtp: hideCode ? undefined : otp,
   };
 }

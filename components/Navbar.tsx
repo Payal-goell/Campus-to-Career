@@ -82,6 +82,12 @@ export function Navbar() {
     setMoreOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    const closeMore = () => setMoreOpen(false);
+    window.addEventListener('ctc-close-nav-more', closeMore);
+    return () => window.removeEventListener('ctc-close-nav-more', closeMore);
+  }, []);
+
   const links = (() => {
     if (!user) return publicLinks;
     const staff = user.role === 'ADMIN' || user.role === 'COORDINATOR';
@@ -96,12 +102,12 @@ export function Navbar() {
     if (!el) return;
     const ro = new ResizeObserver(() => {
       const width = el.clientWidth;
-      // Always reserve room for a More control on typical laptop widths
-      if (width < 480) setVisibleCount(2);
-      else if (width < 640) setVisibleCount(3);
-      else if (width < 820) setVisibleCount(4);
-      else if (width < 1020) setVisibleCount(5);
-      else setVisibleCount(Math.max(5, links.length - 1));
+      // Keep counts low so primary links never collide with right-side theme controls
+      if (width < 360) setVisibleCount(2);
+      else if (width < 520) setVisibleCount(3);
+      else if (width < 700) setVisibleCount(4);
+      else if (width < 900) setVisibleCount(5);
+      else setVisibleCount(Math.min(7, Math.max(5, links.length - 3)));
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -109,13 +115,19 @@ export function Navbar() {
 
   useEffect(() => {
     if (!moreOpen) return;
+    const MENU_W = 224;
     const place = () => {
       const btn = moreBtnRef.current;
       if (!btn) return;
       const r = btn.getBoundingClientRect();
-      setMorePos({ top: r.bottom + 8, left: Math.min(r.left, window.innerWidth - 230) });
+      // Anchor menu under More, expanding left so it never covers theme controls to the right
+      setMorePos({
+        top: r.bottom + 8,
+        left: Math.max(8, Math.min(r.right - MENU_W, window.innerWidth - MENU_W - 8)),
+      });
     };
     place();
+    window.dispatchEvent(new Event('ctc-close-theme-studio'));
     const close = (e: MouseEvent) => {
       const t = e.target as Node;
       if (moreBtnRef.current?.contains(t)) return;
@@ -166,11 +178,11 @@ export function Navbar() {
               </div>
             </Link>
 
-            {/* ── Desktop Nav Links (nowrap + More overflow) ─────── */}
-            <div className="hidden lg:flex items-center gap-0.5 flex-1 min-w-0 flex-nowrap overflow-visible" role="menubar">
+            {/* ── Desktop Nav Links (clipped; More lives in right cluster) ─────── */}
             <div
               ref={navMeasureRef}
-              className="flex items-center gap-0.5 flex-1 min-w-0 overflow-hidden flex-nowrap"
+              className="hidden lg:flex items-center gap-0.5 flex-1 min-w-0 overflow-hidden flex-nowrap"
+              role="menubar"
             >
               {primaryLinks.map((link) => {
                 const Icon   = link.icon;
@@ -198,21 +210,31 @@ export function Navbar() {
                 );
               })}
             </div>
+
+            {/* ── Right Side Controls ───────────────────────────── */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 relative z-50 pl-2 sm:pl-3 ml-1 border-l border-[var(--border)]">
               {overflowLinks.length > 0 && (
-                <div className="relative shrink-0 overflow-visible">
+                <div className="relative hidden lg:block shrink-0">
                   <button
                     ref={moreBtnRef}
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       setRoleSwitcherOpen(false);
+                      window.dispatchEvent(new Event('ctc-close-theme-studio'));
                       const r = moreBtnRef.current?.getBoundingClientRect();
-                      if (r) setMorePos({ top: r.bottom + 8, left: Math.min(r.left, window.innerWidth - 230) });
+                      if (r) {
+                        const MENU_W = 224;
+                        setMorePos({
+                          top: r.bottom + 8,
+                          left: Math.max(8, Math.min(r.right - MENU_W, window.innerWidth - MENU_W - 8)),
+                        });
+                      }
                       setMoreOpen((v) => !v);
                     }}
                     aria-expanded={moreOpen}
                     aria-haspopup="menu"
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-inset)]"
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-inset)]"
                   >
                     More <MoreHorizontal className="w-3.5 h-3.5" />
                   </button>
@@ -221,7 +243,7 @@ export function Navbar() {
                       <div
                         id="nav-more-menu"
                         role="menu"
-                        className="fixed z-[80] w-56 rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-xl)] p-1.5"
+                        className="fixed z-[90] w-56 rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-xl)] p-1.5"
                         style={{ top: morePos.top, left: morePos.left }}
                       >
                         {overflowLinks.map((link) => (
@@ -241,13 +263,12 @@ export function Navbar() {
                     )}
                 </div>
               )}
-            </div>
 
-            {/* ── Right Side Controls ───────────────────────────── */}
-            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-              {/* Theme controls — always visible */}
-              <ThemeToggle />
-              <ThemeStudio />
+              {/* Theme controls — isolated so they never sit under More */}
+              <div className="flex items-center gap-1.5 shrink-0 relative z-[60]">
+                <ThemeToggle />
+                <ThemeStudio />
+              </div>
 
               {/* Quick role switcher */}
               <div className="relative hidden lg:block">
