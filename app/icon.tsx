@@ -3,7 +3,7 @@ import { ImageResponse } from 'next/og';
 export const size = { width: 64, height: 64 };
 export const contentType = 'image/png';
 
-/** Brand mark shown in the browser tab. */
+/** High-contrast C2C mark for browser tabs. */
 export default function Icon() {
   return new ImageResponse(
     (
@@ -15,27 +15,41 @@ export default function Icon() {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 14,
-          background: 'linear-gradient(145deg, #10b981 0%, #0d9488 45%, #0f766e 100%)',
-          boxShadow: 'inset 0 0 0 2px rgba(255,255,255,0.18)',
+          background: 'linear-gradient(145deg, #34d399 0%, #10b981 40%, #0f766e 100%)',
+          boxShadow: 'inset 0 0 0 2px rgba(255,255,255,0.22)',
         }}
       >
         <div
           style={{
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            background: 'rgba(255,255,255,0.14)',
             color: 'white',
-            fontSize: 30,
-            fontWeight: 800,
-            letterSpacing: '-0.08em',
             fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+            lineHeight: 1,
           }}
         >
-          C
+          <div
+            style={{
+              display: 'flex',
+              fontSize: 22,
+              fontWeight: 800,
+              letterSpacing: '-0.06em',
+            }}
+          >
+            C2C
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              marginTop: 3,
+              width: 28,
+              height: 3,
+              borderRadius: 999,
+              background: 'rgba(255,255,255,0.85)',
+            }}
+          />
         </div>
       </div>
     ),

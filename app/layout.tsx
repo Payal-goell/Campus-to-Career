@@ -31,7 +31,11 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Campus to Career — Whole-Person Student Development & Career Platform',
+  applicationName: 'Campus to Career',
+  title: {
+    default: 'Campus to Career',
+    template: '%s · Campus to Career',
+  },
   description:
     'A unified platform guiding collegiate students from first year through graduation: technical mastery, talent discovery, personalized dual-lane roadmaps, curated resources, campus activities, and placement tracking.',
   keywords: [
@@ -49,9 +53,14 @@ export const metadata: Metadata = {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
       { url: '/icon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-64.png', type: 'image/png', sizes: '64x64' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
     ],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    shortcut: ['/favicon.ico'],
   },
+  manifest: '/site.webmanifest',
 };
 
 export default function RootLayout({
