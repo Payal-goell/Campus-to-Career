@@ -1,7 +1,16 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, ExternalLink, Pause, Play, Sparkles, Users } from 'lucide-react';
+import {
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Pause,
+  Play,
+  Sparkles,
+  Users,
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -190,11 +199,11 @@ export default function CampusLifePage() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-5 py-2 overflow-x-clip">
+    <div className="space-y-5 sm:space-y-6 py-2 overflow-x-clip">
       <PageHeader
-        badge="Campus story"
-        title="SISTec events, then the club behind them"
-        description="A live photo story — tap, swipe, or let it play. Pause anytime with the control under the stage."
+        badge="Campus Life @ SISTec"
+        title="Photos first. Then the committee behind them."
+        description="Swipe the story, pause anytime, and jump into clubs — technical, cultural, and leadership — with official SISTec event photos."
         actions={
           <div className="flex w-full sm:w-auto flex-wrap gap-2">
             <div className="flex flex-1 sm:flex-none p-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)]">
@@ -208,7 +217,7 @@ export default function CampusLifePage() {
                   key={id}
                   type="button"
                   onClick={() => setView(id)}
-                  className={`flex-1 sm:flex-none h-10 sm:h-9 px-3 rounded-xl text-xs font-bold transition-colors ${
+                  className={`flex-1 sm:flex-none h-10 sm:h-9 px-3.5 rounded-xl text-xs font-bold transition-colors ${
                     view === id ? 'bg-[var(--primary)] text-[var(--primary-fg)]' : 'text-[var(--text-muted)]'
                   }`}
                 >
@@ -224,24 +233,62 @@ export default function CampusLifePage() {
               className="shrink-0"
               rightIcon={<ExternalLink className="w-3.5 h-3.5" />}
             >
-              sistec.ac.in
+              Gallery
             </Button>
           </div>
         }
       />
 
+      {featured && view === 'story' && (
+        <div className="rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--surface-raised)] to-[var(--surface)] px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3 animate-in fade-in duration-500">
+          <div className="relative w-full sm:w-28 shrink-0 aspect-[16/10] sm:aspect-square rounded-xl overflow-hidden border border-[var(--border)]">
+            <CoverImage
+              src={featured.imageUrl}
+              alt=""
+              className="absolute inset-0 h-full w-full"
+              priority
+            />
+          </div>
+          <div className="min-w-0 flex-1 space-y-1">
+            <p className="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1">
+              <Sparkles className="w-3 h-3" /> Now on stage
+            </p>
+            <p className="font-black text-sm sm:text-base text-[var(--text-primary)] leading-snug line-clamp-2">
+              {featured.title}
+            </p>
+            <p className="text-[11px] text-[var(--text-secondary)] truncate inline-flex items-center gap-1.5">
+              <CalendarDays className="w-3 h-3 shrink-0" />
+              {featured.clubName} · {featured.date}
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="gradient"
+            className="shrink-0 w-full sm:w-auto"
+            onClick={() => {
+              setOpenClub(featured.clubId);
+              setView('clubs');
+            }}
+          >
+            Meet the club
+          </Button>
+        </div>
+      )}
+
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {[
-          { label: 'Photos', value: String(recaps.length) },
+          { label: 'Event photos', value: String(recaps.length) },
           { label: 'Committees', value: String(clubs.length) },
-          { label: 'Now showing', value: featured ? `${safeIndex + 1}/${Math.max(filteredRecaps.length, 1)}` : '—' },
+          { label: 'In this filter', value: featured ? `${safeIndex + 1} / ${filteredRecaps.length}` : '—' },
         ].map((stat) => (
           <div
             key={stat.label}
-            className="rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-2.5 text-center"
+            className="rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-3 text-center"
           >
             <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-bold">{stat.label}</p>
-            <p className="text-sm sm:text-base font-black text-[var(--text-primary)] mt-0.5">{stat.value}</p>
+            <p className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 mt-1">
+              {stat.value}
+            </p>
           </div>
         ))}
       </div>
@@ -253,8 +300,10 @@ export default function CampusLifePage() {
               key={cat}
               type="button"
               onClick={() => setCategory(cat)}
-              className={`h-9 px-3 rounded-full text-xs font-bold capitalize shrink-0 inline-flex items-center gap-1.5 transition-colors ${
-                category === cat ? 'bg-emerald-600 text-white' : 'border border-[var(--border)] text-[var(--text-muted)]'
+              className={`h-9 px-3.5 rounded-full text-xs font-bold capitalize shrink-0 inline-flex items-center gap-1.5 transition-colors ${
+                category === cat
+                  ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/25'
+                  : 'border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-inset)]'
               }`}
             >
               {cat}
@@ -488,18 +537,20 @@ export default function CampusLifePage() {
       )}
 
       {view === 'clubs' && filteredClubs.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredClubs.map((club) => {
             const open = openClub === club.id;
-            const photos = (club.events || []).filter((event) => event.imageUrl).slice(0, 3);
+            const eventPhotos = (club.events || []).filter((event) => event.imageUrl);
+            const photos = eventPhotos.slice(0, 3);
+            const eventCount = club.events?.length ?? 0;
             return (
               <Card
                 key={club.id}
-                className={`overflow-hidden p-0 flex flex-col [content-visibility:auto] transition-shadow ${
-                  open ? 'shadow-lg ring-1 ring-emerald-500/30' : ''
+                className={`overflow-hidden p-0 flex flex-col [content-visibility:auto] transition-all duration-300 ${
+                  open ? 'shadow-lg ring-1 ring-emerald-500/35 -translate-y-0.5' : 'hover:shadow-md'
                 }`}
               >
-                <div className="grid grid-cols-3 gap-0">
+                <div className="grid grid-cols-3 gap-0 relative">
                   {(photos.length
                     ? photos
                     : [{ id: club.id, imageUrl: club.imageUrl, title: club.name }]
@@ -528,8 +579,13 @@ export default function CampusLifePage() {
                       />
                     </button>
                   ))}
+                  {eventCount > 0 && (
+                    <span className="absolute bottom-2 right-2 z-[1] text-[10px] font-bold px-2 py-1 rounded-full bg-black/65 text-white backdrop-blur-sm">
+                      {eventCount} event{eventCount === 1 ? '' : 's'}
+                    </span>
+                  )}
                 </div>
-                <div className="p-3.5 sm:p-4 space-y-2">
+                <div className="p-4 space-y-2.5">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="primary" size="sm">
                       {club.category}
@@ -539,16 +595,48 @@ export default function CampusLifePage() {
                       <span className="truncate">{club.leadCoordinator}</span>
                     </span>
                   </div>
-                  <h2 className="font-black text-sm leading-snug">{club.name}</h2>
-                  <p className="text-xs text-[var(--text-secondary)] line-clamp-2">{club.description}</p>
-                  <div className="flex flex-wrap gap-2">
+                  <h2 className="font-black text-base leading-snug text-[var(--text-primary)]">{club.name}</h2>
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed line-clamp-2">
+                    {club.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {club.skillsGained.slice(0, 3).map((skill) => (
+                      <Badge key={skill} variant="outline" size="sm">
+                        {skill}
+                      </Badge>
+                    ))}
+                    {club.skillsGained.length > 3 && (
+                      <Badge variant="outline" size="sm">
+                        +{club.skillsGained.length - 3}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 pt-0.5">
                     <Button
                       size="sm"
                       variant={open ? 'secondary' : 'outline'}
                       className="flex-1 min-[420px]:flex-none"
                       onClick={() => setOpenClub(open ? null : club.id)}
                     >
-                      {open ? 'Hide' : 'Events & join'}
+                      {open ? 'Hide details' : 'Events & join'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1 min-[420px]:flex-none"
+                      onClick={() => {
+                        const first = eventPhotos[0];
+                        const idx = first ? recaps.findIndex((item) => item.id === first.id) : -1;
+                        if (idx >= 0) {
+                          setCategory('all');
+                          setStoryIndex(idx);
+                          setView('story');
+                          startedAt.current = Date.now();
+                          setProgress(0);
+                        }
+                      }}
+                    >
+                      View in story
                     </Button>
                     {club.joinUrl && (
                       <Button
@@ -564,8 +652,23 @@ export default function CampusLifePage() {
                   </div>
                 </div>
                 {open && (
-                  <div className="border-t border-[var(--border)] px-3.5 sm:px-4 py-3 space-y-3 animate-in fade-in slide-in-from-top-1 duration-300">
-                    <p className="text-xs text-[var(--text-secondary)]">{club.purpose}</p>
+                  <div className="border-t border-[var(--border)] px-4 py-3.5 space-y-3 animate-in fade-in slide-in-from-top-1 duration-300 bg-[var(--surface-raised)]/50">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-1">
+                        Purpose
+                      </p>
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{club.purpose}</p>
+                    </div>
+                    {club.responsibilities && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-1">
+                          What members do
+                        </p>
+                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                          {club.responsibilities}
+                        </p>
+                      </div>
+                    )}
                     <div className="flex flex-wrap gap-1.5">
                       {club.skillsGained.map((skill) => (
                         <Badge key={skill} variant="success" size="sm">

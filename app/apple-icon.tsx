@@ -2,8 +2,9 @@ import { ImageResponse } from 'next/og';
 
 export const size = { width: 180, height: 180 };
 export const contentType = 'image/png';
+export const runtime = 'edge';
 
-/** Home-screen icon: unique dual-C mark + website name. */
+/** Static home-screen icon with full website name. */
 export default function AppleIcon() {
   return new ImageResponse(
     (
@@ -24,43 +25,34 @@ export default function AppleIcon() {
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 2,
-            marginBottom: 10,
+            fontSize: 44,
+            fontWeight: 800,
+            letterSpacing: '-0.04em',
+            lineHeight: 1,
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              width: 42,
-              height: 54,
-              borderRadius: 28,
-              border: '8px solid #5EEAD4',
-              borderRightColor: 'transparent',
-            }}
-          />
-          <div
-            style={{
-              display: 'flex',
-              width: 42,
-              height: 54,
-              borderRadius: 28,
-              border: '8px solid #FBBF24',
-              borderLeftColor: 'transparent',
-            }}
-          />
+          C2C
         </div>
+        <div
+          style={{
+            display: 'flex',
+            marginTop: 10,
+            marginBottom: 12,
+            width: 48,
+            height: 4,
+            borderRadius: 999,
+            background: '#FBBF24',
+          }}
+        />
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            fontSize: 16,
+            fontSize: 17,
             fontWeight: 700,
-            letterSpacing: '0.04em',
+            letterSpacing: '0.02em',
             lineHeight: 1.25,
-            opacity: 0.95,
           }}
         >
           <span style={{ display: 'flex' }}>Campus to</span>

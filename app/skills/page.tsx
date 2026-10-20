@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { SkillGapChart } from '@/components/SkillGapChart';
 import { GuestPreviewBanner } from '@/components/ModuleAuthGate';
+import { DownloadAnalysisReport } from '@/components/DownloadAnalysisReport';
 import { useStudentHub } from '@/hooks/useStudentHub';
 
 export default function SkillsPage() {
@@ -28,6 +29,8 @@ export default function SkillsPage() {
       </div>
 
       {isGuest && <GuestPreviewBanner nextPath="/skills" />}
+
+      <DownloadAnalysisReport data={data} />
 
       <SkillGapChart data={data.skillGapAnalysis} />
 

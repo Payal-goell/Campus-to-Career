@@ -8,7 +8,6 @@ import { Footer } from '@/components/Footer';
 import { ThemeProvider } from '@/lib/theme/ThemeProvider';
 import { themeInitScript } from '@/lib/theme/theme-script';
 import { ToastProvider } from '@/components/ui/Toast';
-import { InteractiveFavicon } from '@/components/InteractiveFavicon';
 
 const sans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -51,15 +50,10 @@ export const metadata: Metadata = {
     'Skill Gap Analysis',
   ],
   icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon-32.png', type: 'image/png', sizes: '32x32' },
-      { url: '/icon-64.png', type: 'image/png', sizes: '64x64' },
-      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
-      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
-    ],
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
-    shortcut: ['/favicon.ico'],
+    // Prefer generated static /icon + /apple-icon (app/icon.tsx) — no live theme swap
+    icon: [{ url: '/icon', type: 'image/png' }],
+    apple: [{ url: '/apple-icon', type: 'image/png' }],
+    shortcut: ['/icon'],
   },
   manifest: '/site.webmanifest',
 };
@@ -81,7 +75,6 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col antialiased bg-bg text-text-primary selection:bg-primary/20 selection:text-primary">
         <ThemeProvider>
-          <InteractiveFavicon />
           <AuthProvider>
           <RoadmapProvider>
             <div className="ambient-bg" aria-hidden />
