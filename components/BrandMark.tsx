@@ -19,6 +19,7 @@ export function BrandMark({ className, size = 36 }: { className?: string; size?:
         height={size}
         className="object-cover w-full h-full"
         priority
+        unoptimized
       />
     </span>
   );

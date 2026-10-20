@@ -51,15 +51,15 @@ export const metadata: Metadata = {
   ],
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon-32.png', type: 'image/png', sizes: '32x32' },
-      { url: '/icon-64.png', type: 'image/png', sizes: '64x64' },
-      { url: '/brand/mark-512.png', type: 'image/png', sizes: '512x512' },
+      { url: '/favicon.ico?v=3', sizes: 'any' },
+      { url: '/favicon.png?v=3', type: 'image/png', sizes: '64x64' },
+      { url: '/icon-32.png?v=3', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-192.png?v=3', type: 'image/png', sizes: '192x192' },
     ],
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
-    shortcut: ['/favicon.ico'],
+    apple: [{ url: '/apple-touch-icon.png?v=3', sizes: '180x180', type: 'image/png' }],
+    shortcut: ['/favicon.ico?v=3'],
   },
-  manifest: '/site.webmanifest',
+  manifest: '/site.webmanifest?v=3',
 };
 
 export default function RootLayout({
@@ -70,6 +70,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
+        {/* Explicit favicon links — cache-busted so browsers drop the old C mark */}
+        <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
+        <link rel="icon" href="/favicon.png?v=3" type="image/png" sizes="64x64" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
         {/* ── Zero-FOUC Blocking Theme Initializer ── */}
         <script
           dangerouslySetInnerHTML={{
