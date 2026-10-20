@@ -170,12 +170,12 @@ export function Navbar() {
 
             {/* ── Logo ─────────────────────────────────────────── */}
             <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0 min-w-0" aria-label="Campus to Career home">
-              <BrandMark size={36} />
-              <div className="hidden lg:flex flex-col leading-none min-w-0">
-                <span className="font-display font-bold text-base gradient-text tracking-tight">
+              <BrandMark size={40} />
+              <div className="flex flex-col leading-none min-w-0">
+                <span className="font-display font-bold text-sm sm:text-base gradient-text tracking-tight truncate max-w-[9.5rem] sm:max-w-none">
                   Campus to Career
                 </span>
-                <span className="text-[9px] uppercase font-semibold tracking-widest text-[var(--text-muted)]">
+                <span className="hidden sm:block text-[9px] uppercase font-semibold tracking-widest text-[var(--text-muted)]">
                   Student Growth Platform
                 </span>
               </div>

@@ -1,11 +1,16 @@
 import { ImageResponse } from 'next/og';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 
 export const size = { width: 64, height: 64 };
 export const contentType = 'image/png';
-export const runtime = 'edge';
 
-/** Static tab icon — fixed ink / mint / amber dual-C (does not change with theme). */
-export default function Icon() {
+/** Static tab favicon from the Campus Career brand mark. */
+export default async function Icon() {
+  const bytes = await readFile(join(process.cwd(), 'public/brand/mark-512.png'));
+  const base64 = Buffer.from(bytes).toString('base64');
+  const src = `data:image/png;base64,${base64}`;
+
   return new ImageResponse(
     (
       <div
@@ -16,37 +21,12 @@ export default function Icon() {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 14,
-          background: 'linear-gradient(145deg, #0B1F2A 0%, #0F766E 100%)',
+          overflow: 'hidden',
+          background: '#ffffff',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-            lineHeight: 1,
-          }}
-        >
-          <div style={{ display: 'flex', fontSize: 20, fontWeight: 800, letterSpacing: '-0.04em' }}>
-            C2C
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              marginTop: 4,
-              fontSize: 7,
-              fontWeight: 700,
-              letterSpacing: '0.06em',
-              color: '#FBBF24',
-              textTransform: 'uppercase',
-            }}
-          >
-            Campus
-          </div>
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt="" width={64} height={64} style={{ objectFit: 'cover' }} />
       </div>
     ),
     { ...size }

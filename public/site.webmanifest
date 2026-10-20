@@ -4,20 +4,25 @@
   "description": "Student growth and placement platform from campus to career.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0B1F2A",
+  "background_color": "#ffffff",
   "theme_color": "#0F766E",
   "icons": [
     {
-      "src": "/icon",
-      "sizes": "64x64",
+      "src": "/icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/apple-icon",
-      "sizes": "180x180",
+      "src": "/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
     }
   ]
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { GraduationCap, Github, Linkedin, Mail, Heart, Sparkles } from "lucide-react";
+import { Github, Linkedin, Mail, Heart, Sparkles } from "lucide-react";
+import { BrandMark } from "@/components/BrandMark";
 
 export function Footer() {
   return (
@@ -10,9 +11,7 @@ export function Footer() {
           {/* Brand Info */}
           <div className="space-y-4 md:col-span-1">
             <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)] p-2 flex items-center justify-center shadow-md shadow-[var(--color-brand-primary)]/20 group-hover:scale-105 transition-transform">
-                <GraduationCap className="w-5 h-5 text-white" />
-              </div>
+              <BrandMark size={36} />
               <span className="font-bold text-base gradient-text">
                 Campus to Career
               </span>

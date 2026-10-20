@@ -50,10 +50,14 @@ export const metadata: Metadata = {
     'Skill Gap Analysis',
   ],
   icons: {
-    // Prefer generated static /icon + /apple-icon (app/icon.tsx) — no live theme swap
-    icon: [{ url: '/icon', type: 'image/png' }],
-    apple: [{ url: '/apple-icon', type: 'image/png' }],
-    shortcut: ['/icon'],
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-64.png', type: 'image/png', sizes: '64x64' },
+      { url: '/brand/mark-512.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    shortcut: ['/favicon.ico'],
   },
   manifest: '/site.webmanifest',
 };

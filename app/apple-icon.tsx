@@ -1,11 +1,16 @@
 import { ImageResponse } from 'next/og';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 
 export const size = { width: 180, height: 180 };
 export const contentType = 'image/png';
-export const runtime = 'edge';
 
-/** Static home-screen icon with full website name. */
-export default function AppleIcon() {
+/** Static apple / home-screen icon from the Campus Career brand mark. */
+export default async function AppleIcon() {
+  const bytes = await readFile(join(process.cwd(), 'public/brand/mark-512.png'));
+  const base64 = Buffer.from(bytes).toString('base64');
+  const src = `data:image/png;base64,${base64}`;
+
   return new ImageResponse(
     (
       <div
@@ -13,51 +18,15 @@ export default function AppleIcon() {
           width: '100%',
           height: '100%',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 40,
-          background: 'linear-gradient(145deg, #0B1F2A 0%, #0F766E 100%)',
-          color: 'white',
-          fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+          overflow: 'hidden',
+          background: '#ffffff',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            fontSize: 44,
-            fontWeight: 800,
-            letterSpacing: '-0.04em',
-            lineHeight: 1,
-          }}
-        >
-          C2C
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            marginTop: 10,
-            marginBottom: 12,
-            width: 48,
-            height: 4,
-            borderRadius: 999,
-            background: '#FBBF24',
-          }}
-        />
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            fontSize: 17,
-            fontWeight: 700,
-            letterSpacing: '0.02em',
-            lineHeight: 1.25,
-          }}
-        >
-          <span style={{ display: 'flex' }}>Campus to</span>
-          <span style={{ display: 'flex', color: '#FBBF24' }}>Career</span>
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt="" width={180} height={180} style={{ objectFit: 'cover' }} />
       </div>
     ),
     { ...size }
