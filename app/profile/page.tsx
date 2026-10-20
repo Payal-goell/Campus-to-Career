@@ -1,17 +1,35 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ProgressBar } from '@/components/ui/Progress';
 import { Avatar } from '@/components/ui/Avatar';
+import { ModuleAuthGate } from '@/components/ModuleAuthGate';
 import { useStudentHub } from '@/hooks/useStudentHub';
 
 export default function ProfilePage() {
-  const { data, loading } = useStudentHub();
+  const router = useRouter();
+  const { data, loading, needsAuth, needsOnboarding } = useStudentHub({ requireAuth: true });
+
+  useEffect(() => {
+    if (needsOnboarding) router.replace('/onboarding');
+  }, [needsOnboarding, router]);
+
   if (loading) return <p className="py-20 text-center text-xs text-[var(--text-muted)]">Loading profile…</p>;
+  if (needsAuth) {
+    return (
+      <ModuleAuthGate
+        title="Your student profile"
+        description="Sign in to view and edit your college profile, target role, and development score."
+        nextPath="/profile"
+      />
+    );
+  }
   if (!data) return null;
   const s = data.student;
 

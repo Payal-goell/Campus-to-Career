@@ -1,28 +1,40 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { GraduationCap, Lock, Mail, ArrowRight, AlertCircle, Sparkles, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { safeNextPath } from "@/lib/safe-next";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = safeNextPath(searchParams.get("next"), "/dashboard");
   const { login, quickLogin, user, isLoading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const goAfterAuth = (isOnboarded: boolean) => {
+    if (!isOnboarded) {
+      router.push("/onboarding");
+      return;
+    }
+    router.push(nextPath);
+  };
+
   useEffect(() => {
     if (!authLoading && user) {
-      router.replace(user.isOnboarded ? "/dashboard" : "/onboarding");
+      goAfterAuth(user.isOnboarded);
     }
-  }, [authLoading, user, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, user, router, nextPath]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,16 +51,14 @@ export default function LoginPage() {
       if (result.devOtp) {
         sessionStorage.setItem("ctc.otp.dev", result.devOtp);
       }
-      router.push(`/verify-email?email=${encodeURIComponent(submittedEmail.toLowerCase())}`);
+      router.push(
+        `/verify-email?email=${encodeURIComponent(submittedEmail.toLowerCase())}&next=${encodeURIComponent(nextPath)}`
+      );
       return;
     }
 
     if (result.success) {
-      if (result.isOnboarded) {
-        router.push("/dashboard");
-      } else {
-        router.push("/onboarding");
-      }
+      goAfterAuth(Boolean(result.isOnboarded));
     } else {
       setError(result.error || "Invalid credentials");
     }
@@ -161,12 +171,23 @@ export default function LoginPage() {
 
           <div className="text-center text-xs text-[var(--color-text-secondary)] pt-1">
             Don&apos;t have an account yet?{" "}
-            <Link href="/register" className="text-[var(--color-brand-primary)] font-semibold hover:underline">
+            <Link
+              href={`/register?next=${encodeURIComponent(nextPath)}`}
+              className="text-[var(--color-brand-primary)] font-semibold hover:underline"
+            >
               Register here
             </Link>
           </div>
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[85vh]" />}>
+      <LoginForm />
+    </Suspense>
   );
 }

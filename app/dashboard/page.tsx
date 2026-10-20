@@ -31,6 +31,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { ScoreMeter } from "@/components/ScoreMeter";
 import { TodayPlan } from "@/components/dashboard/TodayPlan";
 import { DashboardOverview } from "@/lib/types";
+import { ModuleAuthGate } from "@/components/ModuleAuthGate";
 
 const SkillGapChart = dynamic(
   () => import("@/components/SkillGapChart").then((m) => m.SkillGapChart),
@@ -53,13 +54,15 @@ export default function StudentDashboardPage() {
   const [showResumeModal, setShowResumeModal] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/login");
+    if (authLoading) return;
+
+    if (!user) {
+      setLoading(false);
       return;
     }
 
-    if (user && !user.isOnboarded) {
-      router.push("/onboarding");
+    if (!user.isOnboarded) {
+      router.replace("/onboarding");
       return;
     }
 
@@ -79,10 +82,18 @@ export default function StudentDashboardPage() {
       }
     };
 
-    if (user) {
-      fetchDashboard();
-    }
+    fetchDashboard();
   }, [user, authLoading, router]);
+
+  if (!authLoading && !user) {
+    return (
+      <ModuleAuthGate
+        title="Student dashboard"
+        description="Sign in to open your development score, skill gap, roadmap progress, and today’s plan."
+        nextPath="/dashboard"
+      />
+    );
+  }
 
   if (authLoading || loading) {
     return (

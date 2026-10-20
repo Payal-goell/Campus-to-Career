@@ -133,10 +133,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const quickLogin = async (email: string, password: string) => {
     setIsLoading(true);
     const result = await login(email, password);
+    const next =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('next')
+        : null;
+    const dest = (() => {
+      if (!next || !next.startsWith('/') || next.startsWith('//') || next.includes('://')) {
+        return '/dashboard';
+      }
+      if (next.startsWith('/login') || next.startsWith('/register') || next.startsWith('/verify-email')) {
+        return '/dashboard';
+      }
+      return next;
+    })();
     if (result.needsVerification) {
-      router.push(`/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+      router.push(
+        `/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}&next=${encodeURIComponent(dest)}`
+      );
     } else if (result.success) {
-      router.push(result.isOnboarded ? '/dashboard' : '/onboarding');
+      router.push(result.isOnboarded ? dest : '/onboarding');
     }
     setIsLoading(false);
     return result;

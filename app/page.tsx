@@ -70,6 +70,7 @@ export default function HomePage() {
       icon: Map,
       link: "/roadmap",
       accent: "var(--color-brand-primary)",
+      cta: "Open roadmap",
     },
     {
       title: "Skill Gap Radar Analysis",
@@ -77,6 +78,7 @@ export default function HomePage() {
       icon: TrendingUp,
       link: "/skills",
       accent: "var(--color-accent)",
+      cta: "Open skill gap",
     },
     {
       title: "Centralized Resource Manager",
@@ -84,6 +86,7 @@ export default function HomePage() {
       icon: BookOpen,
       link: "/resources",
       accent: "var(--color-brand-secondary)",
+      cta: "Browse resources",
     },
     {
       title: "Campus Life & Club Recaps",
@@ -91,6 +94,7 @@ export default function HomePage() {
       icon: Users,
       link: "/campus-life",
       accent: "var(--color-success)",
+      cta: "Open campus life",
     },
     {
       title: "Placement & ATS Analyzer",
@@ -98,6 +102,7 @@ export default function HomePage() {
       icon: Award,
       link: "/placement",
       accent: "var(--color-warning)",
+      cta: "Open placement",
     },
     {
       title: "Verified Coordinator Desk",
@@ -105,6 +110,7 @@ export default function HomePage() {
       icon: Shield,
       link: "/coordinators",
       accent: "var(--color-info)",
+      cta: "Open coordinators",
     },
   ];
 
@@ -261,7 +267,7 @@ export default function HomePage() {
                     </p>
                   </div>
                   <div className="mt-5 pt-3 border-t border-[var(--color-border-subtle)] flex items-center text-xs font-semibold text-[var(--color-brand-primary)]">
-                    Explore module <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+                    {feat.cta} <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Card>
               </Link>
@@ -302,8 +308,8 @@ export default function HomePage() {
             </li>
           </ul>
           <div className="pt-4">
-            <Button variant="primary" href="/dashboard" className="w-full sm:w-auto">
-                Check Your Baseline Score Now
+            <Button variant="primary" href="/skills" className="w-full sm:w-auto">
+                Open Skill Gap Radar
                 <ArrowRight className="w-3.5 h-3.5 ml-2" />
               </Button>
           </div>

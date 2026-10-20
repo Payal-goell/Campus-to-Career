@@ -22,29 +22,33 @@ import { ROADMAP_PERSONAS } from '@/lib/roadmap/personas';
 
 const publicLinks = [
   { name: 'Explore', href: '/explore', icon: Compass, requireAuth: false },
+  { name: 'Skills', href: '/skills', icon: Wrench, requireAuth: false },
+  { name: 'Roadmap', href: '/roadmap', icon: Map, requireAuth: false },
   { name: 'Resources', href: '/resources', icon: BookOpen, requireAuth: false },
+  { name: 'Campus Life', href: '/campus-life', icon: Users, requireAuth: false },
+  { name: 'Placement', href: '/placement', icon: Briefcase, requireAuth: false },
 ];
 
 const coreLinks = [
   { name: 'Dashboard', href: '/dashboard', icon: Compass, requireAuth: true },
   { name: 'Profile', href: '/profile', icon: User, requireAuth: true },
   { name: 'Explore', href: '/explore', icon: Compass, requireAuth: false },
-  { name: 'Skills', href: '/skills', icon: Wrench, requireAuth: true },
-  { name: 'Roadmap', href: '/roadmap', icon: Map, requireAuth: true },
+  { name: 'Skills', href: '/skills', icon: Wrench, requireAuth: false },
+  { name: 'Roadmap', href: '/roadmap', icon: Map, requireAuth: false },
   { name: 'Resources', href: '/resources', icon: BookOpen, requireAuth: false },
-  { name: 'Projects', href: '/projects', icon: FolderKanban, requireAuth: true },
-  { name: 'Certifications', href: '/certifications', icon: Medal, requireAuth: true },
-  { name: 'AI Tools', href: '/ai-tools', icon: Bot, requireAuth: true },
+  { name: 'Projects', href: '/projects', icon: FolderKanban, requireAuth: false },
+  { name: 'Certifications', href: '/certifications', icon: Medal, requireAuth: false },
+  { name: 'AI Tools', href: '/ai-tools', icon: Bot, requireAuth: false },
 ];
 
 const supportingLinks = [
   { name: 'Campus Life', href: '/campus-life', icon: Users, requireAuth: false },
-  { name: 'Training', href: '/training', icon: Sparkles, requireAuth: true },
-  { name: 'Personality', href: '/personality', icon: Heart, requireAuth: true },
-  { name: 'Resume', href: '/resume', icon: FileText, requireAuth: true },
-  { name: 'Interview', href: '/interview', icon: MessageSquare, requireAuth: true },
-  { name: 'Placement', href: '/placement', icon: Briefcase, requireAuth: true },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3, requireAuth: true },
+  { name: 'Training', href: '/training', icon: Sparkles, requireAuth: false },
+  { name: 'Personality', href: '/personality', icon: Heart, requireAuth: false },
+  { name: 'Resume', href: '/resume', icon: FileText, requireAuth: false },
+  { name: 'Interview', href: '/interview', icon: MessageSquare, requireAuth: false },
+  { name: 'Placement', href: '/placement', icon: Briefcase, requireAuth: false },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3, requireAuth: false },
   { name: 'Coordinators', href: '/coordinators', icon: UserCheck, requireAuth: false },
 ];
 
