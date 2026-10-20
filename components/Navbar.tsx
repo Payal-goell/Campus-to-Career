@@ -215,9 +215,9 @@ export function Navbar() {
             </div>
 
             {/* ── Right Side Controls ───────────────────────────── */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 relative z-50 pl-2 sm:pl-3 ml-1 border-l border-[var(--border)]">
+            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 relative z-50 pl-3 ml-2 border-l border-[var(--border)] isolate">
               {overflowLinks.length > 0 && (
-                <div className="relative hidden lg:block shrink-0">
+                <div className="relative hidden lg:block shrink-0 mr-0.5">
                   <button
                     ref={moreBtnRef}
                     type="button"
@@ -237,9 +237,11 @@ export function Navbar() {
                     }}
                     aria-expanded={moreOpen}
                     aria-haspopup="menu"
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-inset)]"
+                    aria-label="More pages"
+                    className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-inset)]"
                   >
-                    More <MoreHorizontal className="w-3.5 h-3.5" />
+                    <MoreHorizontal className="w-4 h-4" />
+                    <span className="hidden xl:inline">More</span>
                   </button>
                   {moreOpen &&
                     createPortal(

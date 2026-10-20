@@ -177,6 +177,17 @@ export async function POST(req: NextRequest) {
       if (localResponse) return localResponse;
       const demo = findDemoAccount(email, password);
       if (demo) return sessionResponse(demoLoginUser(demo));
+      // DB unreachable and no cookie/demo account — friendly auth message (no infra dump)
+      if (isDatabaseError(dbError)) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              'No account found for this email on this deployment. Register first, or use a 1-click demo profile below.',
+          },
+          { status: 401 }
+        );
+      }
       throw dbError;
     }
 
@@ -235,12 +246,12 @@ export async function POST(req: NextRequest) {
       {
         success: false,
         error: databaseDown
-          ? 'The site database is not reachable from this server. Connect a hosted Postgres URL in the Vercel DATABASE_URL setting, then redeploy.'
+          ? 'No account found for this email on this deployment. Register first, or use a 1-click demo profile below.'
           : process.env.NODE_ENV === 'production'
-            ? 'Internal server error during login'
+            ? 'Could not sign in. Try again or use a demo profile.'
             : message,
       },
-      { status: databaseDown ? 503 : 500 }
+      { status: databaseDown ? 401 : 500 }
     );
   }
 }

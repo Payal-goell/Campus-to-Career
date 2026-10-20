@@ -159,20 +159,19 @@ export default function PlacementPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
           {SISTEC_TRAINING_PROGRAMS.slice(0, 4).map((program) => (
-            <Card key={program.id} className="overflow-hidden p-0 flex flex-col">
-              {'image' in program && program.image ? (
-                <CoverImage src={program.image} alt={program.name} className="aspect-[16/9] w-full" />
-              ) : null}
-              <div className="p-4 space-y-2 flex-1 flex flex-col">
-                <Badge variant="primary" size="sm">
-                  {program.kind}
-                </Badge>
-                <h3 className="font-bold text-sm">{program.name}</h3>
-                <p className="text-[11px] text-[var(--color-text-secondary)] leading-relaxed flex-1">{program.blurb}</p>
-                <Button size="sm" variant="outline" href={program.url} target="_blank">
-                  Open on sistec.ac.in
-                </Button>
-              </div>
+            <Card key={program.id} className="p-4 space-y-2 flex flex-col h-full">
+              <Badge variant="primary" size="sm" className="w-fit">
+                {program.kind}
+              </Badge>
+              <h3 className="font-bold text-sm leading-snug text-[var(--color-text-primary)]">
+                {program.name}
+              </h3>
+              <p className="text-[11px] text-[var(--color-text-secondary)] leading-relaxed flex-1">
+                {program.blurb}
+              </p>
+              <Button size="sm" variant="outline" href={program.url} target="_blank" className="mt-1 w-fit">
+                Open on sistec.ac.in
+              </Button>
             </Card>
           ))}
         </div>
