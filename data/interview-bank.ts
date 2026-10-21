@@ -3,9 +3,9 @@ export const INTERVIEW_ROUNDS = [
     id: 'intro',
     title: '60-second introduction',
     kind: 'HR',
-    prompt: 'Name, SISTec campus + branch + year, one project, one club, what you want from this role.',
+    prompt: 'Name, your RGPV college + branch + year, one project, one club, what you want from this role.',
     sample:
-      'I am …, B.Tech CSE Year 3 at SISTec Gandhi Nagar. I built a QR attendance tool for SAC and trained Quad Torc docs in Git. I want this internship to ship backend APIs in production.',
+      'I am …, B.Tech CSE Year 3 at an RGPV college in Bhopal. I built a QR attendance tool for our student council and kept the team docs in Git. I want this internship to ship backend APIs in production.',
     drill: 'Record once, cut filler words, keep under 70 seconds.',
   },
   {
@@ -54,7 +54,7 @@ export const INTERVIEW_ROUNDS = [
     kind: 'Technical',
     prompt: '3-way handshake, what SYN-ACK carries, where TLS sits, why DNS can fail on hostel Wi-Fi.',
     sample: 'TLS after TCP. Certificate, SNI. DNS: resolver vs authoritative.',
-    drill: 'Trace curl -v to sistec.ac.in.',
+    drill: 'Trace curl -v to rgpv.ac.in.',
   },
   {
     id: 'system',
@@ -90,7 +90,7 @@ export const INTERVIEW_ROUNDS = [
   },
   {
     id: 'tcs-nqt',
-    title: 'TCS NQT pattern (SISTec drives)',
+    title: 'TCS NQT pattern (RGPV campus drives)',
     kind: 'OA',
     prompt: 'Foundation (num/verbal/reason) + advanced + 1–2 coding. Time box each section.',
     sample: 'Skip a verbal RC rather than miss coding. Last 20 min only code.',
@@ -109,7 +109,7 @@ export const INTERVIEW_ROUNDS = [
     title: 'Group discussion — campus topics',
     kind: 'HR',
     prompt: 'AI in placements, work-from-office, intern vs PPO. Open with a definition, add one data point, invite others.',
-    sample: 'SISTec 2025–26: 1150+ offers, 4.8 LPA average — use as a fact, not a boast.',
+    sample: 'Use one number from your own college placement bulletin — as a fact, not a boast.',
     drill: '2-minute opener, then two supports.',
   },
 ];

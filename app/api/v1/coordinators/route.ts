@@ -6,7 +6,7 @@ const FALLBACK_COORDINATORS = [
   {
     id: 'demo-coordinator',
     name: 'Prof. Meera Joshi',
-    department: 'CSE & Training and Placement Cell, UIT-RGPV',
+    department: 'Training and Placement Cell, RGPV',
     role: 'Lead TPO & Technical Training Coordinator',
     email: 'sarah.c@college.edu',
     phone: '+91 755 267 8891',

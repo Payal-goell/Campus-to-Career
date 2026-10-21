@@ -84,8 +84,8 @@ export default function PlacementPage() {
             Placement Training & Recruitment Hub
           </h1>
           <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-1.5 max-w-2xl leading-relaxed">
-            Built around SISTec Training & Placement facts: {SISTEC_PLACEMENT_STATS.jobOffersBatch2025} offers,
-            {' '}{SISTEC_PLACEMENT_STATS.averagePackageLpa} average, {SISTEC_PLACEMENT_STATS.highestPackage}, and recruiters like TCS, Infosys, Wipro, Accenture, Cognizant, and Deloitte.
+            Training, the application board, and the resume scan are for any RGPV college. The figures below are one affiliated campus (SISTec): {SISTEC_PLACEMENT_STATS.jobOffersBatch2025} offers,
+            {' '}{SISTEC_PLACEMENT_STATS.averagePackageLpa} average, {SISTEC_PLACEMENT_STATS.highestPackage}. Use your own T&P bulletin for eligibility.
           </p>
         </div>
 

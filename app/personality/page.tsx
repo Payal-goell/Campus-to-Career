@@ -82,7 +82,7 @@ export default function PersonalityPage() {
   const introText = useMemo(() => {
     const { name, branch, year, project, ask } = data.intro;
     const who = name || 'I';
-    return `${who === 'I' ? 'I am' : `I am ${name},`} B.Tech ${branch} Year ${year} at SISTec. I built ${project || 'a campus project'}. I want ${ask || 'a campus internship'}.`;
+    return `${who === 'I' ? 'I am' : `I am ${name},`} B.Tech ${branch} Year ${year} at an RGPV college. I built ${project || 'a campus project'}. I want ${ask || 'a campus internship'}.`;
   }, [data.intro]);
 
   const starText = `Situation: ${data.star.s || '—'}\nTask: ${data.star.t || '—'}\nAction: ${data.star.a || '—'}\nResult: ${data.star.r || '—'}`;
@@ -266,19 +266,19 @@ export default function PersonalityPage() {
           </Card>
           <Card className="p-5 space-y-2">
             <p className="text-xs font-bold">Thank-you mail after TCS PPT</p>
-            <pre className="text-xs whitespace-pre-wrap bg-[var(--surface-raised)] p-4 rounded-2xl border border-[var(--border)]">{`Subject: Thank you — TCS pre-placement talk, SISTec
+            <pre className="text-xs whitespace-pre-wrap bg-[var(--surface-raised)] p-4 rounded-2xl border border-[var(--border)]">{`Subject: Thank you — TCS pre-placement talk
 
 Sir/Ma’am,
-Thank you for the SISTec PPT today. I am B.Tech CSE Year 3 and will sit the NQT coding pair this week.
+Thank you for the pre-placement talk today. I am B.Tech CSE Year 3 at an RGPV college and will sit the NQT coding pair this week.
 Grateful for the role brief.
 Regards,
-[Name] | [Branch] | [Phone]`}</pre>
+[Name] | [College] | [Branch] | [Phone]`}</pre>
             <Button
               size="sm"
               variant="outline"
               onClick={() => {
                 navigator.clipboard.writeText(
-                  'Subject: Thank you — TCS pre-placement talk, SISTec\n\nSir/Ma’am,\nThank you for the SISTec PPT today. I am B.Tech CSE Year 3 and will sit the NQT coding pair this week.\nGrateful for the role brief.\nRegards,\n[Name] | [Branch] | [Phone]'
+                  'Subject: Thank you — TCS pre-placement talk\n\nSir/Ma’am,\nThank you for the pre-placement talk today. I am B.Tech CSE Year 3 at an RGPV college and will sit the NQT coding pair this week.\nGrateful for the role brief.\nRegards,\n[Name] | [College] | [Branch] | [Phone]'
                 );
                 toast.success('Template copied');
               }}

@@ -65,7 +65,7 @@ function LoginForm() {
   };
 
   const demoAccounts = [
-    { label: "Aarav Sharma (Y2 CSE, UIT-RGPV)", email: "student@college.edu", password: "Password123!", role: "Active Student" },
+    { label: "Aarav Sharma (Y2 CSE, RGPV)", email: "student@college.edu", password: "Password123!", role: "Active Student" },
     { label: "New Student (Setup)", email: "newbie@college.edu", password: "Password123!", role: "Needs Onboarding" },
     { label: "Prof. Meera Joshi (TPO)", email: "sarah.c@college.edu", password: "CoordPass123!", role: "Placement Coordinator" },
     { label: "Campus Admin", email: "admin@college.edu", password: "AdminPass123!", role: "Administrator" },

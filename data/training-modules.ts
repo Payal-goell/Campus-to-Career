@@ -1,7 +1,7 @@
 export const TRAINING_MODULES = [
   {
     category: 'Technical Training',
-    description: 'DSA, system design, SQL, and OOP as asked in SISTec TCS/product screens.',
+    description: 'DSA, system design, SQL, and OOP as asked in RGPV campus TCS and product screens.',
     duration: '12 weeks · 6 hrs/week',
     mockQuestionsCount: 150,
     topics: [
@@ -67,7 +67,7 @@ export const TRAINING_MODULES = [
   },
   {
     category: 'Campus drive pack (TCS / Infosys / Wipro)',
-    description: 'Pattern that SISTec T&P actually runs: NQT-style aptitude, email writing, and one coding pair.',
+    description: 'Pattern most RGPV college T&P cells run: NQT-style aptitude, email writing, and one coding pair.',
     duration: '6 weeks · 5 hrs/week',
     mockQuestionsCount: 180,
     topics: [
@@ -76,33 +76,33 @@ export const TRAINING_MODULES = [
       { title: 'Email writing', detail: 'Subject, 5-line body, closing. No slang.', resource: '/ai-tools' },
       { title: 'Infosys InfyTQ / HackWithInfy lite', detail: 'MCQ + one coding. Java or Python.', resource: 'https://www.hackerrank.com/skills-verification' },
       { title: 'Wipro NLTH verbal', detail: 'One editorial summary daily in 8 lines.', resource: 'https://www.thehindu.com/' },
-      { title: 'Sagar Manthan mock', detail: 'Treat Manthan week as a full dress rehearsal.', resource: '/interview' },
+      { title: 'Readiness-week mock', detail: 'Treat your college placement week as a full dress rehearsal.', resource: '/interview' },
     ],
     weeklyPlan: ['2 aptitude sets', '1 coding pair', '1 email', 'Fri: timed mock'],
   },
   {
     category: 'Core branch tracks (ECE / ME / CE / EE)',
-    description: 'Not only SDE. GATE + core intern language for SISTec CoEs.',
+    description: 'Not only SDE. GATE plus core-intern language used across RGPV colleges.',
     duration: '10 weeks · 4 hrs/week',
     mockQuestionsCount: 90,
     topics: [
       { title: 'GATE ECE digital + signals', detail: 'Previous 5 years, 10 Q/week. Semiconductor CoE overlap.', resource: 'https://gate.iitk.ac.in/' },
-      { title: 'ME CAD + GD&T', detail: 'One SolidWorks part/week. Quad Torc is the portfolio.', resource: 'https://www.sistec.ac.in/technical-clubs' },
-      { title: 'CE quantities + AutoCAD', detail: 'UltraTech CoE + Nirmaan event photos as proof of site exposure.', resource: 'https://www.sistec.ac.in/events-and-gallery' },
+      { title: 'ME CAD + GD&T', detail: 'One SolidWorks part a week. A student vehicle team is the portfolio.', resource: '/projects' },
+      { title: 'CE quantities + AutoCAD', detail: 'One quantity sheet plus a site-visit note you can show.', resource: '/projects' },
       { title: 'EE machines + MATLAB', detail: 'M.Tech Power Systems as a later path; TAES club talks.', resource: '/resources' },
-      { title: 'Embedded C for ECE/IoT', detail: 'ESP labs + Gaia CoE. Document one sensor dashboard.', resource: 'https://www.sistec.ac.in/technical-clubs' },
+      { title: 'Embedded C for ECE/IoT', detail: 'ESP lab. Document one sensor dashboard.', resource: '/projects' },
     ],
     weeklyPlan: ['3 GATE/core sets', '1 CAD or MATLAB hour', 'Sun: CoE recap note'],
   },
   {
     category: 'English + communication lab',
-    description: 'Matches SISTec “Secret of effective communication” gallery sessions.',
+    description: 'Spoken English and group-discussion practice for RGPV placement season.',
     duration: '4 weeks · 2 hrs/week',
     mockQuestionsCount: 30,
     topics: [
       { title: '60-second intro', detail: 'Campus + branch + project + ask. Record twice.', resource: '/interview' },
       { title: 'Fillers and pace', detail: 'Cut “basically / like / actually”. 140 words/min.', resource: '/personality' },
-      { title: 'GD opener', detail: 'Define, one data point (SISTec 1150+ offers), invite.', resource: '/interview' },
+      { title: 'GD opener', detail: 'Define, one number from your own college bulletin, then invite others.', resource: '/interview' },
       { title: 'Thank-you mail after PPT', detail: 'TCS PPT recap mail in 8 lines.', resource: '/ai-tools' },
     ],
     weeklyPlan: ['Record 1 clip', 'Peer review', 'Rewrite once'],

@@ -61,7 +61,7 @@ export function NotificationDrawer({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-[110] overflow-hidden bg-black/60 backdrop-blur-sm animate-fadeIn">
       <div className="absolute inset-0" onClick={onClose} />
       <div className="absolute inset-y-0 right-0 flex w-full sm:w-auto sm:max-w-md">
         <div className="w-full sm:w-[28rem] h-full bg-[var(--surface)] border-l border-[var(--border)] p-4 sm:p-6 flex flex-col shadow-2xl min-h-0">

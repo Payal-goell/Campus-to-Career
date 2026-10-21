@@ -25,7 +25,6 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { AnimatedCount } from "@/components/ui/Progress";
-import { SISTEC_PLACEMENT_STATS } from "@/data/sistec-placement";
 
 export default function HomePage() {
   const journeyYears = [
@@ -130,7 +129,7 @@ export default function HomePage() {
         </h1>
 
         <p className="text-sm sm:text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed px-1">
-          No more fragmented WhatsApp groups or disjointed websites. Campus to Career consolidates academic roadmaps, vetted learning resources, club recaps, and placement interview tracking into one elegant hub.
+          Built for every college under Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV). Roadmaps, resources, campus life, and placement tracking live in one place.
         </p>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-2">
@@ -168,9 +167,9 @@ export default function HomePage() {
           </Card>
           <Card variant="stat" className="p-4">
             <span className="text-2xl sm:text-3xl font-black text-purple-500 block">
-              <AnimatedCount value={SISTEC_PLACEMENT_STATS.campusPlacementRateValue} suffix="%" />
+              4
             </span>
-            <span className="text-xs text-[var(--color-text-muted)] font-medium">Placement rate</span>
+            <span className="text-xs text-[var(--color-text-muted)] font-medium">Year RGPV B.Tech arc</span>
           </Card>
         </div>
       </section>

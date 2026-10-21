@@ -113,7 +113,7 @@ export function buildAnalysisReportHtml(data: DashboardOverview, opts?: { genera
     <ul>${actions || '<li>Complete onboarding and refresh your skill list.</li>'}</ul>
 
     <div class="footer">
-      Campus to Career · SISTec-aligned student growth report · Not an official placement letter.
+      Campus to Career · RGPV student growth report · Not an official placement letter.
       Open Analytics on the site to regenerate with latest data.
     </div>
   </div>

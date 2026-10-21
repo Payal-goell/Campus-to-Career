@@ -2,7 +2,7 @@
 
 A college platform that takes a student from first year through placement. It combines a public discovery site, a signed-in student workspace, and a coordinator/admin desk.
 
-The product is aimed at UIT-RGPV (University Institute of Technology, Rajiv Gandhi Proudyogiki Vishwavidyalaya, Bhopal) and similar B.Tech colleges. Students get a year-wise roadmap, skill-gap view, resources, campus clubs, interview practice, and an application tracker. Faculty and placement coordinators get cohort numbers and an inquiry inbox.
+The product is for students of Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), Bhopal — the university and its affiliated colleges, not one institute. Students get a year-wise roadmap, skill-gap view, resources, campus clubs, interview practice, and an application tracker. Faculty and placement coordinators get cohort numbers and an inquiry inbox.
 
 ---
 
@@ -214,7 +214,7 @@ Created by `npm run prisma:seed`. Use these on `/login`.
 
 | Who | Email | Password | What you get |
 | :--- | :--- | :--- | :--- |
-| Aarav Sharma, Year 2 CSE, UIT-RGPV, CGPA 8.7, score 78 | `student@college.edu` | `Password123!` | Onboarded student dashboard |
+| Aarav Sharma, Year 2 CSE, RGPV, CGPA 8.7, score 78 | `student@college.edu` | `Password123!` | Onboarded student dashboard |
 | Fresh start | `newbie@college.edu` | `Password123!` | Account with no profile; login opens onboarding |
 | Prof. Meera Joshi, TPO | `sarah.c@college.edu` | `CoordPass123!` | Coordinator directory record and admin portal |
 | Campus admin | `admin@college.edu` | `AdminPass123!` | Admin portal |

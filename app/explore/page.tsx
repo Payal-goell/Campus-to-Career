@@ -48,9 +48,9 @@ export default function ExplorePage() {
   return (
     <div className="space-y-8 py-6">
       <PageHeader
-        badge="Explore SISTec"
+        badge="Explore RGPV"
         title="Campus → branch → jobs → companies"
-        description="Seats, careers, and recruiters pulled from sistec.ac.in courses and Training & Placement pages."
+        description="Roadmaps follow the RGPV B.Tech scheme for every affiliated college. The seats and recruiter names below are one worked example (SISTec) so you can see the shape of a season — your T&P cell publishes your own numbers."
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">

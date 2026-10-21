@@ -28,7 +28,7 @@ type Draft = {
 
 const sample: Draft = {
   name: 'Aarav Sharma',
-  email: 'aarav@sistec.ac.in',
+  email: 'aarav@college.edu',
   phone: '+91 98765 43210',
   github: 'github.com/aarav',
   branch: 'CSE',
@@ -81,7 +81,7 @@ export default function ResumePage() {
       .map((b) => `• ${b}`)
       .join('\n');
     return `${draft.name}
-${draft.target} | B.Tech ${draft.branch}, Year ${draft.year}, SISTec | CGPA ${draft.cgpa}
+${draft.target} | B.Tech ${draft.branch}, Year ${draft.year}, RGPV | CGPA ${draft.cgpa}
 ${draft.email} | ${draft.phone} | ${draft.github}
 
 SKILLS
@@ -219,7 +219,7 @@ ${bullets}`;
               <div>
                 <h2 className="text-lg font-black">{draft.name || 'Your name'}</h2>
                 <p className="text-xs text-[var(--text-secondary)]">
-                  {draft.target} · B.Tech {draft.branch} Y{draft.year} · SISTec · CGPA {draft.cgpa}
+                  {draft.target} · B.Tech {draft.branch} Y{draft.year} · RGPV · CGPA {draft.cgpa}
                 </p>
               </div>
               <FileText className="w-5 h-5 text-[var(--primary)] shrink-0" />

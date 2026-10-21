@@ -138,7 +138,7 @@ export function demoStudentDashboard() {
       userId: account.id,
       fullName: account.name,
       avatarUrl: account.avatarUrl,
-      collegeName: 'University Institute of Technology, RGPV, Bhopal',
+      collegeName: 'Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), Bhopal',
       branch: 'Computer Science & Engineering',
       currentYear: 2,
       cgpa: 8.7,

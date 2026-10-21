@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Palette, Shuffle, Check, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useTheme } from '@/lib/theme/ThemeProvider';
@@ -12,6 +13,8 @@ const paletteList = Object.values(PALETTES);
 export function ThemeStudio() {
   const { palette, setPalette, previewPalette, resolvedTheme } = useTheme();
   const [open, setOpen] = useState(false);
+  const [panelPos, setPanelPos] = useState({ top: 0, left: 0, width: 288 });
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const close = () => {
@@ -21,6 +24,38 @@ export function ThemeStudio() {
     window.addEventListener('ctc-close-theme-studio', close);
     return () => window.removeEventListener('ctc-close-theme-studio', close);
   }, [previewPalette]);
+
+  useEffect(() => {
+    if (!open) return;
+    const place = () => {
+      const btn = triggerRef.current;
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      const width = Math.min(288, window.innerWidth - 16);
+      setPanelPos({
+        top: r.bottom + 8,
+        left: Math.max(8, Math.min(r.right - width, window.innerWidth - width - 8)),
+        width,
+      });
+    };
+    place();
+    const close = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (triggerRef.current?.contains(target)) return;
+      const panel = document.getElementById('theme-studio-panel');
+      if (panel?.contains(target)) return;
+      previewPalette(null);
+      setOpen(false);
+    };
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    document.addEventListener('mousedown', close);
+    return () => {
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', place, true);
+      document.removeEventListener('mousedown', close);
+    };
+  }, [open, previewPalette]);
 
   const handleSurprise = () => {
     const others = paletteList.filter((p) => p.id !== palette);
@@ -32,9 +67,11 @@ export function ThemeStudio() {
     <div className="relative">
       {/* Studio Trigger */}
       <button
+        ref={triggerRef}
         id="theme-studio-trigger"
         onClick={() => {
           window.dispatchEvent(new Event('ctc-close-nav-more'));
+          window.dispatchEvent(new Event('ctc-close-demo'));
           setOpen((o) => !o);
         }}
         aria-haspopup="dialog"
@@ -62,27 +99,18 @@ export function ThemeStudio() {
         />
       </button>
 
-      {open && (
-        <>
+      {open &&
+        createPortal(
           <div
-            className="fixed inset-0 z-40"
-            onClick={() => {
-              previewPalette(null);
-              setOpen(false);
-            }}
-            aria-hidden
-          />
-
-          <div
+            id="theme-studio-panel"
             role="dialog"
-            aria-modal="true"
+            aria-modal="false"
             aria-label="Theme Studio"
             className={cn(
-              'z-[95] w-[min(18rem,calc(100vw-1.5rem))] rounded-2xl overflow-hidden',
+              'fixed z-[100] rounded-2xl overflow-hidden',
               'bg-surface border border-border shadow-xl',
-              'absolute right-0 top-12',
-              'max-sm:fixed max-sm:right-3 max-sm:left-auto max-sm:top-[4.25rem]',
             )}
+            style={{ top: panelPos.top, left: panelPos.left, width: panelPos.width }}
           >
               {/* Header */}
               <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-border">
@@ -197,8 +225,8 @@ export function ThemeStudio() {
                   {PALETTES[palette]?.description}
                 </p>
               </div>
-            </div>
-          </>
+            </div>,
+          document.body
         )}
     </div>
   );

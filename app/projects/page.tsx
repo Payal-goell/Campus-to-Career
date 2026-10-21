@@ -42,7 +42,7 @@ export default function ProjectsPage() {
       <PageHeader
         badge="Projects"
         title="Feasible builds with working notes"
-        description="Each project is sized for a SISTec semester — stack, how it works, and the exact steps to ship a demo."
+        description="Each build fits an RGPV semester — stack, how it works, and the steps to ship a demo. CSE, ECE, EE, civil, and mechanical are all in the list."
         actions={
           <div className="flex flex-wrap gap-1.5 p-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)]">
             {(['all', 1, 2, 3, 4] as const).map((y) => (

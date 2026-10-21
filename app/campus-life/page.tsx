@@ -10,6 +10,7 @@ import {
   Play,
   Sparkles,
   Users,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -19,25 +20,36 @@ import { CoverImage } from '@/components/ui/CoverImage';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ClubCommitteeItem } from '@/lib/types';
 import { CLUB_PHOTOS, SISTEC_CLUBS, photoForEvent } from '@/data/sistec-campus';
+import { RGPV_LIFE_PATHS, RGPV_SEMESTER_MOVES, RGPV_UNIVERSITY_CLUBS } from '@/data/rgpv-life';
 
 type View = 'story' | 'clubs';
 
 type Recap = NonNullable<ClubCommitteeItem['events']>[number] & { clubName: string; clubId: string };
 
 const STORY_MS = 5500;
+const CATEGORIES = ['all', 'Technical', 'Cultural', 'Sports', 'Leadership'] as const;
 
 function withPhotos(clubs: ClubCommitteeItem[]): ClubCommitteeItem[] {
-  return clubs.map((club) => ({
-    ...club,
-    imageUrl: club.imageUrl || CLUB_PHOTOS[club.id] || null,
-    events: (club.events || []).map((event) => ({
-      ...event,
-      imageUrl: event.imageUrl || photoForEvent(event.id, event.category),
-    })),
-  }));
+  return clubs.map((club) => {
+    const universityWide = club.id.startsWith('rgpv-');
+    return {
+      ...club,
+      imageUrl: club.imageUrl || (universityWide ? null : CLUB_PHOTOS[club.id] || null),
+      events: (club.events || []).map((event) => ({
+        ...event,
+        imageUrl:
+          event.imageUrl || (universityWide ? null : photoForEvent(event.id, event.category)),
+      })),
+    };
+  });
 }
 
-const INITIAL_CLUBS = withPhotos(SISTEC_CLUBS as ClubCommitteeItem[]);
+function mergeClubs(incoming: ClubCommitteeItem[]): ClubCommitteeItem[] {
+  const extra = incoming.filter((club) => !club.id.startsWith('rgpv-'));
+  return withPhotos([...RGPV_UNIVERSITY_CLUBS, ...extra]);
+}
+
+const INITIAL_CLUBS = mergeClubs(SISTEC_CLUBS as ClubCommitteeItem[]);
 
 export default function CampusLifePage() {
   const [clubs, setClubs] = useState<ClubCommitteeItem[]>(INITIAL_CLUBS);
@@ -47,6 +59,7 @@ export default function CampusLifePage() {
   const [openClub, setOpenClub] = useState<string | null>(null);
   const [playing, setPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [query, setQuery] = useState('');
   const touchX = useRef<number | null>(null);
   const stripRef = useRef<HTMLDivElement | null>(null);
   const startedAt = useRef(Date.now());
@@ -57,14 +70,14 @@ export default function CampusLifePage() {
       .then((r) => r.json())
       .then((json) => {
         if (json.success && Array.isArray(json.clubs) && json.clubs.length) {
-          setClubs(withPhotos(json.clubs));
+          setClubs(mergeClubs(json.clubs));
         }
       })
       .catch(() => undefined);
     return () => controller.abort();
   }, []);
 
-  const categories = ['all', 'Technical', 'Leadership', 'Cultural'] as const;
+  const categories = CATEGORIES;
 
   const recaps: Recap[] = useMemo(() => {
     const seen = new Set<string>();
@@ -79,9 +92,17 @@ export default function CampusLifePage() {
     return list;
   }, [clubs]);
 
+  const searchedRecaps = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return recaps;
+    return recaps.filter((event) =>
+      `${event.title} ${event.clubName} ${event.description} ${event.recap || ''}`.toLowerCase().includes(q)
+    );
+  }, [recaps, query]);
+
   const filteredRecaps = useMemo(
     () =>
-      recaps.filter((event) => {
+      searchedRecaps.filter((event) => {
         if (category === 'all') return true;
         const club = clubs.find((item) => item.id === event.clubId);
         return (
@@ -89,22 +110,28 @@ export default function CampusLifePage() {
           event.category.toLowerCase() === category.toLowerCase()
         );
       }),
-    [recaps, clubs, category]
+    [searchedRecaps, clubs, category]
   );
 
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: recaps.length };
-    for (const cat of ['Technical', 'Leadership', 'Cultural']) {
-      counts[cat] = recaps.filter((event) => {
+    const counts: Record<string, number> = { all: searchedRecaps.length };
+    for (const cat of categories) {
+      if (cat === 'all') continue;
+      counts[cat] = searchedRecaps.filter((event) => {
         const club = clubs.find((item) => item.id === event.clubId);
         return club?.category.toLowerCase() === cat.toLowerCase() || event.category.toLowerCase() === cat.toLowerCase();
       }).length;
     }
     return counts;
-  }, [recaps, clubs]);
+  }, [searchedRecaps, clubs, categories]);
 
-  const filteredClubs =
-    category === 'all' ? clubs : clubs.filter((club) => club.category.toLowerCase() === category.toLowerCase());
+  const q = query.trim().toLowerCase();
+  const filteredClubs = clubs.filter((club) => {
+    const catOk = category === 'all' || club.category.toLowerCase() === category.toLowerCase();
+    if (!q) return catOk;
+    const blob = `${club.name} ${club.description} ${club.purpose} ${(club.events || []).map((event) => event.title).join(' ')}`.toLowerCase();
+    return catOk && blob.includes(q);
+  });
 
   const safeIndex = filteredRecaps.length ? storyIndex % filteredRecaps.length : 0;
   const featured = filteredRecaps[safeIndex];
@@ -132,7 +159,7 @@ export default function CampusLifePage() {
     setStoryIndex(0);
     startedAt.current = Date.now();
     setProgress(0);
-  }, [category]);
+  }, [category, query]);
 
   useEffect(() => {
     const next = filteredRecaps[(safeIndex + 1) % Math.max(filteredRecaps.length, 1)];
@@ -201,9 +228,9 @@ export default function CampusLifePage() {
   return (
     <div className="space-y-5 sm:space-y-6 py-2 overflow-x-clip">
       <PageHeader
-        badge="Campus Life @ SISTec"
-        title="Photos first. Then the committee behind them."
-        description="Swipe the story, pause anytime, and jump into clubs — technical, cultural, and leadership — with official SISTec event photos."
+        badge="Campus life · RGPV"
+        title="Your college. The whole university."
+        description="Clubs, sports, NSS, and placement cells differ by campus. The pattern is the same across RGPV: join one technical body and one outside the lab, then keep the certificate. Photos further down are from affiliated-campus galleries."
         actions={
           <div className="flex w-full sm:w-auto flex-wrap gap-2">
             <div className="flex flex-1 sm:flex-none p-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)]">
@@ -228,16 +255,59 @@ export default function CampusLifePage() {
             <Button
               variant="outline"
               size="sm"
-              href="https://www.sistec.ac.in/events-and-gallery"
+              href="https://www.rgpv.ac.in"
               target="_blank"
               className="shrink-0"
               rightIcon={<ExternalLink className="w-3.5 h-3.5" />}
             >
-              Gallery
+              RGPV
             </Button>
           </div>
         }
       />
+
+      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+        {RGPV_LIFE_PATHS.map((path) => (
+          <button
+            key={path.id}
+            type="button"
+            onClick={() => {
+              setCategory(path.category);
+              setView('clubs');
+              setQuery('');
+            }}
+            className="text-left rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)] p-4 space-y-2 hover:border-[var(--border-strong)] transition-colors"
+          >
+            <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-400">
+              {path.category}
+            </span>
+            <span className="block font-black text-sm text-[var(--text-primary)] leading-snug">{path.title}</span>
+            <span className="block text-xs text-[var(--text-secondary)] leading-relaxed">{path.blurb}</span>
+          </button>
+        ))}
+      </section>
+
+      <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-4 sm:px-5">
+        <p className="text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-2">This semester</p>
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {RGPV_SEMESTER_MOVES.map((move) => (
+            <li key={move} className="text-xs text-[var(--text-secondary)] leading-relaxed flex gap-2">
+              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" aria-hidden />
+              <span>{move}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <label className="flex items-center gap-2 h-11 px-3 rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)]">
+        <Search className="w-4 h-4 text-[var(--text-muted)] shrink-0" aria-hidden />
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search clubs, fests, NSS, sports…"
+          className="w-full bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none"
+        />
+      </label>
 
       {featured && view === 'story' && (
         <div className="rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--surface-raised)] to-[var(--surface)] px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3 animate-in fade-in duration-500">
@@ -523,16 +593,16 @@ export default function CampusLifePage() {
       {view === 'story' && !featured && (
         <EmptyState
           title="No photos in this filter"
-          description="Try All or Cultural."
-          action={{ label: 'Show all', onClick: () => setCategory('all') }}
+          description="University-wide committees often have no public photo yet. Open Committees, or clear the search."
+          action={{ label: 'Show all', onClick: () => { setCategory('all'); setQuery(''); } }}
         />
       )}
 
       {view === 'clubs' && filteredClubs.length === 0 && (
         <EmptyState
           title="No committee in this filter"
-          description="Sports is not a separate SISTec body here — try Cultural or Technical."
-          action={{ label: 'Show all', onClick: () => setCategory('all') }}
+          description="Try another category, or clear the search. Sports, NSS, and coding cells are listed for every RGPV college."
+          action={{ label: 'Show all', onClick: () => { setCategory('all'); setQuery(''); } }}
         />
       )}
 

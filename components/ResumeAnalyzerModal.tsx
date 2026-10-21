@@ -23,10 +23,10 @@ export function ResumeAnalyzerModal({
 
   const sampleResume = `AARAV SHARMA
 SDE Intern candidate | B.Tech CSE, RGPV
-aarav.sharma@uitrgpv.ac.in | github.com/aaravsharma | linkedin.com/in/aaravsharma | +91 98765 43210
+aarav.sharma@college.edu | github.com/aaravsharma | linkedin.com/in/aaravsharma | +91 98765 43210
 
 EDUCATION
-University Institute of Technology, RGPV Bhopal — B.Tech Computer Science & Engineering | CGPA: 8.7 / 10.0 (2026)
+Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), Bhopal — B.Tech Computer Science & Engineering | CGPA: 8.7 / 10.0 (2026)
 
 TECHNICAL SKILLS
 Languages: TypeScript, JavaScript, Python, C++, SQL

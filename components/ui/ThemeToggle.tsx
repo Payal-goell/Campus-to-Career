@@ -42,7 +42,10 @@ export function ThemeToggle({ variant = 'icon', className }: ThemeToggleProps) {
         {themeOrder.map((t) => (
           <button
             key={t}
-            onClick={(e) => setTheme(t, e)}
+            onClick={(e) => {
+              window.dispatchEvent(new Event('ctc-close-demo'));
+              setTheme(t, e);
+            }}
             aria-label={labels[t]}
             aria-pressed={preference === t}
             className={cn(
@@ -67,7 +70,10 @@ export function ThemeToggle({ variant = 'icon', className }: ThemeToggleProps) {
 
   return (
     <button
-      onClick={(e) => setTheme(next, e)}
+      onClick={(e) => {
+        window.dispatchEvent(new Event('ctc-close-demo'));
+        setTheme(next, e);
+      }}
       aria-label={`Switch to ${labels[next]}`}
       title={`Current: ${labels[preference]}. Click to switch to ${labels[next]}`}
       className={cn(

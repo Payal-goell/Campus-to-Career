@@ -4,7 +4,7 @@ export const ROADMAP_PERSONAS: Array<{ id: string; label: string; desc: string; 
   {
     id: 'priya-cse-y1',
     label: 'Priya Mehta',
-    desc: 'UIT-RGPV CSE · Year 1 · AI/DS + dance',
+    desc: 'RGPV CSE · Year 1 · AI/DS + dance',
     profile: {
       branch: 'Computer Science & Engineering',
       currentYear: 1,
@@ -24,7 +24,7 @@ export const ROADMAP_PERSONAS: Array<{ id: string; label: string; desc: string; 
   {
     id: 'arjun-ece-y2',
     label: 'Arjun Iyer',
-    desc: 'UIT-RGPV ECE · Year 2 · IoT + cricket + speaking',
+    desc: 'RGPV ECE · Year 2 · IoT + cricket + speaking',
     profile: {
       branch: 'Electronics & Communication Engineering',
       currentYear: 2,
@@ -47,7 +47,7 @@ export const ROADMAP_PERSONAS: Array<{ id: string; label: string; desc: string; 
   {
     id: 'neha-cse-y3',
     label: 'Neha Kapoor',
-    desc: 'UIT-RGPV CSE · Year 3 · Cloud/DevOps + singing + E-Cell',
+    desc: 'RGPV CSE · Year 3 · Cloud/DevOps + singing + E-Cell',
     profile: {
       branch: 'Computer Science & Engineering',
       currentYear: 3,

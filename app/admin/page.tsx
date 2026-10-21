@@ -213,7 +213,7 @@ export default function AdminPortalPage() {
               {analytics.placementStats.placementPercentage}%
             </div>
             <span className="text-[11px] text-[var(--color-text-muted)]">
-              Official SISTec campus rate (same on Home / Explore / Placement)
+              Example figure from one affiliated campus (SISTec)
             </span>
           </Card>
         </div>

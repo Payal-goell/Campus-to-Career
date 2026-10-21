@@ -44,7 +44,7 @@ async function main() {
           phone: '+91 98765 43210',
           avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
           collegeId: 'uit_rgpv_bpl',
-          collegeName: 'University Institute of Technology, RGPV, Bhopal',
+          collegeName: 'Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), Bhopal',
           branch: 'Computer Science & Engineering',
           currentYear: 2,
           cgpa: 8.7,
@@ -123,7 +123,7 @@ async function main() {
       coordinator: {
         create: {
           name: 'Prof. Meera Joshi',
-          department: 'CSE & Training and Placement Cell, UIT-RGPV',
+          department: 'Training and Placement Cell, RGPV',
           role: 'Lead TPO & Technical Training Coordinator',
           email: 'sarah.c@college.edu',
           phone: '+91 755 267 8891',
@@ -157,7 +157,7 @@ async function main() {
       },
       {
         name: 'Dr. Kavita Nair',
-        department: 'Innovation & Robotics Cell, UIT-RGPV',
+        department: 'Innovation and Robotics Cell, RGPV',
         role: 'Technical Projects & Lab Mentor',
         email: 'elena.rostova@college.edu',
         phone: '+91 98260 11223',

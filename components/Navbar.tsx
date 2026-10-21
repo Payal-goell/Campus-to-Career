@@ -53,10 +53,10 @@ const supportingLinks = [
 ];
 
 const demoAccounts = [
-  { label: 'Aarav Sharma', email: 'student@college.edu',  password: 'Password123!', role: 'STUDENT',     desc: 'Y2 CSE · UIT-RGPV · 8.7 CGPA' },
+  { label: 'Aarav Sharma', email: 'student@college.edu',  password: 'Password123!', role: 'STUDENT',     desc: 'Y2 CSE · RGPV · 8.7 CGPA' },
   { label: 'Fresh Start',  email: 'newbie@college.edu',   password: 'Password123!', role: 'STUDENT',     desc: 'Needs onboarding'      },
   { label: 'Prof. Meera Joshi', email: 'sarah.c@college.edu', password: 'CoordPass123!', role: 'COORDINATOR', desc: 'TPO / Placement Cell, RGPV' },
-  { label: 'Admin',        email: 'admin@college.edu',   password: 'AdminPass123!', role: 'ADMIN',       desc: 'College admin (UIT-RGPV)'   },
+  { label: 'Admin',        email: 'admin@college.edu',   password: 'AdminPass123!', role: 'ADMIN',       desc: 'University admin (RGPV)'   },
 ];
 
 export function Navbar() {
@@ -72,6 +72,8 @@ export function Navbar() {
   const [morePos, setMorePos] = useState({ top: 0, left: 0 });
   const navMeasureRef = useRef<HTMLDivElement>(null);
   const moreBtnRef = useRef<HTMLButtonElement>(null);
+  const demoBtnRef = useRef<HTMLButtonElement>(null);
+  const [demoPos, setDemoPos] = useState({ top: 0, left: 0 });
 
   // Scroll-aware glass intensification
   useEffect(() => {
@@ -89,8 +91,13 @@ export function Navbar() {
 
   useEffect(() => {
     const closeMore = () => setMoreOpen(false);
+    const closeDemo = () => setRoleSwitcherOpen(false);
     window.addEventListener('ctc-close-nav-more', closeMore);
-    return () => window.removeEventListener('ctc-close-nav-more', closeMore);
+    window.addEventListener('ctc-close-demo', closeDemo);
+    return () => {
+      window.removeEventListener('ctc-close-nav-more', closeMore);
+      window.removeEventListener('ctc-close-demo', closeDemo);
+    };
   }, []);
 
   const links = (() => {
@@ -149,6 +156,38 @@ export function Navbar() {
       document.removeEventListener('mousedown', close);
     };
   }, [moreOpen]);
+
+  useEffect(() => {
+    if (!roleSwitcherOpen) return;
+    const MENU_W = 288;
+    const place = () => {
+      const btn = demoBtnRef.current;
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      setDemoPos({
+        top: r.bottom + 8,
+        left: Math.max(8, Math.min(r.right - MENU_W, window.innerWidth - MENU_W - 8)),
+      });
+    };
+    place();
+    window.dispatchEvent(new Event('ctc-close-theme-studio'));
+    window.dispatchEvent(new Event('ctc-close-nav-more'));
+    const close = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (demoBtnRef.current?.contains(t)) return;
+      const menu = document.getElementById('nav-demo-menu');
+      if (menu?.contains(t)) return;
+      setRoleSwitcherOpen(false);
+    };
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    document.addEventListener('mousedown', close);
+    return () => {
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', place, true);
+      document.removeEventListener('mousedown', close);
+    };
+  }, [roleSwitcherOpen]);
 
   const primaryLinks = links.slice(0, visibleCount);
   const overflowLinks = links.slice(visibleCount);
@@ -275,10 +314,15 @@ export function Navbar() {
                 <ThemeStudio />
               </div>
 
-              {/* Quick role switcher */}
-              <div className="relative hidden lg:block">
+              {/* Demo profiles — portaled so the menu never sits on the theme panel */}
+              <div className="relative hidden lg:block shrink-0">
                 <button
-                  onClick={() => setRoleSwitcherOpen(!roleSwitcherOpen)}
+                  ref={demoBtnRef}
+                  onClick={() => {
+                    setMoreOpen(false);
+                    window.dispatchEvent(new Event('ctc-close-theme-studio'));
+                    setRoleSwitcherOpen((open) => !open);
+                  }}
                   aria-haspopup="listbox"
                   aria-expanded={roleSwitcherOpen}
                   className={cn(
@@ -294,9 +338,12 @@ export function Navbar() {
                   <ChevronDown className={cn('w-3 h-3 transition-transform', roleSwitcherOpen && 'rotate-180')} aria-hidden />
                 </button>
 
-                  {roleSwitcherOpen && (
+                  {roleSwitcherOpen &&
+                    createPortal(
                     <div
-                      className="absolute right-0 mt-2 w-[min(18rem,calc(100vw-1.5rem))] bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-[var(--shadow-xl)] overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
+                      id="nav-demo-menu"
+                      className="fixed z-[100] w-72 max-w-[calc(100vw-1rem)] bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-[var(--shadow-xl)] overflow-hidden max-h-[70vh] overflow-y-auto"
+                      style={{ top: demoPos.top, left: demoPos.left }}
                       role="listbox"
                       aria-label="Demo accounts"
                     >
@@ -346,8 +393,9 @@ export function Navbar() {
                           </button>
                         ))}
                       </div>
-                    </div>
-                  )}
+                    </div>,
+                    document.body
+                    )}
               </div>
 
               {/* Notification bell */}
@@ -377,7 +425,7 @@ export function Navbar() {
                     aria-label={`Go to ${user.name ?? 'your'} dashboard`}
                   >
                     <Avatar name={user.name ?? 'U'} size="sm" gradient />
-                    <div className="hidden md:flex flex-col leading-none">
+                    <div className="hidden xl:flex flex-col leading-none">
                       <span className="text-xs font-semibold text-[var(--text-primary)] truncate max-w-[90px]">
                         {user.name ?? 'Student'}
                       </span>

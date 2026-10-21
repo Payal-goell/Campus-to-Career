@@ -81,7 +81,7 @@ export default function OnboardingPage() {
 
   const [branch, setBranch] = useState("Computer Science & Engineering");
   const [currentYear, setCurrentYear] = useState(1);
-  const [collegeName, setCollegeName] = useState("University Institute of Technology, RGPV, Bhopal");
+  const [collegeName, setCollegeName] = useState("Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), Bhopal");
   const [cgpa, setCgpa] = useState("8.5");
 
   const [selectedSkills, setSelectedSkills] = useState<string[]>([
@@ -289,6 +289,7 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <Input
                   label="College / University Name"
+                  hint="Any college under RGPV. Type your own campus if this default is not yours."
                   value={collegeName}
                   onChange={(e) => setCollegeName(e.target.value)}
                 />
