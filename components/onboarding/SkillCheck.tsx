@@ -1,15 +1,13 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { questionsFor } from '@/data/skill-quizzes';
+import { blankDraft, type SkillDraft } from '@/lib/skill-draft';
 import {
   MODE_PERCENT,
-  defaultKind,
   type QuizLevel,
-  type SkillAssessmentRecord,
   type SkillKind,
   type SkillMode,
-  type SkillProof,
 } from '@/lib/skill-assessment';
 
 const COMMON_SKILLS = [
@@ -30,53 +28,6 @@ const COMMON_SKILLS = [
   'Cloud / AWS',
   'Communication & Leadership',
 ];
-
-export interface SkillDraft {
-  name: string;
-  kind: SkillKind;
-  mode: SkillMode;
-  quizLevel: QuizLevel;
-  answers: number[];
-  submitted: boolean;
-  percent: number;
-  proof?: SkillProof;
-}
-
-export function blankDraft(name: string): SkillDraft {
-  return {
-    name,
-    kind: defaultKind(name),
-    mode: 'basic',
-    quizLevel: 'easy',
-    answers: [-1, -1, -1],
-    submitted: false,
-    percent: 0,
-  };
-}
-
-export function draftReady(draft: SkillDraft): boolean {
-  if (draft.kind === 'extracurricular') return Boolean(draft.proof?.fileName);
-  return draft.submitted;
-}
-
-export function toRecord(draft: SkillDraft): SkillAssessmentRecord {
-  if (draft.kind === 'extracurricular') {
-    return {
-      name: draft.name,
-      kind: draft.kind,
-      mode: draft.mode,
-      percent: MODE_PERCENT[draft.mode],
-      proof: draft.proof,
-    };
-  }
-  return {
-    name: draft.name,
-    kind: draft.kind,
-    mode: draft.mode,
-    quizLevel: draft.quizLevel,
-    percent: draft.percent,
-  };
-}
 
 const MODES: { id: SkillMode; label: string }[] = [
   { id: 'basic', label: 'Basic' },
@@ -127,18 +78,28 @@ export function SkillCheck({
   onChange: (next: SkillDraft[]) => void;
 }) {
   const [customSkill, setCustomSkill] = useState('');
+  const [openName, setOpenName] = useState<string | null>(null);
+  const draftsRef = useRef(drafts);
+  const onChangeRef = useRef(onChange);
+  draftsRef.current = drafts;
+  onChangeRef.current = onChange;
   const selected = useMemo(() => new Set(drafts.map((draft) => draft.name)), [drafts]);
+
+  const patch = useCallback((name: string, partial: Partial<SkillDraft>) => {
+    onChangeRef.current(
+      draftsRef.current.map((draft) => (draft.name === name ? { ...draft, ...partial } : draft))
+    );
+  }, []);
 
   const upsert = (name: string) => {
     if (selected.has(name)) {
-      onChange(drafts.filter((draft) => draft.name !== name));
+      const next = drafts.filter((draft) => draft.name !== name);
+      onChange(next);
+      if (openName === name) setOpenName(next[0]?.name ?? null);
       return;
     }
     onChange([...drafts, blankDraft(name)]);
-  };
-
-  const patch = (name: string, partial: Partial<SkillDraft>) => {
-    onChange(drafts.map((draft) => (draft.name === name ? { ...draft, ...partial } : draft)));
+    setOpenName(name);
   };
 
   const addCustom = (event: React.FormEvent) => {
@@ -146,6 +107,7 @@ export function SkillCheck({
     const name = customSkill.trim();
     if (!name || selected.has(name)) return;
     onChange([...drafts, blankDraft(name)]);
+    setOpenName(name);
     setCustomSkill('');
   };
 
@@ -189,21 +151,66 @@ export function SkillCheck({
       </div>
 
       {drafts.map((draft) => (
-        <SkillCard key={draft.name} draft={draft} onPatch={(partial) => patch(draft.name, partial)} />
+        <SkillCard
+          key={draft.name}
+          draft={draft}
+          open={openName === draft.name}
+          onOpen={setOpenName}
+          onPatch={patch}
+        />
       ))}
     </div>
   );
 }
 
-function SkillCard({ draft, onPatch }: { draft: SkillDraft; onPatch: (partial: Partial<SkillDraft>) => void }) {
-  const questions = questionsFor(draft.name, draft.quizLevel);
+const SkillCard = React.memo(function SkillCard({
+  draft,
+  open,
+  onOpen,
+  onPatch,
+}: {
+  draft: SkillDraft;
+  open: boolean;
+  onOpen: (name: string) => void;
+  onPatch: (name: string, partial: Partial<SkillDraft>) => void;
+}) {
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const questions = useMemo(
+    () => (open && draft.kind === 'technical' ? questionsFor(draft.name, draft.quizLevel) : []),
+    [open, draft.kind, draft.name, draft.quizLevel]
+  );
   const modeHelp =
     draft.kind === 'technical'
       ? 'Basic means you can finish small tasks with a reference. Advanced means you can design and debug this on your own.'
       : 'Basic means you practice. Advanced means you have performed, led, or competed.';
 
+  const status =
+    draft.kind === 'technical'
+      ? draft.submitted
+        ? `${draft.percent}% · ${draft.quizLevel}`
+        : 'Quiz not scored'
+      : draft.proof
+        ? `${MODE_PERCENT[draft.mode]}% · ${draft.proof.fileName}`
+        : 'Proof needed';
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => onOpen(draft.name)}
+        className="w-full rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface-raised)] px-4 py-3 flex items-center justify-between gap-3 text-left"
+      >
+        <span className="text-sm font-bold text-[var(--color-text-primary)]">{draft.name}</span>
+        <span className="text-[11px] text-[var(--color-text-secondary)]">{status}</span>
+      </button>
+    );
+  }
+
+  const update = (partial: Partial<SkillDraft>) => onPatch(draft.name, partial);
+
   const setKind = (kind: SkillKind) => {
-    onPatch({
+    setQuestionIndex(0);
+    update({
       kind,
       submitted: false,
       percent: 0,
@@ -213,29 +220,35 @@ function SkillCard({ draft, onPatch }: { draft: SkillDraft; onPatch: (partial: P
   };
 
   const setLevel = (quizLevel: QuizLevel) => {
-    onPatch({ quizLevel, submitted: false, percent: 0, answers: [-1, -1, -1] });
+    setQuestionIndex(0);
+    update({ quizLevel, submitted: false, percent: 0, answers: [-1, -1, -1] });
   };
 
-  const answer = (index: number, choice: number) => {
+  const answer = (choice: number) => {
     const answers = draft.answers.slice();
-    answers[index] = choice;
-    onPatch({ answers, submitted: false, percent: 0 });
+    answers[questionIndex] = choice;
+    update({ answers, submitted: false, percent: 0 });
+    if (questionIndex < questions.length - 1 && answers[questionIndex + 1] < 0) {
+      setQuestionIndex(questionIndex + 1);
+    }
   };
 
   const submitQuiz = () => {
     const correct = questions.filter((question, index) => draft.answers[index] === question.answer).length;
-    onPatch({ submitted: true, percent: Math.round((correct / questions.length) * 100) });
+    update({ submitted: true, percent: Math.round((correct / questions.length) * 100) });
   };
 
   const onProof = (file: File | undefined) => {
     if (!file) {
-      onPatch({ proof: undefined });
+      update({ proof: undefined });
       return;
     }
-    onPatch({
+    update({
       proof: { fileName: file.name, fileType: file.type || 'application/octet-stream', fileSize: file.size },
     });
   };
+
+  const question = questions[questionIndex];
 
   return (
     <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface-raised)] p-4 space-y-3">
@@ -265,7 +278,7 @@ function SkillCard({ draft, onPatch }: { draft: SkillDraft; onPatch: (partial: P
         <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
           Which {draft.name} do you actually use?
         </p>
-        <ChoiceRow options={MODES} value={draft.mode} onChange={(id) => onPatch({ mode: id as SkillMode })} />
+        <ChoiceRow options={MODES} value={draft.mode} onChange={(id) => update({ mode: id as SkillMode })} />
         <p className="text-[11px] text-[var(--color-text-secondary)]">{modeHelp}</p>
       </div>
 
@@ -277,41 +290,51 @@ function SkillCard({ draft, onPatch }: { draft: SkillDraft; onPatch: (partial: P
             </p>
             <ChoiceRow options={LEVELS} value={draft.quizLevel} onChange={(id) => setLevel(id as QuizLevel)} />
           </div>
-          <ol className="space-y-3">
-            {questions.map((question, index) => (
-              <li key={question.prompt} className="space-y-1.5">
-                <p className="text-xs font-semibold text-[var(--color-text-primary)]">
-                  {index + 1}. {question.prompt}
+          {question && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                  Question {questionIndex + 1} of {questions.length}
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                  {question.choices.map((choice, choiceIndex) => {
-                    const picked = draft.answers[index] === choiceIndex;
-                    const reveal = draft.submitted;
-                    const right = question.answer === choiceIndex;
-                    const tone = reveal
-                      ? right
-                        ? 'border-emerald-500 text-emerald-600'
-                        : picked
-                          ? 'border-red-400 text-red-500'
-                          : 'border-[var(--color-border-subtle)] text-[var(--color-text-muted)]'
+                {questionIndex > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setQuestionIndex(questionIndex - 1)}
+                    className="text-[11px] font-semibold text-[var(--color-text-secondary)]"
+                  >
+                    Previous
+                  </button>
+                )}
+              </div>
+              <p className="text-xs font-semibold text-[var(--color-text-primary)]">{question.prompt}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                {question.choices.map((choice, choiceIndex) => {
+                  const picked = draft.answers[questionIndex] === choiceIndex;
+                  const reveal = draft.submitted;
+                  const right = question.answer === choiceIndex;
+                  const tone = reveal
+                    ? right
+                      ? 'border-emerald-500 text-emerald-600'
                       : picked
-                        ? 'border-[var(--color-brand-primary)] text-[var(--color-brand-primary)]'
-                        : 'border-[var(--color-border-subtle)] text-[var(--color-text-secondary)]';
-                    return (
-                      <button
-                        key={choice}
-                        type="button"
-                        onClick={() => answer(index, choiceIndex)}
-                        className={`text-left px-2.5 py-2 rounded-lg border text-[11px] ${tone}`}
-                      >
-                        {choice}
-                      </button>
-                    );
-                  })}
-                </div>
-              </li>
-            ))}
-          </ol>
+                        ? 'border-red-400 text-red-500'
+                        : 'border-[var(--color-border-subtle)] text-[var(--color-text-muted)]'
+                    : picked
+                      ? 'border-[var(--color-brand-primary)] text-[var(--color-brand-primary)]'
+                      : 'border-[var(--color-border-subtle)] text-[var(--color-text-secondary)]';
+                  return (
+                    <button
+                      key={choice}
+                      type="button"
+                      onClick={() => answer(choiceIndex)}
+                      className={`text-left px-2.5 py-2 rounded-lg border text-[11px] ${tone}`}
+                    >
+                      {choice}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <button
             type="button"
             onClick={submitQuiz}
@@ -350,4 +373,4 @@ function SkillCard({ draft, onPatch }: { draft: SkillDraft; onPatch: (partial: P
       )}
     </div>
   );
-}
+});

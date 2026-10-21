@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -33,7 +34,12 @@ import {
 } from "@/lib/roadmap";
 import { placementYearFromCurrentYear } from "@/lib/placement-year";
 import { averageKnowledge, skillsFromAssessments, storeAssessments } from "@/lib/skill-assessment";
-import { SkillCheck, draftReady, toRecord, type SkillDraft } from "@/components/onboarding/SkillCheck";
+import { draftReady, toRecord, type SkillDraft } from "@/lib/skill-draft";
+
+const SkillCheck = dynamic(
+  () => import("@/components/onboarding/SkillCheck").then((mod) => mod.SkillCheck),
+  { ssr: false, loading: () => <p className="text-xs text-[var(--color-text-muted)]">Loading skill check…</p> }
+);
 
 const TARGET_ROLES = [
   "Full-Stack Software Engineer",
@@ -80,7 +86,7 @@ export default function OnboardingPage() {
   const [confidence, setConfidence] = useState("Building");
 
   const placementYear = placementYearFromCurrentYear(Number(currentYear));
-  const skillRecords = skillDrafts.map(toRecord);
+  const skillRecords = useMemo(() => skillDrafts.map(toRecord), [skillDrafts]);
   const skillsReady = skillDrafts.every(draftReady);
 
   const toggleDomain = (dom: string) => {
