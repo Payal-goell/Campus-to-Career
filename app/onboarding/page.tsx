@@ -29,28 +29,11 @@ import {
   coerceDomain,
   coerceYear,
   parseWeeklyHours,
-  skillsFromNames,
   type TalentInterest,
 } from "@/lib/roadmap";
-
-const COMMON_SKILLS = [
-  "JavaScript",
-  "TypeScript",
-  "React.js",
-  "Node.js",
-  "Python",
-  "C++",
-  "Java",
-  "Data Structures & Algorithms",
-  "SQL",
-  "PostgreSQL",
-  "Docker",
-  "System Design",
-  "Git",
-  "Machine Learning",
-  "Cloud / AWS",
-  "Communication & Leadership",
-];
+import { placementYearFromCurrentYear } from "@/lib/placement-year";
+import { averageKnowledge, skillsFromAssessments, storeAssessments } from "@/lib/skill-assessment";
+import { SkillCheck, draftReady, toRecord, type SkillDraft } from "@/components/onboarding/SkillCheck";
 
 const TARGET_ROLES = [
   "Full-Stack Software Engineer",
@@ -84,39 +67,21 @@ export default function OnboardingPage() {
   const [collegeName, setCollegeName] = useState("Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), Bhopal");
   const [cgpa, setCgpa] = useState("8.5");
 
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([
-    "JavaScript",
-    "React.js",
-    "Data Structures & Algorithms",
-  ]);
-  const [customSkill, setCustomSkill] = useState("");
+  const [skillDrafts, setSkillDrafts] = useState<SkillDraft[]>([]);
 
   const [targetRole, setTargetRole] = useState("Full-Stack Software Engineer");
   const [preferredDomains, setPreferredDomains] = useState<string[]>(["Web Development"]);
   const [talentInterests, setTalentInterests] = useState<TalentInterest[]>(["Dance"]);
 
-  const [targetPlacementYear, setTargetPlacementYear] = useState("2026");
   const [primaryGoal, setPrimaryGoal] = useState(
     "Secure a product-company SDE internship (Bengaluru / Hyderabad / Pune) or TCS Digital / GATE path"
   );
   const [hoursPerWeek, setHoursPerWeek] = useState("10-15 hours");
   const [confidence, setConfidence] = useState("Building");
 
-  const toggleSkill = (skill: string) => {
-    if (selectedSkills.includes(skill)) {
-      setSelectedSkills(selectedSkills.filter((s) => s !== skill));
-    } else {
-      setSelectedSkills([...selectedSkills, skill]);
-    }
-  };
-
-  const addCustomSkill = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (customSkill.trim() && !selectedSkills.includes(customSkill.trim())) {
-      setSelectedSkills([...selectedSkills, customSkill.trim()]);
-      setCustomSkill("");
-    }
-  };
+  const placementYear = placementYearFromCurrentYear(Number(currentYear));
+  const skillRecords = skillDrafts.map(toRecord);
+  const skillsReady = skillDrafts.every(draftReady);
 
   const toggleDomain = (dom: string) => {
     if (preferredDomains.includes(dom)) {
@@ -130,7 +95,7 @@ export default function OnboardingPage() {
     const profile = {
       branch,
       currentYear: coerceYear(Number(currentYear)),
-      skills: skillsFromNames(selectedSkills, 1),
+      skills: skillsFromAssessments(skillRecords),
       interestDomains: preferredDomains.map((d) => coerceDomain(d)),
       talentInterests,
       targetRole,
@@ -142,6 +107,10 @@ export default function OnboardingPage() {
   };
 
   const handleSubmitOnboarding = async () => {
+    if (!skillsReady) {
+      setCurrentStep(3);
+      return;
+    }
     setLoading(true);
     persistRoadmapProfile();
     try {
@@ -158,16 +127,17 @@ export default function OnboardingPage() {
           currentYear: Number(currentYear),
           cgpa: cgpa ? parseFloat(cgpa) : undefined,
         },
-        currentSkills: selectedSkills,
+        currentSkills: skillRecords.map((record) => record.name),
+        skillAssessments: skillRecords,
         careerPreferences: {
           targetRole,
           preferredDomains,
         },
         goals: {
-          targetPlacementYear: parseInt(targetPlacementYear, 10),
           primaryGoal,
         },
       };
+      storeAssessments(skillRecords);
 
       const res = await fetch("/api/v1/onboarding/profile", {
         method: "POST",
@@ -369,53 +339,23 @@ export default function OnboardingPage() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-[var(--color-text-primary)]">3. Technical & Professional Skills</h2>
-                  <p className="text-xs text-[var(--color-text-secondary)]">Select what you already know or have studied.</p>
+                  <p className="text-xs text-[var(--color-text-secondary)]">For each skill, mark technical or extracurricular, then the level you actually have.</p>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] block">
-                  Click to add / remove skills ({selectedSkills.length} selected):
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {COMMON_SKILLS.map((sk) => {
-                    const isSelected = selectedSkills.includes(sk);
-                    return (
-                      <button
-                        key={sk}
-                        type="button"
-                        onClick={() => toggleSkill(sk)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
-                          isSelected
-                            ? "bg-[var(--color-brand-primary)] text-white border-[var(--color-brand-primary)] shadow-sm"
-                            : "bg-[var(--color-surface-raised)] text-[var(--color-text-secondary)] border-[var(--color-border-subtle)] hover:border-[var(--color-border-default)]"
-                        }`}
-                      >
-                        {isSelected ? "✓ " : "+ "}
-                        {sk}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Add custom skill input */}
-                <div className="flex gap-2 pt-2">
-                  <Input
-                    placeholder="Add custom skill (e.g. Next.js, Flutter, AWS)..."
-                    value={customSkill}
-                    onChange={(e) => setCustomSkill(e.target.value)}
-                  />
-                  <Button type="button" variant="secondary" onClick={addCustomSkill}>
-                    Add
-                  </Button>
-                </div>
-              </div>
+              <p className="text-xs text-[var(--color-text-secondary)]">
+                Technical skills get a short quiz at the difficulty you pick. Extracurricular skills need a video or a certificate.
+              </p>
+              <SkillCheck drafts={skillDrafts} onChange={setSkillDrafts} />
+              {!skillsReady && (
+                <p className="text-xs text-amber-600">Score each technical quiz, and attach proof for each extracurricular skill, before continuing.</p>
+              )}
 
               <div className="flex justify-between pt-4">
                 <Button type="button" variant="outline" onClick={() => setCurrentStep(2)}>
                   <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
                 </Button>
-                <Button type="button" variant="gradient" onClick={() => setCurrentStep(4)}>
+                <Button type="button" variant="gradient" disabled={!skillsReady} onClick={() => setCurrentStep(4)}>
                   Next: Career Goals
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -548,12 +488,13 @@ export default function OnboardingPage() {
                     className="w-full rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-3.5 py-2.5 text-xs text-[var(--color-text-primary)] focus:border-[var(--color-border-focus)] outline-none"
                   />
                 </div>
-                <Input
-                  label="Target Placement Year"
-                  type="number"
-                  value={targetPlacementYear}
-                  onChange={(e) => setTargetPlacementYear(e.target.value)}
-                />
+                <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface-raised)] p-4 space-y-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Placement year</p>
+                  <p className="text-2xl font-black text-[var(--color-text-primary)]">{placementYear}</p>
+                  <p className="text-xs text-[var(--color-text-secondary)]">
+                    Taken from Year {currentYear} of the 4-year B.Tech and this calendar year. Campus drives run in your final year.
+                  </p>
+                </div>
               </div>
 
               <div className="flex justify-between pt-4">
@@ -652,7 +593,7 @@ export default function OnboardingPage() {
                   Your roadmap is ready
                 </h2>
                 <p className="text-xs text-[var(--text-secondary)] max-w-md mx-auto">
-                  Personalized Year {currentYear} path for {targetRole}, including talent tracks: {talentInterests.join(", ") || "Explorer"}.
+                  Personalized Year {currentYear} path for {targetRole}. Placement year {placementYear}. Skill check average {averageKnowledge(skillRecords)}%. Talent tracks: {talentInterests.join(", ") || "Explorer"}.
                 </p>
               </div>
 

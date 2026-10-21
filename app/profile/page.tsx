@@ -11,10 +11,12 @@ import { ProgressBar } from '@/components/ui/Progress';
 import { Avatar } from '@/components/ui/Avatar';
 import { ModuleAuthGate } from '@/components/ModuleAuthGate';
 import { useStudentHub } from '@/hooks/useStudentHub';
+import { SkillKnowledgeList, useSkillRecords } from '@/components/skills/SkillKnowledgeList';
 
 export default function ProfilePage() {
   const router = useRouter();
   const { data, loading, needsAuth, needsOnboarding } = useStudentHub({ requireAuth: true });
+  const skillRecords = useSkillRecords(data?.student.skillAssessments);
 
   useEffect(() => {
     if (needsOnboarding) router.replace('/onboarding');
@@ -30,8 +32,8 @@ export default function ProfilePage() {
       />
     );
   }
-  if (!data) return null;
-  const s = data.student;
+  const s = data?.student;
+  if (!data || !s) return null;
 
   return (
     <div className="space-y-6 py-6">
@@ -61,11 +63,7 @@ export default function ProfilePage() {
         </Card>
         <Card className="p-5 space-y-2">
           <h2 className="text-sm font-bold">Skills</h2>
-          <div className="flex flex-wrap gap-1.5">
-            {s.skills.slice(0, 8).map((sk) => (
-              <Badge key={sk} variant="outline" size="sm">{sk}</Badge>
-            ))}
-          </div>
+          <SkillKnowledgeList records={skillRecords} names={s.skills.slice(0, 8)} />
           <Link href="/skills" className="text-xs text-[var(--primary)] font-semibold inline-flex items-center gap-1">
             Skill gap <ArrowRight className="w-3 h-3" />
           </Link>

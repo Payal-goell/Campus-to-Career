@@ -33,7 +33,7 @@ export const TRAINING_MODULES = [
     mockQuestionsCount: 220,
     topics: [
       { title: 'Percentages, time-work, pipes', detail: 'IndiaBix topic tests, 15 min timed.', resource: 'https://www.indiabix.com/' },
-      { title: 'Puzzles & seating', detail: 'One puzzle set every Tuesday.', resource: 'https://www.geeksforgeeks.org/puzzles/' },
+      { title: 'Puzzles & seating', detail: 'One puzzle set every Tuesday.', resource: 'https://www.geeksforgeeks.org/aptitude/puzzles/' },
       { title: 'Verbal RC', detail: 'One editorial summary in 8 lines.', resource: 'https://www.thehindu.com/' },
       { title: 'OA simulation', detail: 'HackerRank 60 min: 2 easy + 1 medium.', resource: 'https://www.hackerrank.com/' },
     ],
@@ -48,7 +48,7 @@ export const TRAINING_MODULES = [
       { title: 'Project deep-dive', detail: 'Architecture, trade-offs, what broke.', resource: '/projects' },
       { title: 'CS fundamentals round', detail: 'OS, CN, DBMS 20 flashcards.', resource: '/resources' },
       { title: 'HR values', detail: 'Relocation, night shift, bond — honest answers.', resource: '/interview' },
-      { title: 'TCS NQT pattern', detail: 'Foundation + advanced + coding.', resource: 'https://www.tcs.com/careers' },
+      { title: 'TCS NQT pattern', detail: 'Foundation + advanced + coding.', resource: 'https://www.hackerrank.com/skills-verification' },
     ],
     weeklyPlan: ['1 mock with timer', 'Write feedback', 'Fix one weak topic'],
   },
@@ -58,8 +58,8 @@ export const TRAINING_MODULES = [
     duration: '5 weeks · 3 hrs/week',
     mockQuestionsCount: 20,
     topics: [
-      { title: 'Linux daily 15', detail: 'cd, grep, chmod, tmux.', resource: 'https://linuxjourney.com/' },
-      { title: 'Postman collections', detail: 'Hit your project API; save env vars.', resource: 'https://www.postman.com/' },
+      { title: 'Linux daily 15', detail: 'cd, grep, chmod, tmux.', resource: 'https://www.digitalocean.com/community/tutorials/an-introduction-to-the-linux-terminal' },
+      { title: 'Postman collections', detail: 'Hit your project API; save env vars.', resource: 'https://learning.postman.com/docs/getting-started/overview/' },
       { title: 'Docker hello-world', detail: 'Containerise the notes app.', resource: 'https://docs.docker.com/get-started/' },
       { title: 'GitHub Student Pack', detail: 'Copilot + domains.', resource: 'https://education.github.com/pack' },
     ],
@@ -86,7 +86,7 @@ export const TRAINING_MODULES = [
     duration: '10 weeks · 4 hrs/week',
     mockQuestionsCount: 90,
     topics: [
-      { title: 'GATE ECE digital + signals', detail: 'Previous 5 years, 10 Q/week. Semiconductor CoE overlap.', resource: 'https://gate.iitk.ac.in/' },
+      { title: 'GATE ECE digital + signals', detail: 'Previous 5 years, 10 Q/week. Semiconductor CoE overlap.', resource: 'https://gate2026.iitg.ac.in/' },
       { title: 'ME CAD + GD&T', detail: 'One SolidWorks part a week. A student vehicle team is the portfolio.', resource: '/projects' },
       { title: 'CE quantities + AutoCAD', detail: 'One quantity sheet plus a site-visit note you can show.', resource: '/projects' },
       { title: 'EE machines + MATLAB', detail: 'M.Tech Power Systems as a later path; TAES club talks.', resource: '/resources' },

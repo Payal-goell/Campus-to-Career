@@ -28,6 +28,14 @@ export interface StudentProfileData {
   currentYear: number;
   cgpa?: number | null;
   skills: string[];
+  skillAssessments?: Array<{
+    name: string;
+    kind: 'technical' | 'extracurricular';
+    mode: 'basic' | 'intermediate' | 'advanced';
+    quizLevel?: 'easy' | 'medium' | 'hard';
+    percent: number;
+    proof?: { fileName: string; fileType: string; fileSize: number };
+  }>;
   targetRole?: string | null;
   preferredDomains: string[];
   targetPlacementYear?: number | null;

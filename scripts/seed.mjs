@@ -249,15 +249,15 @@ async function main() {
   // 4. Resources (Free and Paid)
   const resourcesData = [
     {
-      title: 'Complete Modern React & Next.js Masterclass',
+      title: 'React — Quick Start',
       type: 'course',
       category: 'Web Development',
-      provider: 'freeCodeCamp Open Source',
-      url: 'https://freecodecamp.org/learn/react',
+      provider: 'React',
+      url: 'https://react.dev/learn',
       isPaid: false,
       level: 'Beginner to Intermediate',
       rating: 4.9,
-      description: 'Zero-to-mastery comprehensive interactive walkthrough of React 18, Next.js App Router, hooks, state, and server components.',
+      description: 'Official free React tutorial. Build tic-tac-toe, then reuse the same steps on a college project.',
       academicYear: 2
     },
     {
@@ -277,7 +277,7 @@ async function main() {
       type: 'youtube',
       category: 'Data Structures & Algorithms',
       provider: 'NeetCode YouTube Channel',
-      url: 'https://youtube.com/c/neetcode',
+      url: 'https://www.youtube.com/c/neetcode',
       isPaid: false,
       level: 'All Levels',
       rating: 4.9,
@@ -285,11 +285,11 @@ async function main() {
       academicYear: 2
     },
     {
-      title: 'Official PostgreSQL 16 Architecture & SQL Documentation',
+      title: 'Official PostgreSQL Documentation',
       type: 'doc',
       category: 'Databases',
       provider: 'PostgreSQL Global Development Group',
-      url: 'https://postgresql.org/docs/16/index.html',
+      url: 'https://www.postgresql.org/docs/current/',
       isPaid: false,
       level: 'Beginner to Advanced',
       rating: 4.8,
@@ -333,15 +333,15 @@ async function main() {
       academicYear: 3
     },
     {
-      title: 'Introduction to Algorithms (CLRS)',
-      type: 'book',
+      title: 'MIT OCW 6.006 Introduction to Algorithms',
+      type: 'course',
       category: 'Data Structures & Algorithms',
-      provider: 'MIT Press',
-      url: 'https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/',
-      isPaid: true,
+      provider: 'MIT OpenCourseWare',
+      url: 'https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/',
+      isPaid: false,
       level: 'Intermediate',
       rating: 4.9,
-      description: 'Standard DSA reference. Use chapters 2–16 in Year 2.',
+      description: 'Free lectures and problem sets for Year 2 DSA. Printed CLRS stays the library copy.',
       academicYear: 2
     },
     {
@@ -357,39 +357,39 @@ async function main() {
       academicYear: 3
     },
     {
-      title: 'Frontend Masters — Complete Enterprise TypeScript',
-      type: 'course',
+      title: 'TypeScript Handbook',
+      type: 'doc',
       category: 'Web Development',
-      provider: 'Frontend Masters',
-      url: 'https://frontendmasters.com/courses/typescript-v4',
-      isPaid: true,
+      provider: 'Microsoft',
+      url: 'https://www.typescriptlang.org/docs/handbook/intro.html',
+      isPaid: false,
       level: 'Intermediate',
       rating: 4.9,
-      description: 'Deep dive into generics, conditional types, AST parsing, and robust architectural typing for scalable React apps.',
+      description: 'Official free handbook. Read Everyday Types and Narrowing, then type one college React component.',
       academicYear: 2
     },
     {
-      title: 'LeetCode Premium — Company-Specific Problem Sets',
+      title: 'NeetCode Practice (Blind 75)',
       type: 'practice',
       category: 'Competitive Programming',
-      provider: 'LeetCode',
-      url: 'https://leetcode.com/subscribe',
-      isPaid: true,
+      provider: 'NeetCode',
+      url: 'https://neetcode.io/practice',
+      isPaid: false,
       level: 'All Levels',
       rating: 4.7,
-      description: 'Full access to top 50 recent interview questions sorted by company (Google, Amazon, Uber, Microsoft) and mock tests.',
+      description: 'Free curated problem list with video solutions. Two problems a day is enough for campus OAs.',
       academicYear: 4
     },
     {
-      title: 'Docker & Kubernetes: The Practical Guide',
-      type: 'course',
+      title: 'Docker — Get started',
+      type: 'doc',
       category: 'Cloud & DevOps',
-      provider: 'Academind / Maximilian Schwarzmüller',
-      url: 'https://academind.com/courses/docker-kubernetes',
-      isPaid: true,
+      provider: 'Docker',
+      url: 'https://docs.docker.com/get-started/',
+      isPaid: false,
       level: 'Beginner to Intermediate',
       rating: 4.8,
-      description: 'Master containerization from Dockerfiles and multi-stage builds to Kubernetes deployments, services, and ingress.',
+      description: 'Official free guide. Containerise one college project and run it locally.',
       academicYear: 3
     }
   ];

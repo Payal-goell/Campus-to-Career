@@ -52,10 +52,10 @@ function expand(domain: InterestDomain, prefix: string, years: Record<AcademicYe
   return out;
 }
 
-const nptel = free('NPTEL: Programming, Data Structures and Algorithms', 'https://nptel.ac.in', 'course');
-const cisco = free('Cisco: Introduction to Cybersecurity / Networking Basics', 'https://www.netacad.com', 'course');
-const googleDa = free('Google Data Analytics (audit)', 'https://www.coursera.org/professional-certificates/google-data-analytics', 'course');
-const ibmDa = free('IBM Data Analyst (audit)', 'https://www.coursera.org/professional-certificates/ibm-data-analyst', 'course');
+const nptel = free('NPTEL: Programming, Data Structures and Algorithms using Python', 'https://nptel.ac.in/courses/106106145', 'course');
+const cisco = free('Cisco Networking Basics', 'https://www.netacad.com/courses/networking-basics', 'course');
+const googleDa = free('Kaggle Pandas', 'https://www.kaggle.com/learn/pandas', 'course');
+const ibmDa = free('Select Star SQL', 'https://selectstarsql.com/', 'course');
 
 export function domainTemplates(): RoadmapTemplate[] {
   return [

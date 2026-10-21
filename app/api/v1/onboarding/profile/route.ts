@@ -10,6 +10,23 @@ import {
   writeLocalAccounts,
 } from '@/lib/local-accounts';
 import { z } from 'zod';
+import { placementYearFromCurrentYear } from '@/lib/placement-year';
+import type { SkillAssessmentRecord } from '@/lib/skill-assessment';
+
+const assessmentSchema = z.object({
+  name: z.string().min(1).max(80),
+  kind: z.enum(['technical', 'extracurricular']),
+  mode: z.enum(['basic', 'intermediate', 'advanced']),
+  quizLevel: z.enum(['easy', 'medium', 'hard']).optional(),
+  percent: z.number().int().min(0).max(100),
+  proof: z
+    .object({
+      fileName: z.string().max(180),
+      fileType: z.string().max(120),
+      fileSize: z.number().int().nonnegative().max(80_000_000),
+    })
+    .optional(),
+});
 
 const onboardingSchema = z.object({
   basicInfo: z.object({
@@ -25,6 +42,7 @@ const onboardingSchema = z.object({
     cgpa: z.number().min(0).max(10).optional(),
   }),
   currentSkills: z.array(z.string()).default([]),
+  skillAssessments: z.array(assessmentSchema).default([]),
   careerPreferences: z.object({
     targetRole: z.string().min(2, 'Target role is required'),
     preferredDomains: z.array(z.string()).default([]),
@@ -55,14 +73,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { basicInfo, academicDetails, currentSkills, careerPreferences, goals } = parsed.data;
+    const { basicInfo, academicDetails, currentSkills, skillAssessments, careerPreferences, goals } = parsed.data;
+    const placementYear = placementYearFromCurrentYear(academicDetails.currentYear);
 
     // Calculate baseline development score
     let score = 45; // base score for completing onboarding
     if (academicDetails.cgpa) {
       score += Math.min(Math.round((academicDetails.cgpa / 10) * 20), 20);
     }
-    score += Math.min(currentSkills.length * 4, 20); // up to 20 pts for skills
+    if (skillAssessments.length > 0) {
+      const average = Math.round(skillAssessments.reduce((sum, item) => sum + item.percent, 0) / skillAssessments.length);
+      score += Math.min(Math.round(average / 5), 20);
+    } else {
+      score += Math.min(currentSkills.length * 4, 20);
+    }
     if (goals.primaryGoal) score += 5;
     if (careerPreferences.targetRole) score += 5;
     score = Math.min(Math.max(score, 50), 95);
@@ -76,6 +100,8 @@ export async function POST(req: NextRequest) {
       currentYear: academicDetails.currentYear,
       cgpa: academicDetails.cgpa || null,
       skills: currentSkills,
+      skillAssessments: skillAssessments as SkillAssessmentRecord[],
+      targetPlacementYear: placementYear,
       targetRole: careerPreferences.targetRole,
       preferredDomains: careerPreferences.preferredDomains,
       primaryGoal: goals.primaryGoal,
@@ -134,7 +160,7 @@ export async function POST(req: NextRequest) {
         skills: currentSkills,
         targetRole: careerPreferences.targetRole,
         preferredDomains: careerPreferences.preferredDomains,
-        targetPlacementYear: goals.targetPlacementYear || (new Date().getFullYear() + (4 - academicDetails.currentYear)),
+        targetPlacementYear: placementYear,
         primaryGoal: goals.primaryGoal,
         profileCompletion: 85,
         developmentScore: score,
@@ -149,7 +175,7 @@ export async function POST(req: NextRequest) {
         skills: currentSkills,
         targetRole: careerPreferences.targetRole,
         preferredDomains: careerPreferences.preferredDomains,
-        targetPlacementYear: goals.targetPlacementYear,
+        targetPlacementYear: placementYear,
         primaryGoal: goals.primaryGoal,
         profileCompletion: 85,
         developmentScore: score,
@@ -188,7 +214,7 @@ export async function POST(req: NextRequest) {
       message: 'Onboarding profile initialized successfully.',
       initialScore: score,
       dashboardUrl: '/dashboard',
-      profile,
+      profile: { ...profile, skillAssessments, targetPlacementYear: placementYear },
     });
     } catch (error) {
       if (!isDatabaseError(error)) throw error;

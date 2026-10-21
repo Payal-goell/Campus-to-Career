@@ -7,9 +7,12 @@ import { SkillGapChart } from '@/components/SkillGapChart';
 import { GuestPreviewBanner } from '@/components/ModuleAuthGate';
 import { DownloadAnalysisReport } from '@/components/DownloadAnalysisReport';
 import { useStudentHub } from '@/hooks/useStudentHub';
+import { knowledgePercent } from '@/lib/skill-assessment';
+import { SkillKnowledgeList, useSkillRecords } from '@/components/skills/SkillKnowledgeList';
 
 export default function SkillsPage() {
   const { data, loading, isGuest } = useStudentHub({ requireAuth: false });
+  const skillRecords = useSkillRecords(data?.student.skillAssessments);
 
   if (loading) {
     return <p className="py-20 text-center text-xs text-[var(--text-muted)]">Loading skill gap…</p>;
@@ -17,6 +20,10 @@ export default function SkillsPage() {
   if (!data) {
     return <p className="py-20 text-center text-xs text-[var(--text-muted)]">Could not load skill data.</p>;
   }
+  const gap = data.skillGapAnalysis.map((item) => ({
+    ...item,
+    current: knowledgePercent(skillRecords, item.skill, item.current),
+  }));
 
   return (
     <div className="space-y-6 py-6">
@@ -32,17 +39,11 @@ export default function SkillsPage() {
 
       <DownloadAnalysisReport data={data} />
 
-      <SkillGapChart data={data.skillGapAnalysis} />
+      <SkillGapChart data={gap} />
 
       <Card className="p-5 space-y-2">
         <h2 className="text-sm font-bold">Current skills on file</h2>
-        <div className="flex flex-wrap gap-1.5">
-          {data.student.skills.map((sk) => (
-            <Badge key={sk} variant="outline" size="sm">
-              {sk}
-            </Badge>
-          ))}
-        </div>
+        <SkillKnowledgeList records={skillRecords} names={data.student.skills} />
         <Link href="/resources" className="text-xs text-[var(--primary)] font-semibold">
           Add evidence via Resources →
         </Link>

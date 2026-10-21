@@ -1,6 +1,7 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import type { UserRole, UserSession } from '@/lib/types';
+import { knowledgePercent, type SkillAssessmentRecord } from '@/lib/skill-assessment';
 import { demoAccountFromToken } from '@/lib/demo-accounts';
 
 const ACCOUNTS_COOKIE = 'ctc_accounts';
@@ -15,6 +16,8 @@ export interface LocalProfile {
   currentYear: number;
   cgpa?: number | null;
   skills: string[];
+  skillAssessments?: SkillAssessmentRecord[];
+  targetPlacementYear?: number | null;
   targetRole?: string | null;
   preferredDomains: string[];
   primaryGoal?: string | null;
@@ -176,12 +179,12 @@ export function dashboardForAccount(account: LocalAccount) {
       progressPercentage: Math.min(100, profile.currentYear * 20),
     },
     skillGapAnalysis: [
-      { skill: 'Data Structures & Algorithms', required: 90, current: profile.skills.length ? 70 : 40 },
-      { skill: 'React / Next.js', required: 85, current: 55 },
-      { skill: 'System Design', required: 80, current: 35 },
-      { skill: 'Databases & SQL', required: 85, current: 50 },
-      { skill: 'Cloud & Docker', required: 75, current: 30 },
-      { skill: 'Communication & Behavioral', required: 80, current: 60 },
+      { skill: 'Data Structures & Algorithms', required: 90, current: knowledgePercent(profile.skillAssessments, 'Data Structures & Algorithms', profile.skills.length ? 70 : 40) },
+      { skill: 'React / Next.js', required: 85, current: knowledgePercent(profile.skillAssessments, 'React / Next.js', 55) },
+      { skill: 'System Design', required: 80, current: knowledgePercent(profile.skillAssessments, 'System Design', 35) },
+      { skill: 'Databases & SQL', required: 85, current: knowledgePercent(profile.skillAssessments, 'Databases & SQL', 50) },
+      { skill: 'Cloud & Docker', required: 75, current: knowledgePercent(profile.skillAssessments, 'Cloud & Docker', 30) },
+      { skill: 'Communication & Behavioral', required: 80, current: knowledgePercent(profile.skillAssessments, 'Communication & Behavioral', 60) },
     ],
     recommendedActions: [
       'Finish one roadmap milestone this week',

@@ -43,8 +43,8 @@ export default function CertificationsPage() {
         title="Certifications you can actually finish"
         description={
           context.targetRole
-            ? `Ranked for Year ${context.year ?? '—'} · ${context.targetRole}. Free audits first, paid exams only when the hours fit.`
-            : 'Sign in for a profile-aware list. Until then, we rank free, semester-sized credentials.'
+            ? `Ranked for Year ${context.year ?? '—'} · ${context.targetRole}. Each one is free to finish on a student schedule.`
+            : 'Sign in for a profile-aware list. Until then, we rank free credentials you can finish in a semester.'
         }
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -68,6 +68,10 @@ export default function CertificationsPage() {
           </div>
         }
       />
+
+      {!loading && shown.length === 0 && (
+        <p className="text-sm text-[var(--text-muted)]">Every credential here is free to finish with a college email.</p>
+      )}
 
       <motion.div variants={stagger(0.05)} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {shown.map((c) => (
