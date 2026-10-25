@@ -4,6 +4,7 @@ import { generateOtp, hashOtp, issueEmailOtp } from '@/lib/otp';
 import { sendOtpEmail } from '@/lib/mail';
 import { isDatabaseError } from '@/lib/demo-accounts';
 import { readLocalAccounts, upsertLocalAccount, writeLocalAccounts } from '@/lib/local-accounts';
+import { clientAddress, rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 function resendLocal(req: NextRequest, email: string) {
@@ -76,6 +77,13 @@ export async function POST(req: NextRequest) {
     }
 
     const email = parsed.data.email.toLowerCase();
+    const limited = rateLimit(`resend:${clientAddress(req)}:${email}`, 5, 15 * 60 * 1000);
+    if (!limited.ok) {
+      return NextResponse.json(
+        { success: false, error: `Too many code requests. Wait ${limited.retryAfter}s and try again.` },
+        { status: 429, headers: { 'Retry-After': String(limited.retryAfter) } }
+      );
+    }
     let user;
     try {
       user = await prisma.user.findUnique({ where: { email } });

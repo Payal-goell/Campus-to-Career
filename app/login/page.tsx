@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { safeNextPath } from "@/lib/safe-next";
+import { emailError, loginPasswordError } from "@/lib/field-rules";
 
 function LoginForm() {
   const router = useRouter();
@@ -18,6 +19,8 @@ function LoginForm() {
   const { login, quickLogin, user, isLoading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +44,12 @@ function LoginForm() {
     const data = new FormData(e.currentTarget);
     const submittedEmail = String(data.get("email") || email).trim();
     const submittedPassword = String(data.get("password") || password);
+    const nextEmailMessage = emailError(submittedEmail);
+    const nextPasswordMessage = loginPasswordError(submittedPassword);
+    setEmailMessage(nextEmailMessage);
+    setPasswordMessage(nextPasswordMessage);
     setError("");
+    if (nextEmailMessage || nextPasswordMessage) return;
     setLoading(true);
 
     const result = await login(submittedEmail, submittedPassword);
@@ -60,7 +68,7 @@ function LoginForm() {
     if (result.success) {
       goAfterAuth(Boolean(result.isOnboarded));
     } else {
-      setError(result.error || "Invalid credentials");
+      setError(result.error || "That email and password do not match an account.");
     }
   };
 
@@ -94,37 +102,37 @@ function LoginForm() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="College Email Address"
+              label="College Email Address *"
               name="email"
               type="email"
               autoComplete="email"
               required
-              placeholder="aarav.sharma@uitrgpv.ac.in"
+              placeholder="name@sistec.ac.in"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              error={emailMessage}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailMessage("");
+              }}
               leftIcon={<Mail className="w-4 h-4" />}
             />
 
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
-                  Password
-                </label>
-                <span className="text-xs text-[var(--color-brand-primary)] hover:underline cursor-pointer">
-                  Forgot password?
-                </span>
-              </div>
-              <Input
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                placeholder="••••••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                leftIcon={<Lock className="w-4 h-4" />}
-              />
-            </div>
+            <Input
+              label="Password *"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              placeholder="••••••••••••"
+              value={password}
+              error={passwordMessage}
+              hint="This must be the password saved for this email."
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordMessage("");
+              }}
+              leftIcon={<Lock className="w-4 h-4" />}
+            />
 
             <Button
               type="submit"

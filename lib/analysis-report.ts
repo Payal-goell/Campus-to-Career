@@ -33,7 +33,8 @@ export function buildAnalysisReportHtml(data: DashboardOverview, opts?: { genera
         <td>${g.current}</td>
         <td>${g.required}</td>
         <td>${g.required - g.current}</td>
-        <td>${escapeHtml(gapLabel(g.current, g.required))}</td>
+        <td>${escapeHtml(g.basis || gapLabel(g.current, g.required))}</td>
+        <td>${escapeHtml(g.next || '')}</td>
       </tr>`
     )
     .join('');
@@ -97,7 +98,7 @@ export function buildAnalysisReportHtml(data: DashboardOverview, opts?: { genera
     <h2>Skill gap analysis</h2>
     <table>
       <thead>
-        <tr><th>Skill</th><th>You</th><th>Target</th><th>Gap</th><th>Status</th></tr>
+        <tr><th>Skill</th><th>You</th><th>Target</th><th>Gap</th><th>How this number is set</th><th>Do this</th></tr>
       </thead>
       <tbody>${skillRows}</tbody>
     </table>
@@ -105,8 +106,8 @@ export function buildAnalysisReportHtml(data: DashboardOverview, opts?: { genera
     <h2>Priority focus (${priority.length})</h2>
     ${
       priority.length
-        ? `<ul>${priority.map((g) => `<li><strong>${escapeHtml(g.skill)}</strong> — lift from ${g.current} toward ${g.required}</li>`).join('')}</ul>`
-        : '<p class="muted">No large gaps — keep weekly practice on system design and OA mocks.</p>'
+        ? `<ul>${priority.map((g) => `<li><strong>${escapeHtml(g.skill)}</strong> — ${escapeHtml(g.standing || `You are at ${g.current}% against a ${g.required}% role bar.`)} ${escapeHtml(g.next || '')}</li>`).join('')}</ul>`
+        : '<p class="muted">Every checked skill meets its role bar. Sit a harder quiz to raise a score.</p>'
     }
 
     <h2>Recommended next actions</h2>

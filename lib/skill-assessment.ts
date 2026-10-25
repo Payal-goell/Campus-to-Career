@@ -78,11 +78,25 @@ function sameSkill(name: string, label: string): boolean {
   return pairs.some(([a, b]) => a.test(name) && b.test(label));
 }
 
-export function knowledgePercent(records: SkillAssessmentRecord[] | undefined, skillLabel: string, fallback: number): number {
-  if (!records?.length) return fallback;
+export function findAssessment(records: SkillAssessmentRecord[] | undefined, skillLabel: string) {
+  if (!records?.length) return undefined;
   const label = skillLabel.toLowerCase();
-  const hit = records.find((record) => sameSkill(record.name.toLowerCase(), label));
+  return records.find((record) => sameSkill(record.name.toLowerCase(), label));
+}
+
+export function knowledgePercent(records: SkillAssessmentRecord[] | undefined, skillLabel: string, fallback: number): number {
+  const hit = findAssessment(records, skillLabel);
   return hit ? hit.percent : fallback;
+}
+
+/** One sentence a student can read: where the percentage came from. */
+export function howWeKnow(record: SkillAssessmentRecord): string {
+  if (record.kind === 'extracurricular') {
+    const proof = record.proof ? ` Certificate on file: ${record.proof.fileName}.` : '';
+    return `You marked ${record.mode}.${proof} That stated level counts as ${record.percent}% of this skill.`;
+  }
+  const level = record.quizLevel ?? 'easy';
+  return `You scored ${record.percent}% on the ${level} quiz you chose, after marking this skill ${record.mode}.`;
 }
 
 export function readStoredAssessments(): SkillAssessmentRecord[] {

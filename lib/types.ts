@@ -112,6 +112,16 @@ export interface SkillGapItem {
   skill: string;
   required: number;
   current: number;
+  /** True when current comes from a quiz score or a stated level with proof. */
+  measured?: boolean;
+  /** How the current percentage was set. */
+  basis?: string;
+  /** Where the student stands against the role bar. */
+  standing?: string;
+  /** The single next piece of work for this skill. */
+  next?: string;
+  /** In-app path or an external practice link. */
+  href?: string;
 }
 
 export interface DashboardOverview {

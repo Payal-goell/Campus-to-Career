@@ -12,11 +12,19 @@ import {
   upsertLocalAccount,
   writeLocalAccounts,
 } from '@/lib/local-accounts';
+import { emailError, newPasswordError } from '@/lib/field-rules';
+import { clientAddress, rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 const registerSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().trim().superRefine((value, ctx) => {
+    const message = emailError(value);
+    if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+  }),
+  password: z.string().superRefine((value, ctx) => {
+    const message = newPasswordError(value);
+    if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+  }),
   role: z.enum(['STUDENT']).default('STUDENT'),
 });
 
@@ -39,6 +47,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Public registration is limited to student accounts' },
         { status: 403 }
+      );
+    }
+
+    const limited = rateLimit(`register:${clientAddress(req)}`, 5, 15 * 60 * 1000);
+    if (!limited.ok) {
+      return NextResponse.json(
+        { success: false, error: `Too many registration attempts. Wait ${limited.retryAfter}s and try again.` },
+        { status: 429, headers: { 'Retry-After': String(limited.retryAfter) } }
       );
     }
 

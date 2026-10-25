@@ -121,7 +121,8 @@ function VerifyEmailForm() {
         {!done ? (
           <form onSubmit={handleVerify} className="space-y-3 text-left">
             <Input
-              label="Verification code"
+              label="Verification code *"
+              required
               inputMode="numeric"
               autoComplete="one-time-code"
               placeholder="000000"

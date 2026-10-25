@@ -4,6 +4,7 @@ import { signAccessToken, signRefreshToken } from '@/lib/auth';
 import { MAX_OTP_ATTEMPTS, otpMatches } from '@/lib/otp';
 import { isDatabaseError } from '@/lib/demo-accounts';
 import { readLocalAccounts, upsertLocalAccount, writeLocalAccounts } from '@/lib/local-accounts';
+import { clientAddress, rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 function verifyLocalAccount(req: NextRequest, email: string, otp: string) {
@@ -90,6 +91,13 @@ export async function POST(req: NextRequest) {
     }
 
     const email = parsed.data.email.toLowerCase();
+    const limited = rateLimit(`otp:${clientAddress(req)}:${email}`, 8, 10 * 60 * 1000);
+    if (!limited.ok) {
+      return NextResponse.json(
+        { success: false, error: `Too many code attempts. Wait ${limited.retryAfter}s and try again.` },
+        { status: 429, headers: { 'Retry-After': String(limited.retryAfter) } }
+      );
+    }
     let user;
     try {
       user = await prisma.user.findUnique({

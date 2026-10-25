@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -32,6 +32,8 @@ import { ScoreMeter } from "@/components/ScoreMeter";
 import { TodayPlan } from "@/components/dashboard/TodayPlan";
 import { DashboardOverview } from "@/lib/types";
 import { ModuleAuthGate } from "@/components/ModuleAuthGate";
+import { useSkillRecords } from "@/components/skills/SkillKnowledgeList";
+import { actionsFromGaps, buildSkillGap } from "@/lib/skill-standing";
 
 const SkillGapChart = dynamic(
   () => import("@/components/SkillGapChart").then((m) => m.SkillGapChart),
@@ -52,6 +54,15 @@ export default function StudentDashboardPage() {
   const [data, setData] = useState<DashboardOverview | null>(null);
   const [loading, setLoading] = useState(true);
   const [showResumeModal, setShowResumeModal] = useState(false);
+  const skillRecords = useSkillRecords(data?.student.skillAssessments);
+  const gap = useMemo(
+    () => (data ? buildSkillGap(skillRecords, data.skillGapAnalysis) : []),
+    [data, skillRecords]
+  );
+  const nextSteps = useMemo(
+    () => (data ? actionsFromGaps(gap, data.recommendedActions) : []),
+    [data, gap]
+  );
 
   useEffect(() => {
     if (authLoading) return;
@@ -114,7 +125,7 @@ export default function StudentDashboardPage() {
     );
   }
 
-  const { student, roadmapProgress, skillGapAnalysis, recommendedActions, upcomingEvents } = data;
+  const { student, roadmapProgress, upcomingEvents } = data;
 
   return (
     <div className="space-y-8 py-6">
@@ -195,7 +206,7 @@ export default function StudentDashboardPage() {
           />
         </div>
         <div className="lg:col-span-8">
-          <SkillGapChart data={skillGapAnalysis} />
+          <SkillGapChart data={gap} />
         </div>
       </div>
 
@@ -264,7 +275,7 @@ export default function StudentDashboardPage() {
             </div>
 
             <div className="space-y-2.5 my-3">
-              {recommendedActions.map((action, idx) => (
+              {nextSteps.map((action, idx) => (
                 <div
                   key={idx}
                   className="p-3 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border-subtle)] flex items-start gap-2.5 hover:border-[var(--color-border-focus)] transition-colors"

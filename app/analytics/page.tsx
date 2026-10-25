@@ -10,9 +10,12 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { GuestPreviewBanner } from '@/components/ModuleAuthGate';
 import { DownloadAnalysisReport } from '@/components/DownloadAnalysisReport';
 import { useStudentHub } from '@/hooks/useStudentHub';
+import { useSkillRecords } from '@/components/skills/SkillKnowledgeList';
+import { actionsFromGaps, buildSkillGap } from '@/lib/skill-standing';
 
 export default function AnalyticsPage() {
   const { data, loading, isGuest } = useStudentHub({ requireAuth: false });
+  const skillRecords = useSkillRecords(data?.student.skillAssessments);
 
   if (loading) {
     return <p className="py-20 text-center text-xs text-[var(--text-muted)]">Loading analytics…</p>;
@@ -21,7 +24,13 @@ export default function AnalyticsPage() {
     return <p className="py-20 text-center text-xs text-[var(--text-muted)]">Could not load analytics.</p>;
   }
 
-  const priorityGaps = data.skillGapAnalysis
+  const gap = buildSkillGap(skillRecords, data.skillGapAnalysis);
+  const reportData = {
+    ...data,
+    skillGapAnalysis: gap,
+    recommendedActions: actionsFromGaps(gap, data.recommendedActions),
+  };
+  const priorityGaps = gap
     .filter((g) => g.required - g.current > 15)
     .sort((a, b) => b.required - b.current - (a.required - a.current));
 
@@ -35,14 +44,14 @@ export default function AnalyticsPage() {
 
       {isGuest && <GuestPreviewBanner nextPath="/analytics" />}
 
-      <DownloadAnalysisReport data={data} />
+      <DownloadAnalysisReport data={reportData} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-4">
           <ScoreMeter score={data.developmentScore} profileCompletion={data.profileCompletion} />
         </div>
         <div className="lg:col-span-8">
-          <SkillGapChart data={data.skillGapAnalysis} />
+          <SkillGapChart data={gap} />
         </div>
       </div>
 
@@ -69,8 +78,13 @@ export default function AnalyticsPage() {
                 key={g.skill}
                 className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs rounded-xl border border-[var(--border)] px-3 py-2.5"
               >
-                <span className="font-semibold text-[var(--text-primary)]">{g.skill}</span>
-                <span className="text-[var(--text-secondary)] font-mono">
+                <div className="space-y-1">
+                  <span className="font-semibold text-[var(--text-primary)]">{g.skill}</span>
+                  <p className="text-[var(--text-secondary)]">{g.standing}</p>
+                  <p className="text-[var(--text-secondary)]">{g.basis}</p>
+                  <p className="text-[var(--text-primary)]">{g.next}</p>
+                </div>
+                <span className="text-[var(--text-secondary)] font-mono shrink-0">
                   {g.current} → {g.required} (gap {g.required - g.current})
                 </span>
               </li>
@@ -86,7 +100,7 @@ export default function AnalyticsPage() {
         <Card className="p-5 space-y-2">
           <h2 className="text-sm font-bold">Recommended next actions</h2>
           <ul className="space-y-1.5 text-xs text-[var(--text-secondary)]">
-            {data.recommendedActions.map((action) => (
+            {reportData.recommendedActions.map((action) => (
               <li key={action} className="flex gap-2">
                 <span className="text-emerald-600 shrink-0">•</span>
                 <span>{action}</span>

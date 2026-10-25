@@ -35,6 +35,15 @@ import {
 import { placementYearFromCurrentYear } from "@/lib/placement-year";
 import { averageKnowledge, skillsFromAssessments, storeAssessments } from "@/lib/skill-assessment";
 import { draftReady, toRecord, type SkillDraft } from "@/lib/skill-draft";
+import {
+  CAREER_GOALS,
+  DEFAULT_COLLEGE,
+  avatarError,
+  cgpaError,
+  goalError,
+  goalText,
+  phoneError,
+} from "@/lib/field-rules";
 
 const SkillCheck = dynamic(
   () => import("@/components/onboarding/SkillCheck").then((mod) => mod.SkillCheck),
@@ -59,6 +68,7 @@ export default function OnboardingPage() {
   const roadmap = useRoadmapOptional();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState("");
   const [calculatedScore, setCalculatedScore] = useState<number | null>(null);
 
   // Form State
@@ -70,8 +80,8 @@ export default function OnboardingPage() {
 
   const [branch, setBranch] = useState("Computer Science & Engineering");
   const [currentYear, setCurrentYear] = useState(1);
-  const [collegeName, setCollegeName] = useState("Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), Bhopal");
-  const [cgpa, setCgpa] = useState("8.5");
+  const [collegeName, setCollegeName] = useState(DEFAULT_COLLEGE);
+  const [cgpa, setCgpa] = useState("");
 
   const [skillDrafts, setSkillDrafts] = useState<SkillDraft[]>([]);
 
@@ -79,15 +89,19 @@ export default function OnboardingPage() {
   const [preferredDomains, setPreferredDomains] = useState<string[]>(["Web Development"]);
   const [talentInterests, setTalentInterests] = useState<TalentInterest[]>(["Dance"]);
 
-  const [primaryGoal, setPrimaryGoal] = useState(
-    "Secure a product-company SDE internship (Bengaluru / Hyderabad / Pune) or TCS Digital / GATE path"
-  );
+  const [goalChoice, setGoalChoice] = useState("");
+  const [customGoal, setCustomGoal] = useState("");
   const [hoursPerWeek, setHoursPerWeek] = useState("10-15 hours");
   const [confidence, setConfidence] = useState("Building");
 
   const placementYear = placementYearFromCurrentYear(Number(currentYear));
   const skillRecords = useMemo(() => skillDrafts.map(toRecord), [skillDrafts]);
-  const skillsReady = skillDrafts.every(draftReady);
+  const skillsReady = skillDrafts.length > 0 && skillDrafts.every(draftReady);
+  const primaryGoal = goalText(goalChoice, customGoal);
+  const contactReady = fullName.trim().length >= 2 && !phoneError(phone) && !avatarError(avatarUrl);
+  const academicReady = collegeName.trim().length >= 3 && !cgpaError(cgpa);
+  const careerReady = Boolean(targetRole) && preferredDomains.length > 0 && talentInterests.length > 0;
+  const milestoneReady = !goalError(goalChoice, customGoal);
 
   const toggleDomain = (dom: string) => {
     if (preferredDomains.includes(dom)) {
@@ -113,17 +127,39 @@ export default function OnboardingPage() {
   };
 
   const handleSubmitOnboarding = async () => {
+    if (!contactReady) {
+      setFormError("Name, mobile number, and a valid photo link are required.");
+      setCurrentStep(1);
+      return;
+    }
+    if (!academicReady) {
+      setFormError("College name and CGPA are required.");
+      setCurrentStep(2);
+      return;
+    }
     if (!skillsReady) {
+      setFormError("Add at least one skill and finish its check.");
       setCurrentStep(3);
       return;
     }
+    if (!careerReady) {
+      setFormError("Choose a target role, one domain, and one talent interest.");
+      setCurrentStep(4);
+      return;
+    }
+    if (!milestoneReady) {
+      setFormError(goalError(goalChoice, customGoal));
+      setCurrentStep(5);
+      return;
+    }
+    setFormError("");
     setLoading(true);
     persistRoadmapProfile();
     try {
       const payload = {
         basicInfo: {
           fullName,
-          phone,
+          phone: phone.trim(),
           avatarUrl,
         },
         academicDetails: {
@@ -131,7 +167,7 @@ export default function OnboardingPage() {
           collegeName,
           branch,
           currentYear: Number(currentYear),
-          cgpa: cgpa ? parseFloat(cgpa) : undefined,
+          cgpa: Number(cgpa),
         },
         currentSkills: skillRecords.map((record) => record.name),
         skillAssessments: skillRecords,
@@ -155,14 +191,13 @@ export default function OnboardingPage() {
       if (data.success) {
         setCalculatedScore(data.initialScore || 72);
         await refreshUser();
+        setCurrentStep(7);
       } else {
-        setCalculatedScore(72);
+        setFormError(data.error || "The profile could not be saved. Check the required fields and try again.");
       }
-      setCurrentStep(7);
     } catch (e) {
       console.error(e);
-      setCalculatedScore(72);
-      setCurrentStep(7);
+      setFormError("The profile could not be saved. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -198,6 +233,11 @@ export default function OnboardingPage() {
 
       {/* Step Panels */}
       <Card variant="raised" className="p-6 sm:p-8 border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/90 backdrop-blur-xl shadow-xl">
+        {formError && (
+          <p className="mb-4 rounded-xl border border-[var(--color-danger-border)] bg-[var(--color-danger-subtle)] px-3 py-2 text-xs text-[var(--color-danger-text)]">
+            {formError}
+          </p>
+        )}
         <AnimatePresence mode="wait">
           {/* STEP 1: Basic Info */}
           {currentStep === 1 && (
@@ -221,9 +261,14 @@ export default function OnboardingPage() {
                   onChange={(e) => setFullName(e.target.value)}
                 />
                 <Input
-                  label="Phone Number"
-                  placeholder="+91 98765 43210"
+                  label="Mobile Number *"
+                  required
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="98765 43210"
                   value={phone}
+                  error={phone.trim() && phoneError(phone) ? phoneError(phone) : ""}
+                  hint="10-digit Indian mobile. This is required before the next step."
                   onChange={(e) => setPhone(e.target.value)}
                 />
                 <Input
@@ -231,6 +276,8 @@ export default function OnboardingPage() {
                   type="url"
                   placeholder="https://..."
                   value={avatarUrl}
+                  error={avatarError(avatarUrl)}
+                  hint="Optional. Leave the suggested photo or paste an image link."
                   onChange={(e) => setAvatarUrl(e.target.value)}
                 />
               </div>
@@ -240,7 +287,7 @@ export default function OnboardingPage() {
                   type="button"
                   variant="gradient"
                   onClick={() => setCurrentStep(2)}
-                  disabled={!fullName.trim()}
+                  disabled={!contactReady}
                 >
                   Next: Academic Details
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -264,15 +311,16 @@ export default function OnboardingPage() {
 
               <div className="space-y-4">
                 <Input
-                  label="College / University Name"
-                  hint="Any college under RGPV. Type your own campus if this default is not yours."
+                  label="College / University Name *"
+                  required
+                  hint="SISTec Gandhi Nagar is filled in. Change it if your campus is different."
                   value={collegeName}
                   onChange={(e) => setCollegeName(e.target.value)}
                 />
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] block">
-                    Engineering Branch / Major
+                    Engineering Branch / Major *
                   </label>
                   <select
                     value={branch}
@@ -313,12 +361,15 @@ export default function OnboardingPage() {
                   </div>
 
                   <Input
-                    label="Cumulative CGPA (Out of 10)"
+                    label="Cumulative CGPA (Out of 10) *"
                     type="number"
+                    required
                     step="0.1"
                     min="0"
                     max="10"
+                    placeholder="8.2"
                     value={cgpa}
+                    error={cgpa.trim() && cgpaError(cgpa) ? cgpaError(cgpa) : ""}
                     onChange={(e) => setCgpa(e.target.value)}
                   />
                 </div>
@@ -328,7 +379,7 @@ export default function OnboardingPage() {
                 <Button type="button" variant="outline" onClick={() => setCurrentStep(1)}>
                   <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
                 </Button>
-                <Button type="button" variant="gradient" onClick={() => setCurrentStep(3)}>
+                <Button type="button" variant="gradient" disabled={!academicReady} onClick={() => setCurrentStep(3)}>
                   Next: Current Skills
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -354,7 +405,9 @@ export default function OnboardingPage() {
               </p>
               <SkillCheck drafts={skillDrafts} onChange={setSkillDrafts} />
               {!skillsReady && (
-                <p className="text-xs text-amber-600">Score each technical quiz, and attach proof for each extracurricular skill, before continuing.</p>
+                <p className="text-xs text-amber-600">
+                  Add at least one skill. Score each technical quiz, and attach proof for each extracurricular skill, before continuing.
+                </p>
               )}
 
               <div className="flex justify-between pt-4">
@@ -402,7 +455,7 @@ export default function OnboardingPage() {
 
                 <div className="space-y-2">
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] block">
-                    Domains of Interest (Choose 1 or more):
+                    Domains of Interest * (choose at least one)
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     {DOMAINS.map((dom) => {
@@ -428,7 +481,7 @@ export default function OnboardingPage() {
 
                 <div className="space-y-2">
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] block">
-                    Extracurricular / talent interests
+                    Extracurricular / talent interests *
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     {TALENT_INTERESTS.map((t) => {
@@ -461,7 +514,7 @@ export default function OnboardingPage() {
                 <Button type="button" variant="outline" onClick={() => setCurrentStep(3)}>
                   <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
                 </Button>
-                <Button type="button" variant="gradient" onClick={() => setCurrentStep(5)}>
+                <Button type="button" variant="gradient" disabled={!careerReady} onClick={() => setCurrentStep(5)}>
                   Next: Goals
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -487,12 +540,26 @@ export default function OnboardingPage() {
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] block">
                     Primary Career Milestone / Goal *
                   </label>
-                  <textarea
-                    rows={2}
-                    value={primaryGoal}
-                    onChange={(e) => setPrimaryGoal(e.target.value)}
+                  <select
+                    value={goalChoice}
+                    onChange={(e) => setGoalChoice(e.target.value)}
                     className="w-full rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-3.5 py-2.5 text-xs text-[var(--color-text-primary)] focus:border-[var(--color-border-focus)] outline-none"
-                  />
+                  >
+                    <option value="">Choose a milestone</option>
+                    {CAREER_GOALS.map((goal) => (
+                      <option key={goal} value={goal}>{goal}</option>
+                    ))}
+                  </select>
+                  {goalChoice === "Other" && (
+                    <Input
+                      label="Your milestone *"
+                      required
+                      placeholder="Write the milestone you are working toward"
+                      value={customGoal}
+                      error={customGoal.trim() && goalError(goalChoice, customGoal) ? goalError(goalChoice, customGoal) : ""}
+                      onChange={(e) => setCustomGoal(e.target.value)}
+                    />
+                  )}
                 </div>
                 <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface-raised)] p-4 space-y-1">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Placement year</p>
@@ -507,7 +574,7 @@ export default function OnboardingPage() {
                 <Button type="button" variant="outline" onClick={() => setCurrentStep(4)}>
                   <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
                 </Button>
-                <Button type="button" variant="gradient" onClick={() => setCurrentStep(6)}>
+                <Button type="button" variant="gradient" disabled={!milestoneReady} onClick={() => setCurrentStep(6)}>
                   Next: Self Assessment
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -531,7 +598,7 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] block">
-                    Weekly Commitment
+                    Weekly Commitment *
                   </label>
                   <select
                     value={hoursPerWeek}
@@ -546,7 +613,7 @@ export default function OnboardingPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] block">
-                    Current placement confidence
+                    Current placement confidence *
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {["Exploring", "Building", "Interview-ready"].map((level) => (

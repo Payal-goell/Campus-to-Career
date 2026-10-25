@@ -8,6 +8,7 @@ import { GraduationCap, Lock, Mail, ArrowRight, AlertCircle } from "lucide-react
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
+import { emailError, newPasswordError } from "@/lib/field-rules";
 const DEV_OTP_KEY = "ctc.otp.dev";
 
 export default function RegisterPage() {
@@ -15,6 +16,10 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [confirmMessage, setConfirmMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const submitting = useRef(false);
@@ -22,8 +27,15 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting.current) return;
-    submitting.current = true;
+    const nextEmailMessage = emailError(email);
+    const nextPasswordMessage = newPasswordError(password);
+    const nextConfirmMessage = confirmPassword !== password ? "Type the same password again" : "";
+    setEmailMessage(nextEmailMessage);
+    setPasswordMessage(nextPasswordMessage);
+    setConfirmMessage(nextConfirmMessage);
     setError("");
+    if (nextEmailMessage || nextPasswordMessage || nextConfirmMessage) return;
+    submitting.current = true;
     setLoading(true);
 
     const result = await register(email, password, "STUDENT");
@@ -69,23 +81,49 @@ export default function RegisterPage() {
             </p>
 
             <Input
-              label="College Email Address"
+              label="College Email Address *"
               type="email"
               required
-              placeholder="aarav.sharma@uitrgpv.ac.in"
+              autoComplete="email"
+              placeholder="name@sistec.ac.in"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              error={emailMessage}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailMessage("");
+              }}
               leftIcon={<Mail className="w-4 h-4" />}
             />
 
             <Input
-              label="Password (Min 6 characters)"
+              label="Password *"
               type="password"
               required
-              minLength={6}
+              autoComplete="new-password"
+              minLength={8}
               placeholder="••••••••••••"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              error={passwordMessage}
+              hint="At least 8 characters, with a letter and a number."
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordMessage("");
+              }}
+              leftIcon={<Lock className="w-4 h-4" />}
+            />
+
+            <Input
+              label="Confirm Password *"
+              type="password"
+              required
+              autoComplete="new-password"
+              placeholder="••••••••••••"
+              value={confirmPassword}
+              error={confirmMessage}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setConfirmMessage("");
+              }}
               leftIcon={<Lock className="w-4 h-4" />}
             />
 

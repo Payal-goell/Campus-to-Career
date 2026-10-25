@@ -12,6 +12,7 @@ import {
 import { z } from 'zod';
 import { placementYearFromCurrentYear } from '@/lib/placement-year';
 import type { SkillAssessmentRecord } from '@/lib/skill-assessment';
+import { DEFAULT_COLLEGE, avatarError, cgpaError, normalizeIndianMobile, phoneError } from '@/lib/field-rules';
 
 const assessmentSchema = z.object({
   name: z.string().min(1).max(80),
@@ -30,26 +31,35 @@ const assessmentSchema = z.object({
 
 const onboardingSchema = z.object({
   basicInfo: z.object({
-    fullName: z.string().min(2, 'Full name is required'),
-    phone: z.string().optional(),
-    avatarUrl: z.string().optional(),
+    fullName: z.string().trim().min(2, 'Full name is required').max(80),
+    phone: z.string().trim().superRefine((value, ctx) => {
+      const message = phoneError(value);
+      if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+    }).transform((value) => normalizeIndianMobile(value) as string),
+    avatarUrl: z.string().trim().max(500).optional().superRefine((value, ctx) => {
+      const message = avatarError(value || '');
+      if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+    }),
   }),
   academicDetails: z.object({
     collegeId: z.string().optional(),
-    collegeName: z.string().default('Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), Bhopal'),
-    branch: z.string().min(2, 'Branch is required'),
+    collegeName: z.string().trim().min(3, 'College name is required').max(160),
+    branch: z.string().trim().min(2, 'Branch is required'),
     currentYear: z.number().int().min(1).max(4),
-    cgpa: z.number().min(0).max(10).optional(),
+    cgpa: z.number().superRefine((value, ctx) => {
+      const message = cgpaError(String(value));
+      if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+    }),
   }),
   currentSkills: z.array(z.string()).default([]),
-  skillAssessments: z.array(assessmentSchema).default([]),
+  skillAssessments: z.array(assessmentSchema).min(1, 'Add at least one skill and finish its check'),
   careerPreferences: z.object({
-    targetRole: z.string().min(2, 'Target role is required'),
-    preferredDomains: z.array(z.string()).default([]),
+    targetRole: z.string().trim().min(2, 'Target role is required'),
+    preferredDomains: z.array(z.string().trim().min(1)).min(1, 'Choose at least one domain'),
   }),
   goals: z.object({
     targetPlacementYear: z.number().int().optional(),
-    primaryGoal: z.string().min(2, 'Primary goal is required'),
+    primaryGoal: z.string().trim().min(8, 'Choose a career milestone').max(180),
   }),
 });
 
@@ -95,7 +105,7 @@ export async function POST(req: NextRequest) {
       fullName: basicInfo.fullName,
       phone: basicInfo.phone || null,
       avatarUrl: basicInfo.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-      collegeName: academicDetails.collegeName || 'Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), Bhopal',
+      collegeName: academicDetails.collegeName || DEFAULT_COLLEGE,
       branch: academicDetails.branch,
       currentYear: academicDetails.currentYear,
       cgpa: academicDetails.cgpa || null,
@@ -153,7 +163,7 @@ export async function POST(req: NextRequest) {
         phone: basicInfo.phone || null,
         avatarUrl: basicInfo.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
         collegeId: academicDetails.collegeId || 'clg_101',
-        collegeName: academicDetails.collegeName || 'Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), Bhopal',
+        collegeName: academicDetails.collegeName || DEFAULT_COLLEGE,
         branch: academicDetails.branch,
         currentYear: academicDetails.currentYear,
         cgpa: academicDetails.cgpa || null,

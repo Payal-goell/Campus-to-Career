@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
-import { readStoredAssessments, type SkillAssessmentRecord } from '@/lib/skill-assessment';
+import { howWeKnow, readStoredAssessments, type SkillAssessmentRecord } from '@/lib/skill-assessment';
 
 export function useSkillRecords(serverRecords?: SkillAssessmentRecord[]) {
   const [records, setRecords] = useState<SkillAssessmentRecord[]>(serverRecords ?? []);
@@ -38,16 +38,13 @@ export function SkillKnowledgeList({
   return (
     <ul className="space-y-2">
       {records.map((record) => (
-        <li key={record.name} className="text-xs text-[var(--text-secondary)]">
-          <span className="font-semibold text-[var(--text-primary)]">{record.name}</span>
-          {' · '}
-          {record.kind === 'technical' ? 'Technical' : 'Extracurricular'}
-          {' · '}
-          {record.mode}
-          {record.quizLevel ? ` · ${record.quizLevel} quiz` : ''}
-          {' · '}
-          <span className="font-semibold text-[var(--primary)]">{record.percent}%</span>
-          {record.proof ? ` · proof: ${record.proof.fileName}` : ''}
+        <li key={record.name} className="text-xs text-[var(--text-secondary)] space-y-0.5">
+          <p>
+            <span className="font-semibold text-[var(--text-primary)]">{record.name}</span>
+            {' · '}
+            <span className="font-semibold text-[var(--primary)]">{record.percent}%</span>
+          </p>
+          <p>{howWeKnow(record)}</p>
         </li>
       ))}
     </ul>

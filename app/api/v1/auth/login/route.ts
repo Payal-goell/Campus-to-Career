@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { comparePassword, signAccessToken, signRefreshToken } from '@/lib/auth';
+import { comparePassword, hashPassword, signAccessToken, signRefreshToken } from '@/lib/auth';
+import { emailError, loginPasswordError } from '@/lib/field-rules';
+import { clientAddress, rateLimit } from '@/lib/rate-limit';
 import { generateOtp, hashOtp, issueEmailOtp } from '@/lib/otp';
 import { sendOtpEmail } from '@/lib/mail';
 import { demoLoginUser, findDemoAccount, isDatabaseError } from '@/lib/demo-accounts';
@@ -8,9 +10,26 @@ import { readLocalAccounts, upsertLocalAccount, writeLocalAccounts } from '@/lib
 import { z } from 'zod';
 
 const loginSchema = z.object({
-  email: z.string().trim().min(1, 'Email is required').email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string().trim().superRefine((value, ctx) => {
+    const message = emailError(value);
+    if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+  }),
+  password: z.string().superRefine((value, ctx) => {
+    const message = loginPasswordError(value);
+    if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+  }),
 });
+
+let dummyHash: Promise<string> | null = null;
+
+async function burnPasswordTime(password: string) {
+  if (!dummyHash) dummyHash = hashPassword('campus-to-career-dummy-password');
+  try {
+    await comparePassword(password, await dummyHash);
+  } catch {
+    // Timing only. A missing account still answers as a failed sign-in.
+  }
+}
 
 async function loginLocalAccount(req: NextRequest, email: string, password: string) {
   const account = readLocalAccounts(req).find((item) => item.email === email);
@@ -163,6 +182,14 @@ export async function POST(req: NextRequest) {
     email = parsed.data.email.toLowerCase();
     password = parsed.data.password;
 
+    const limited = rateLimit(`login:${clientAddress(req)}:${email}`, 8, 10 * 60 * 1000);
+    if (!limited.ok) {
+      return NextResponse.json(
+        { success: false, error: `Too many sign-in attempts. Wait ${limited.retryAfter}s and try again.` },
+        { status: 429, headers: { 'Retry-After': String(limited.retryAfter) } }
+      );
+    }
+
     let user;
     try {
       user = await prisma.user.findUnique({
@@ -194,8 +221,9 @@ export async function POST(req: NextRequest) {
     if (!user) {
       const localResponse = await loginLocalAccount(req, email, password);
       if (localResponse) return localResponse;
+      await burnPasswordTime(password);
       return NextResponse.json(
-        { success: false, error: 'Invalid email or password' },
+        { success: false, error: 'That email and password do not match an account.' },
         { status: 401 }
       );
     }
@@ -208,7 +236,7 @@ export async function POST(req: NextRequest) {
     }
     if (!isMatch) {
       return NextResponse.json(
-        { success: false, error: 'Invalid email or password' },
+        { success: false, error: 'That email and password do not match an account.' },
         { status: 401 }
       );
     }
