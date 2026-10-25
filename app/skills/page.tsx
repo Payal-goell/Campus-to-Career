@@ -4,18 +4,30 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { SkillGapChart } from '@/components/SkillGapChart';
-import { GuestPreviewBanner } from '@/components/ModuleAuthGate';
+import { GuestPreviewBanner, BuildProfilePrompt } from '@/components/ModuleAuthGate';
 import { DownloadAnalysisReport } from '@/components/DownloadAnalysisReport';
 import { useStudentHub } from '@/hooks/useStudentHub';
 import { SkillKnowledgeList, useSkillRecords } from '@/components/skills/SkillKnowledgeList';
 import { actionsFromGaps, buildSkillGap } from '@/lib/skill-standing';
+import { useAuth } from '@/context/AuthContext';
+import { hasStudentProfile } from '@/lib/profile-access';
 
 export default function SkillsPage() {
+  const { user, isLoading: authLoading } = useAuth();
+  const profileReady = !authLoading && hasStudentProfile(user);
   const { data, loading, isGuest } = useStudentHub({ requireAuth: false });
   const skillRecords = useSkillRecords(data?.student.skillAssessments);
 
-  if (loading) {
+  if (authLoading || (profileReady && loading)) {
     return <p className="py-20 text-center text-xs text-[var(--text-muted)]">Loading skill gap…</p>;
+  }
+  if (!profileReady) {
+    return (
+      <BuildProfilePrompt
+        title="Build your profile"
+        description="Your skill gap uses the quiz scores and certificates from your profile. Build that profile to see where you are and what to do next."
+      />
+    );
   }
   if (!data) {
     return <p className="py-20 text-center text-xs text-[var(--text-muted)]">Could not load skill data.</p>;

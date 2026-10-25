@@ -1,9 +1,15 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { Github, Linkedin, Mail, Heart, Sparkles } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
+import { useAuth } from "@/context/AuthContext";
+import { hasStudentProfile } from "@/lib/profile-access";
 
 export function Footer() {
+  const { user, isLoading } = useAuth();
+  const profileReady = !isLoading && hasStudentProfile(user);
   return (
     <footer className="w-full border-t border-[var(--color-border-subtle)] bg-[var(--color-surface)] mt-16 sm:mt-24 pt-12 sm:pt-16 pb-12 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,9 +34,21 @@ export function Footer() {
           {/* Core Modules */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-primary)] mb-4">
-              Core Modules
+              {profileReady ? "Core Modules" : "Open now"}
             </h4>
             <ul className="space-y-2.5 text-xs text-[var(--color-text-secondary)]">
+              <li>
+                <Link href="/explore" className="hover:text-[var(--color-brand-primary)] transition-colors">
+                  Explore
+                </Link>
+              </li>
+              <li>
+                <Link href="/campus-life" className="hover:text-[var(--color-brand-primary)] transition-colors">
+                  Campus Life
+                </Link>
+              </li>
+              {profileReady && (
+                <>
               <li>
                 <Link href="/dashboard" className="hover:text-[var(--color-brand-primary)] transition-colors">
                   Student Dashboard
@@ -39,11 +57,6 @@ export function Footer() {
               <li>
                 <Link href="/roadmap" className="hover:text-[var(--color-brand-primary)] transition-colors">
                   Year-Wise Roadmaps
-                </Link>
-              </li>
-              <li>
-                <Link href="/explore" className="hover:text-[var(--color-brand-primary)] transition-colors">
-                  Explore (public)
                 </Link>
               </li>
               <li>
@@ -71,11 +84,8 @@ export function Footer() {
                   Centralized Resources
                 </Link>
               </li>
-              <li>
-                <Link href="/design-system" className="hover:text-[var(--color-brand-primary)] transition-colors">
-                  Design System Spec
-                </Link>
-              </li>
+                </>
+              )}
             </ul>
           </div>
 
@@ -90,6 +100,8 @@ export function Footer() {
                   Clubs, Committees & Recaps
                 </Link>
               </li>
+              {profileReady && (
+                <>
               <li>
                 <Link href="/placement" className="hover:text-[var(--color-brand-primary)] transition-colors">
                   Placement Training & Kanban
@@ -105,6 +117,8 @@ export function Footer() {
                   College Administration
                 </Link>
               </li>
+                </>
+              )}
             </ul>
           </div>
 

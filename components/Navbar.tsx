@@ -17,16 +17,13 @@ import { ThemeStudio } from './ThemeStudio';
 import { BrandMark } from './BrandMark';
 import { Avatar } from './ui/Avatar';
 import { cn } from '@/lib/cn';
+import { hasStudentProfile } from '@/lib/profile-access';
 import { useRoadmapOptional } from '@/context/RoadmapContext';
 import { ROADMAP_PERSONAS } from '@/lib/roadmap/personas';
 
-const publicLinks = [
+const openLinks = [
   { name: 'Explore', href: '/explore', icon: Compass, requireAuth: false },
-  { name: 'Skills', href: '/skills', icon: Wrench, requireAuth: false },
-  { name: 'Roadmap', href: '/roadmap', icon: Map, requireAuth: false },
-  { name: 'Resources', href: '/resources', icon: BookOpen, requireAuth: false },
   { name: 'Campus Life', href: '/campus-life', icon: Users, requireAuth: false },
-  { name: 'Placement', href: '/placement', icon: Briefcase, requireAuth: false },
 ];
 
 const coreLinks = [
@@ -61,7 +58,8 @@ const demoAccounts = [
 
 export function Navbar() {
   const pathname  = usePathname();
-  const { user, logout, quickLogin } = useAuth();
+  const { user, logout, quickLogin, isLoading: authLoading } = useAuth();
+  const profileReady = !authLoading && hasStudentProfile(user);
   const roadmap = useRoadmapOptional();
   const [mobileOpen, setMobileOpen]       = useState(false);
   const [notifOpen,  setNotifOpen]        = useState(false);
@@ -101,8 +99,8 @@ export function Navbar() {
   }, []);
 
   const links = (() => {
-    if (!user) return publicLinks;
-    const staff = user.role === 'ADMIN' || user.role === 'COORDINATOR';
+    if (!profileReady) return openLinks;
+    const staff = user?.role === 'ADMIN' || user?.role === 'COORDINATOR';
     const extra = staff
       ? [{ name: 'Admin Portal', href: '/admin', icon: Shield, requireAuth: true }]
       : [];
@@ -420,7 +418,7 @@ export function Navbar() {
               {user ? (
                 <div className="hidden lg:flex items-center gap-2 pl-2 border-l border-[var(--border)]">
                   <Link
-                    href="/dashboard"
+                    href={profileReady ? "/dashboard" : "/onboarding"}
                     className="flex items-center gap-2 hover:opacity-80 transition-opacity focus-visible:outline-2 focus-visible:outline-[var(--border-focus)] rounded-lg"
                     aria-label={`Go to ${user.name ?? 'your'} dashboard`}
                   >

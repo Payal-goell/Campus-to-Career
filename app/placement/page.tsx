@@ -22,6 +22,8 @@ import { CoverImage } from "@/components/ui/CoverImage";
 import { KanbanBoard } from "@/components/KanbanBoard";
 import { ResumeAnalyzerModal } from "@/components/ResumeAnalyzerModal";
 import { ApplicationItem, PlacementModuleCategory } from "@/lib/types";
+import { useAuth } from "@/context/AuthContext";
+import { hasStudentProfile } from "@/lib/profile-access";
 import {
   SISTEC_CERT_PARTNERS,
   SISTEC_COMPANIES,
@@ -31,14 +33,17 @@ import {
 } from "@/data/sistec-placement";
 
 export default function PlacementPage() {
+  const { user, isLoading: authLoading } = useAuth();
+  const profileReady = !authLoading && hasStudentProfile(user);
   const [categories, setCategories] = useState<PlacementModuleCategory[]>([]);
   const [applications, setApplications] = useState<ApplicationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showResumeModal, setShowResumeModal] = useState(false);
 
   useEffect(() => {
+    if (!profileReady) return;
     fetchData();
-  }, []);
+  }, [profileReady]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -84,12 +89,13 @@ export default function PlacementPage() {
             Placement Training & Recruitment Hub
           </h1>
           <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-1.5 max-w-2xl leading-relaxed">
-            Training, the application board, and the resume scan are for any RGPV college. The figures below are one affiliated campus (SISTec): {SISTEC_PLACEMENT_STATS.jobOffersBatch2025} offers,
-            {' '}{SISTEC_PLACEMENT_STATS.averagePackageLpa} average, {SISTEC_PLACEMENT_STATS.highestPackage}. Use your own T&P bulletin for eligibility.
+            {profileReady
+              ? `Training, the application board, and the resume scan are for any RGPV college. The figures below are one affiliated campus (SISTec): ${SISTEC_PLACEMENT_STATS.jobOffersBatch2025} offers, ${SISTEC_PLACEMENT_STATS.averagePackageLpa} average, ${SISTEC_PLACEMENT_STATS.highestPackage}. Use your own T&P bulletin for eligibility.`
+              : "Placement at our college, Sagar Institute of Science and Technology (SISTec), Gandhi Nagar. These are the campus recruiters, packages, and T&P programs. Training links and the application board open after you build your profile."}
           </p>
         </div>
 
-        {/* ATS Scanner Launch Button */}
+        {profileReady && (
         <Button
           variant="gradient"
           size="lg"
@@ -99,6 +105,7 @@ export default function PlacementPage() {
           <FileText className="w-4 h-4 mr-2" />
           Launch AI Resume ATS Scanner
         </Button>
+        )}
       </Card>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -123,9 +130,11 @@ export default function PlacementPage() {
               Companies and CoE partners named on sistec.ac.in Training & Placement / CSE pages
             </p>
           </div>
+          {profileReady && (
           <Button size="sm" variant="outline" href="/explore">
             Explore by branch
           </Button>
+          )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
           {SISTEC_COMPANIES.filter((c) => c.category !== 'CoE partner').slice(0, 9).map((company) => (
@@ -143,6 +152,7 @@ export default function PlacementPage() {
             </Card>
           ))}
         </div>
+        {profileReady && (
         <p className="text-[11px] text-[var(--color-text-muted)]">
           Full list with CoE partners (Netlink, Zarthi, Gaia, Bosch, UltraTech, Eicher, Renault Nissan) is on{' '}
           <Link href="/explore" className="text-[var(--color-brand-primary)] font-semibold hover:underline">
@@ -150,6 +160,7 @@ export default function PlacementPage() {
           </Link>
           .
         </p>
+        )}
       </div>
 
       <div className="space-y-4">
@@ -169,9 +180,13 @@ export default function PlacementPage() {
               <p className="text-[11px] text-[var(--color-text-secondary)] leading-relaxed flex-1">
                 {program.blurb}
               </p>
+              {profileReady ? (
               <Button size="sm" variant="outline" href={program.url} target="_blank" className="mt-1 w-fit">
                 Open on sistec.ac.in
               </Button>
+              ) : (
+              <p className="text-[11px] text-[var(--color-text-muted)] mt-1">Campus program. The outside page opens after your profile is built.</p>
+              )}
             </Card>
           ))}
         </div>
@@ -202,7 +217,7 @@ export default function PlacementPage() {
         </div>
       </div>
 
-      {/* Training Categories Section */}
+      {profileReady && (
       <div className="space-y-4">
         <div>
           <h2 className="text-lg font-bold text-[var(--color-text-primary)]">Core Interview Curriculum</h2>
@@ -252,8 +267,9 @@ export default function PlacementPage() {
           })}
         </div>
       </div>
+      )}
 
-      {/* Application Tracker Kanban Board */}
+      {profileReady && (
       <div className="pt-4">
         {loading ? (
           <div className="text-center py-20 text-[var(--color-text-muted)]">Loading recruitment tracker...</div>
@@ -264,12 +280,14 @@ export default function PlacementPage() {
           />
         )}
       </div>
+      )}
 
-      {/* Resume Analyzer Modal */}
+      {profileReady && (
       <ResumeAnalyzerModal
         isOpen={showResumeModal}
         onClose={() => setShowResumeModal(false)}
       />
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Lock, ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/context/AuthContext';
 
 /** Soft sign-in prompt for modules that need an account (no silent redirect). */
 export function ModuleAuthGate({
@@ -38,15 +39,49 @@ export function ModuleAuthGate({
           <Link href="/explore" className="text-[var(--primary)] font-semibold hover:underline">
             Explore
           </Link>
-          ,{' '}
-          <Link href="/roadmap" className="text-[var(--primary)] font-semibold hover:underline">
-            Roadmap
+          {' '}and{' '}
+          <Link href="/campus-life" className="text-[var(--primary)] font-semibold hover:underline">
+            Campus Life
           </Link>
-          , or{' '}
-          <Link href="/skills" className="text-[var(--primary)] font-semibold hover:underline">
-            Skill Gap
-          </Link>{' '}
-          without signing in.
+          .
+        </p>
+      </Card>
+    </div>
+  );
+}
+
+/** Shown when a module stays closed until the student finishes onboarding. */
+export function BuildProfilePrompt({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  const { user } = useAuth();
+  const href = user ? '/onboarding' : '/register';
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center py-12 px-4">
+      <Card variant="raised" className="p-6 sm:p-8 max-w-md w-full space-y-4 text-center">
+        <div className="w-12 h-12 mx-auto rounded-2xl bg-[var(--primary-subtle)] text-[var(--primary)] flex items-center justify-center">
+          <Lock className="w-5 h-5" />
+        </div>
+        <h1 className="text-xl font-black text-[var(--text-primary)]">{title}</h1>
+        <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{description}</p>
+        <Button variant="gradient" href={href} className="w-full">
+          Build your profile
+          <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+        </Button>
+        <p className="text-[11px] text-[var(--text-muted)]">
+          Until then,{' '}
+          <Link href="/explore" className="text-[var(--primary)] font-semibold hover:underline">
+            Explore
+          </Link>
+          {' '}and{' '}
+          <Link href="/campus-life" className="text-[var(--primary)] font-semibold hover:underline">
+            Campus Life
+          </Link>
+          {' '}stay open.
         </p>
       </Card>
     </div>

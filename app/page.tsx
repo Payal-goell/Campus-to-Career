@@ -25,8 +25,12 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { AnimatedCount } from "@/components/ui/Progress";
+import { useAuth } from "@/context/AuthContext";
+import { hasStudentProfile } from "@/lib/profile-access";
 
 export default function HomePage() {
+  const { user, isLoading } = useAuth();
+  const profileReady = !isLoading && hasStudentProfile(user);
   const journeyYears = [
     {
       year: "Year 1",
@@ -63,6 +67,14 @@ export default function HomePage() {
   ];
 
   const features = [
+    {
+      title: "Explore RGPV",
+      desc: "Branches, labs, and the public campus map you can open before a profile exists.",
+      icon: Compass,
+      link: "/explore",
+      accent: "var(--color-brand-primary)",
+      cta: "Open explore",
+    },
     {
       title: "Year-Wise Dynamic Roadmaps",
       desc: "Milestones uniquely tailored to your academic year and target job roles with real-time progress syncing.",
@@ -217,8 +229,8 @@ export default function HomePage() {
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-[var(--color-border-subtle)] flex items-center justify-between text-xs font-medium text-[var(--color-brand-primary)]">
-                  <Link href="/roadmap" className="flex items-center gap-1.5 hover:underline">
-                    View Roadmap Track <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  <Link href={profileReady ? "/roadmap" : "/explore"} className="flex items-center gap-1.5 hover:underline">
+                    {profileReady ? "View Roadmap Track" : "Explore the campus"} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </div>
               </Card>
@@ -242,7 +254,9 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feat) => {
+          {features
+            .filter((feat) => profileReady || feat.link === "/campus-life" || feat.link === "/explore")
+            .map((feat) => {
             const Icon = feat.icon;
             return (
               <Link key={feat.title} href={feat.link} className="block group">
@@ -307,8 +321,8 @@ export default function HomePage() {
             </li>
           </ul>
           <div className="pt-4">
-            <Button variant="primary" href="/skills" className="w-full sm:w-auto">
-                Open Skill Gap Radar
+            <Button variant="primary" href={profileReady ? "/skills" : "/register"} className="w-full sm:w-auto">
+                {profileReady ? "Open Skill Gap Radar" : "Build your profile"}
                 <ArrowRight className="w-3.5 h-3.5 ml-2" />
               </Button>
           </div>

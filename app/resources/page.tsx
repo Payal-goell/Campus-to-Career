@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { BuildProfilePrompt } from "@/components/ModuleAuthGate";
+import { hasStudentProfile } from "@/lib/profile-access";
 import {
   BookOpen,
   Bookmark,
@@ -24,7 +26,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ResourceItem } from "@/lib/types";
 
 export default function ResourcesPage() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const profileReady = !authLoading && hasStudentProfile(user);
   const [resources, setResources] = useState<ResourceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState("all");
@@ -33,8 +36,9 @@ export default function ResourcesPage() {
   const [savingId, setSavingId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!profileReady) return;
     fetchResources();
-  }, [selectedType, paidFilter]);
+  }, [selectedType, paidFilter, profileReady]);
 
   const fetchResources = async () => {
     setLoading(true);
@@ -102,6 +106,19 @@ export default function ResourcesPage() {
       r.provider.toLowerCase().includes(q)
     );
   });
+
+  if (authLoading) {
+    return <p className="py-20 text-center text-xs text-[var(--color-text-muted)]">Loading resources…</p>;
+  }
+
+  if (!profileReady) {
+    return (
+      <BuildProfilePrompt
+        title="Build your own profile"
+        description="The resource library opens after your profile is saved. Your branch, year, and skill check decide which courses are worth your semester."
+      />
+    );
+  }
 
   return (
     <div className="space-y-8 py-6">
