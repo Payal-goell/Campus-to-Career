@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { demoStudentDashboard } from '@/lib/demo-accounts';
+import { savedProfileFor } from '@/lib/saved-profile';
 import type { DashboardOverview } from '@/lib/types';
 
 type Options = {
@@ -37,7 +38,7 @@ export function useStudentHub(options: Options = {}) {
       return;
     }
 
-    if (!user.isOnboarded && requireAuth) {
+    if (!user.isOnboarded && requireAuth && !savedProfileFor(user.id)) {
       setData(null);
       setIsGuest(false);
       setLoading(false);
@@ -54,15 +55,26 @@ export function useStudentHub(options: Options = {}) {
         if (json.success) {
           setData(json);
           setIsGuest(false);
-        } else if (!requireAuth) {
-          setData(demoStudentDashboard() as DashboardOverview);
-          setIsGuest(true);
         } else {
-          setData(null);
+          const cached = savedProfileFor(user.id);
+          if (cached) {
+            setData(cached);
+            setIsGuest(false);
+          } else if (!requireAuth) {
+            setData(demoStudentDashboard() as DashboardOverview);
+            setIsGuest(true);
+          } else {
+            setData(null);
+          }
         }
       } catch (e) {
         console.error(e);
-        if (!cancelled && !requireAuth) {
+        if (cancelled) return;
+        const cached = savedProfileFor(user.id);
+        if (cached) {
+          setData(cached);
+          setIsGuest(false);
+        } else if (!requireAuth) {
           setData(demoStudentDashboard() as DashboardOverview);
           setIsGuest(true);
         }
@@ -77,7 +89,9 @@ export function useStudentHub(options: Options = {}) {
   }, [user, authLoading, requireAuth]);
 
   const needsAuth = !authLoading && !user && requireAuth;
-  const needsOnboarding = Boolean(user && !user.isOnboarded && requireAuth);
+  const needsOnboarding = Boolean(
+    user && !user.isOnboarded && requireAuth && !savedProfileFor(user.id)
+  );
 
   return {
     user,

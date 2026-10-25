@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
           id: session.id,
           email: session.email,
           role: session.role,
-          isOnboarded: session.isOnboarded,
+          isOnboarded: Boolean(session.isOnboarded || local?.isOnboarded || local?.profile),
           name: session.name,
           avatarUrl: session.avatarUrl ?? local?.profile?.avatarUrl ?? null,
           studentProfile: local?.profile
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
         id: fullUser.id,
         email: fullUser.email,
         role: fullUser.role,
-        isOnboarded: fullUser.isOnboarded,
+        isOnboarded: fullUser.isOnboarded || Boolean(fullUser.studentProfile),
         name: fullUser.studentProfile?.fullName || fullUser.coordinator?.name || fullUser.email.split('@')[0],
         avatarUrl: fullUser.studentProfile?.avatarUrl,
         studentProfile: fullUser.studentProfile,

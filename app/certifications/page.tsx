@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { stagger, staggerItem } from '@/lib/motion';
 import { CERT_CATALOG, type CertRec } from '@/data/cert-recommendations';
+import { StudentPlatforms } from '@/components/StudentPlatforms';
 
 export default function CertificationsPage() {
   const [recs, setRecs] = useState<CertRec[]>([]);
@@ -43,8 +44,8 @@ export default function CertificationsPage() {
         title="Certifications you can actually finish"
         description={
           context.targetRole
-            ? `Ranked for Year ${context.year ?? '—'} · ${context.targetRole}. Each one is free to finish on a student schedule.`
-            : 'Sign in for a profile-aware list. Until then, we rank free credentials you can finish in a semester.'
+            ? `Ranked for Year ${context.year ?? '—'} · ${context.targetRole}. NPTEL and Springboard are free to finish. Coursera and Udemy certificates are marked Paid.`
+            : 'NPTEL, Coursera, Udemy, Infosys Springboard, and Great Learning. Free tracks and paid certificates are labeled on each card.'
         }
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -70,8 +71,10 @@ export default function CertificationsPage() {
       />
 
       {!loading && shown.length === 0 && (
-        <p className="text-sm text-[var(--text-muted)]">Every credential here is free to finish with a college email.</p>
+        <p className="text-sm text-[var(--text-muted)]">No certificates match this filter. Switch to All to see NPTEL, Coursera, and Udemy.</p>
       )}
+
+      <StudentPlatforms heading="Where students earn these certificates" />
 
       <motion.div variants={stagger(0.05)} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {shown.map((c) => (
@@ -86,7 +89,7 @@ export default function CertificationsPage() {
                   <p className="text-xs text-[var(--text-muted)]">{c.issuer}</p>
                 </div>
                 <Badge variant={c.cost === 'free' ? 'success' : 'warning'} size="sm">
-                  {c.cost === 'free' ? 'Free' : 'Paid exam'}
+                  {c.cost === 'free' ? 'Free' : 'Paid'}
                 </Badge>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{c.why}</p>

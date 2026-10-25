@@ -110,11 +110,43 @@ export function readLocalAccounts(req: NextRequest): LocalAccount[] {
 
 export function writeLocalAccounts(response: NextResponse, accounts: LocalAccount[]) {
   let next = accounts.slice(-8);
-  let encoded = Buffer.from(JSON.stringify(next)).toString('base64url');
-  if (encoded.length > 2800) {
+  const packed = () => Buffer.from(JSON.stringify(next)).toString('base64url');
+  if (packed().length > 2800) {
     next = next.map((account, index) =>
       index === next.length - 1 ? account : { ...account, profile: null }
     );
+  }
+  if (packed().length > 3200 && next.length > 0) {
+    const last = next.length - 1;
+    const profile = next[last].profile;
+    if (profile) {
+      next[last] = {
+        ...next[last],
+        avatarUrl: null,
+        profile: {
+          ...profile,
+          avatarUrl: null,
+          skillAssessments: profile.skillAssessments?.slice(0, 6).map((item) => ({
+            name: item.name,
+            kind: item.kind,
+            mode: item.mode,
+            quizLevel: item.quizLevel,
+            percent: item.percent,
+          })),
+        },
+      };
+    }
+  }
+  if (packed().length > 3600 && next.length > 0) {
+    const last = next.length - 1;
+    const profile = next[last].profile;
+    if (profile) {
+      next[last] = {
+        ...next[last],
+        avatarUrl: null,
+        profile: { ...profile, avatarUrl: null, skillAssessments: undefined },
+      };
+    }
   }
   writeSigned(response, ACCOUNTS_COOKIE, next);
 }

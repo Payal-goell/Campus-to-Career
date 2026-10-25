@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole, UserSession } from '@/lib/types';
+import { markProfileReadyLocal, profileMarkedReady } from '@/lib/saved-profile';
 import { useRouter } from 'next/navigation';
 
 interface AuthResult {
@@ -20,6 +21,7 @@ interface AuthContextType {
   verifyOtp: (email: string, otp: string) => Promise<AuthResult>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  markProfileReady: () => void;
   quickLogin: (email: string, password: string) => Promise<AuthResult>;
 }
 
@@ -36,7 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.user) {
-          setUser(json.user);
+          const ready = profileMarkedReady(json.user.id);
+          setUser(ready ? { ...json.user, isOnboarded: true } : json.user);
         } else {
           setUser(null);
         }
@@ -53,6 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchSession();
   }, []);
+
+  const markProfileReady = () => {
+    setUser((current) => {
+      if (current) markProfileReadyLocal(current.id);
+      return current ? { ...current, isOnboarded: true } : current;
+    });
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -76,8 +86,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: data.error || 'Failed to sign in' };
       }
 
-      setUser(data.user);
-      return { success: true, isOnboarded: data.user.isOnboarded };
+      const onboarded = Boolean(data.user.isOnboarded) || profileMarkedReady(data.user.id);
+      setUser(onboarded ? { ...data.user, isOnboarded: true } : data.user);
+      return { success: true, isOnboarded: onboarded };
     } catch {
       return { success: false, error: 'Network error during login' };
     }
@@ -113,8 +124,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok || !data.success) {
         return { success: false, error: data.error || 'Verification failed' };
       }
-      setUser(data.user);
-      return { success: true, isOnboarded: data.user.isOnboarded };
+      const onboarded = Boolean(data.user.isOnboarded) || profileMarkedReady(data.user.id);
+      setUser(onboarded ? { ...data.user, isOnboarded: true } : data.user);
+      return { success: true, isOnboarded: onboarded };
     } catch {
       return { success: false, error: 'Network error during verification' };
     }
@@ -167,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         verifyOtp,
         logout,
         refreshUser: fetchSession,
+        markProfileReady,
         quickLogin,
       }}
     >

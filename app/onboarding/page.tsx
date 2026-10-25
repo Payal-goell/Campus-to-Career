@@ -44,6 +44,7 @@ import {
   goalText,
   phoneError,
 } from "@/lib/field-rules";
+import { overviewFromSavedProfile, rememberSavedProfile } from "@/lib/saved-profile";
 
 const SkillCheck = dynamic(
   () => import("@/components/onboarding/SkillCheck").then((mod) => mod.SkillCheck),
@@ -64,7 +65,7 @@ const DOMAINS = [...ROADMAP_DOMAINS];
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, markProfileReady } = useAuth();
   const roadmap = useRoadmapOptional();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -190,6 +191,13 @@ export default function OnboardingPage() {
       const data = await res.json();
       if (data.success) {
         setCalculatedScore(data.initialScore || 72);
+        if (user && data.profile?.fullName) {
+          rememberSavedProfile(
+            user.id,
+            overviewFromSavedProfile(user.id, data.profile, data.initialScore || 72)
+          );
+        }
+        markProfileReady();
         await refreshUser();
         setCurrentStep(7);
       } else {

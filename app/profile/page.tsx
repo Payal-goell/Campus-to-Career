@@ -1,8 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -14,13 +12,8 @@ import { useStudentHub } from '@/hooks/useStudentHub';
 import { SkillKnowledgeList, useSkillRecords } from '@/components/skills/SkillKnowledgeList';
 
 export default function ProfilePage() {
-  const router = useRouter();
   const { data, loading, needsAuth, needsOnboarding } = useStudentHub({ requireAuth: true });
   const skillRecords = useSkillRecords(data?.student.skillAssessments);
-
-  useEffect(() => {
-    if (needsOnboarding) router.replace('/onboarding');
-  }, [needsOnboarding, router]);
 
   if (loading) return <p className="py-20 text-center text-xs text-[var(--text-muted)]">Loading profile…</p>;
   if (needsAuth) {
@@ -33,7 +26,23 @@ export default function ProfilePage() {
     );
   }
   const s = data?.student;
-  if (!data || !s) return null;
+  if (needsOnboarding || !data || !s) {
+    return (
+      <div className="max-w-xl mx-auto py-16 space-y-4 text-center">
+        <Badge variant="primary" size="sm">Profile</Badge>
+        <h1 className="text-2xl font-black text-[var(--text-primary)]">Your academic profile</h1>
+        <p className="text-sm text-[var(--text-secondary)]">
+          This page keeps your college, branch, CGPA, skills, and career milestone. The dashboard is the score and roadmap view.
+        </p>
+        <Link href="/onboarding">
+          <Button variant="primary">Finish your profile</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const skills = s.skills || [];
+  const domains = s.preferredDomains || [];
 
   return (
     <div className="space-y-6 py-6">
@@ -63,7 +72,7 @@ export default function ProfilePage() {
         </Card>
         <Card className="p-5 space-y-2">
           <h2 className="text-sm font-bold">Skills</h2>
-          <SkillKnowledgeList records={skillRecords} names={s.skills.slice(0, 8)} />
+          <SkillKnowledgeList records={skillRecords} names={skills.slice(0, 8)} />
           <Link href="/skills" className="text-xs text-[var(--primary)] font-semibold inline-flex items-center gap-1">
             Skill gap <ArrowRight className="w-3 h-3" />
           </Link>
@@ -71,7 +80,7 @@ export default function ProfilePage() {
         <Card className="p-5 space-y-2">
           <h2 className="text-sm font-bold">Interests & achievements</h2>
           <p className="text-xs text-[var(--text-secondary)]">
-            Domains: {s.preferredDomains.join(', ') || '—'}
+            Domains: {domains.join(', ') || '—'}
           </p>
           <p className="text-xs text-[var(--text-secondary)]">
             {s.projects?.length ?? 0} projects · {s.certifications?.length ?? 0} certifications

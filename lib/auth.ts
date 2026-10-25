@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { NextRequest } from 'next/server';
 import { UserRole, UserSession } from './types';
 import { prisma } from './prisma';
-import { sessionForPayload } from './local-accounts';
+import { sessionForPayload, readLocalAccounts } from './local-accounts';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'campus-to-career-dev-jwt-secret-key-99887766';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'campus-to-career-dev-refresh-secret-key-11223344';
@@ -80,12 +80,17 @@ export async function getSessionUser(req: NextRequest): Promise<UserSession | nu
     return sessionForPayload(req, payload);
   }
 
+  const local = readLocalAccounts(req).find(
+    (account) => account.id === user.id || account.email === user.email
+  );
+  const savedProfile = Boolean(user.studentProfile) || Boolean(local?.profile);
+
   return {
     id: user.id,
     email: user.email,
     role: user.role as UserRole,
-    isOnboarded: user.isOnboarded,
-    name: user.studentProfile?.fullName || user.coordinator?.name || user.email.split('@')[0],
-    avatarUrl: user.studentProfile?.avatarUrl || undefined,
+    isOnboarded: user.isOnboarded || savedProfile || Boolean(local?.isOnboarded),
+    name: user.studentProfile?.fullName || local?.profile?.fullName || user.coordinator?.name || user.email.split('@')[0],
+    avatarUrl: user.studentProfile?.avatarUrl || local?.profile?.avatarUrl || undefined,
   };
 }

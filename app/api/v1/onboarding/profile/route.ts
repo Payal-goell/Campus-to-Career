@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
     const profileData: LocalProfile = {
       fullName: basicInfo.fullName,
       phone: basicInfo.phone || null,
-      avatarUrl: basicInfo.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+      avatarUrl: basicInfo.avatarUrl || null,
       collegeName: academicDetails.collegeName || DEFAULT_COLLEGE,
       branch: academicDetails.branch,
       currentYear: academicDetails.currentYear,
@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
         userId: session.id,
         fullName: basicInfo.fullName,
         phone: basicInfo.phone || null,
-        avatarUrl: basicInfo.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+        avatarUrl: basicInfo.avatarUrl || null,
         collegeId: academicDetails.collegeId || 'clg_101',
         collegeName: academicDetails.collegeName || DEFAULT_COLLEGE,
         branch: academicDetails.branch,
@@ -219,13 +219,29 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: 'Onboarding profile initialized successfully.',
       initialScore: score,
       dashboardUrl: '/dashboard',
       profile: { ...profile, skillAssessments, targetPlacementYear: placementYear },
     });
+    const accounts = readLocalAccounts(req);
+    const existing = accounts.find((account) => account.id === session.id || account.email === session.email);
+    if (existing) {
+      writeLocalAccounts(
+        response,
+        upsertLocalAccount(accounts, {
+          ...existing,
+          isOnboarded: true,
+          name: profileData.fullName,
+          avatarUrl: profileData.avatarUrl,
+          developmentScore: score,
+          profile: profileData,
+        })
+      );
+    }
+    return response;
     } catch (error) {
       if (!isDatabaseError(error)) throw error;
       return saveLocally();

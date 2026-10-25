@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ResourceItem } from "@/lib/types";
+import { StudentPlatforms } from "@/components/StudentPlatforms";
 
 export default function ResourcesPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -31,7 +32,7 @@ export default function ResourcesPage() {
   const [resources, setResources] = useState<ResourceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState("all");
-  const [paidFilter, setPaidFilter] = useState<"all" | "free" | "paid">("free");
+  const [paidFilter, setPaidFilter] = useState<"all" | "free" | "paid">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
 
@@ -134,7 +135,7 @@ export default function ResourcesPage() {
             Resource Manager & Catalog
           </h1>
           <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-1.5 max-w-2xl leading-relaxed">
-            Eliminate cross-platform searching. Every resource is curated by senior mentors with unambiguous badges for Free vs Paid tiers and direct provider links.
+            Eliminate cross-platform searching. NPTEL, Coursera, Udemy, Springboard, and the other student platforms are listed first, with a Free or Paid label on every course.
           </p>
         </div>
 
@@ -166,6 +167,8 @@ export default function ResourcesPage() {
           </button>
         </div>
       </Card>
+
+      <StudentPlatforms heading="Platforms students already use" />
 
       {/* Tabs by format */}
       <div className="flex items-center gap-2.5 overflow-x-auto pb-1 max-w-full">

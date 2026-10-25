@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -34,6 +33,7 @@ import { DashboardOverview } from "@/lib/types";
 import { ModuleAuthGate } from "@/components/ModuleAuthGate";
 import { useSkillRecords } from "@/components/skills/SkillKnowledgeList";
 import { actionsFromGaps, buildSkillGap } from "@/lib/skill-standing";
+import { savedProfileFor } from "@/lib/saved-profile";
 
 const SkillGapChart = dynamic(
   () => import("@/components/SkillGapChart").then((m) => m.SkillGapChart),
@@ -49,7 +49,6 @@ const ResumeAnalyzerModal = dynamic(
 );
 
 export default function StudentDashboardPage() {
-  const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const [data, setData] = useState<DashboardOverview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,11 +71,6 @@ export default function StudentDashboardPage() {
       return;
     }
 
-    if (!user.isOnboarded) {
-      router.replace("/onboarding");
-      return;
-    }
-
     const fetchDashboard = async () => {
       try {
         const res = await fetch("/api/v1/dashboard/student");
@@ -84,17 +78,22 @@ export default function StudentDashboardPage() {
           const json = await res.json();
           if (json.success) {
             setData(json);
+            return;
           }
         }
+        const cached = savedProfileFor(user.id);
+        if (cached) setData(cached);
       } catch (e) {
         console.error(e);
+        const cached = savedProfileFor(user.id);
+        if (cached) setData(cached);
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboard();
-  }, [user, authLoading, router]);
+  }, [user, authLoading]);
 
   if (!authLoading && !user) {
     return (
@@ -138,13 +137,16 @@ export default function StudentDashboardPage() {
             size="xl"
             online
           />
-          <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-2.5 min-w-0">
-              <h1 className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] tracking-tight break-words">{student.fullName}</h1>
-              <Badge variant="primary" size="sm">
-                Year {student.currentYear}
-              </Badge>
-            </div>
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2.5 min-w-0">
+                <Badge variant="primary" size="sm">Dashboard</Badge>
+                <h1 className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] tracking-tight break-words">
+                  {student.fullName}
+                </h1>
+                <Badge variant="outline" size="sm">
+                  Year {student.currentYear}
+                </Badge>
+              </div>
             <p className="text-xs text-[var(--color-text-secondary)]">
               {student.branch} • {student.collegeName}
             </p>
