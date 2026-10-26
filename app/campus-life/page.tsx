@@ -16,6 +16,8 @@ import {
   branchFromProfile,
 } from '@/data/campus-branches';
 import { useRoadmapOptional } from '@/context/RoadmapContext';
+import { desksForBranch } from '@/data/campus-contacts';
+import { ReachButtons } from '@/components/ReachButtons';
 
 type Shot = { src: string; title: string };
 
@@ -96,6 +98,7 @@ export default function CampusLifePage() {
   }, [shots]);
 
   const branchLabel = CAMPUS_BRANCHES.find((item) => item.id === branch)?.label;
+  const desks = branch ? desksForBranch(branch) : [];
 
   return (
     <div className="space-y-6 py-2">
@@ -139,6 +142,33 @@ export default function CampusLifePage() {
           <p className="text-sm text-[var(--text-secondary)]">
             {branchLabel} · {openClubs.length} {openClubs.length === 1 ? 'committee' : 'committees'} · {shots.length} photos
           </p>
+          {desks.length > 0 && (
+            <section className="space-y-3">
+              <h2 className="text-lg font-black text-[var(--text-primary)]">Who to call</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {desks.map((desk) => (
+                  <div key={desk.id} className="rounded-2xl border border-[var(--border)] p-4 space-y-3">
+                    <div>
+                      <p className="text-sm font-bold">{desk.title}</p>
+                      <p className="text-[11px] text-[var(--text-muted)]">{desk.detail}</p>
+                    </div>
+                    {desk.note && <p className="text-xs text-[var(--text-secondary)]">{desk.note}</p>}
+                    {desk.people.map((person) => (
+                      <div key={person.id} className="space-y-2">
+                        <p className="text-sm font-bold">{person.name}</p>
+                        <p className="text-xs text-[var(--primary)] font-semibold">{person.role} · {person.unit}</p>
+                        {person.phone ? (
+                          <ReachButtons phone={person.phone} name={person.name} unit={person.unit} />
+                        ) : (
+                          <p className="text-[11px] text-[var(--text-muted)]">A phone number is not on this list yet.</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
           {openClubs.map((club) => {
             const images = galleryFor(club);
             return (

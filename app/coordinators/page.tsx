@@ -11,6 +11,8 @@ import { Modal, ModalContent, ModalHeader, ModalTitle, ModalDescription, ModalBo
 import { EmptyState } from "@/components/ui/EmptyState";
 import { toast } from "@/components/ui/Toast";
 import { SAC_BADGES, type SacGroup, type SacPerson } from "@/data/sac-badges";
+import { CAMPUS_DESKS } from "@/data/campus-contacts";
+import { ReachButtons } from "@/components/ReachButtons";
 
 const SECTIONS: { id: SacGroup; title: string; detail: string }[] = [
   {
@@ -49,6 +51,17 @@ export default function CoordinatorsPage() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [successTicket, setSuccessTicket] = useState<{ ticketId: string; coordName: string } | null>(null);
+
+  const filteredDesks = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return CAMPUS_DESKS;
+    return CAMPUS_DESKS.map((desk) => ({
+      ...desk,
+      people: desk.people.filter((person) =>
+        `${person.name} ${person.role} ${person.unit} ${desk.title}`.toLowerCase().includes(q)
+      ),
+    })).filter((desk) => desk.people.length > 0 || (desk.note && `${desk.title} ${desk.detail} ${desk.note}`.toLowerCase().includes(q)));
+  }, [searchQuery]);
 
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -120,6 +133,40 @@ export default function CoordinatorsPage() {
           />
         </div>
       </Card>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-bold text-[var(--text-primary)]">Club, branch, and placement contacts</h2>
+          <p className="text-xs text-[var(--text-muted)] mt-1">
+            Call the number, or open WhatsApp with a query already addressed to that person.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredDesks.map((desk) => (
+            <Card key={desk.id} className="p-5 space-y-4">
+              <div>
+                <h3 className="font-bold text-sm">{desk.title}</h3>
+                <p className="text-[11px] text-[var(--text-muted)] mt-1">{desk.detail}</p>
+              </div>
+              {desk.note && <p className="text-xs text-[var(--text-secondary)]">{desk.note}</p>}
+              <div className="space-y-4">
+                {desk.people.map((person) => (
+                  <div key={person.id} className="space-y-2 border-t border-[var(--border)] pt-3">
+                    <p className="text-sm font-bold">{person.name}</p>
+                    <p className="text-xs text-[var(--primary)] font-semibold">{person.role}</p>
+                    <p className="text-[11px] text-[var(--text-secondary)]">{person.unit}</p>
+                    {person.phone ? (
+                      <ReachButtons phone={person.phone} name={person.name} unit={person.unit} />
+                    ) : (
+                      <p className="text-[11px] text-[var(--text-muted)]">A phone number is not on this list yet.</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
 
       {successTicket && (
         <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
