@@ -190,11 +190,11 @@ export default function OnboardingPage() {
 
       const data = await res.json();
       if (data.success) {
-        setCalculatedScore(data.initialScore || 72);
+        setCalculatedScore(data.initialScore ?? 0);
         if (user && data.profile?.fullName) {
           rememberSavedProfile(
             user.id,
-            overviewFromSavedProfile(user.id, data.profile, data.initialScore || 72)
+            overviewFromSavedProfile(user.id, data.profile, data.initialScore ?? 0)
           );
         }
         markProfileReady();
@@ -685,7 +685,7 @@ export default function OnboardingPage() {
                   {calculatedScore} / 100
                 </div>
                 <p className="text-xs text-[var(--color-text-secondary)]">
-                  Targeting: <strong className="text-[var(--color-text-primary)]">{targetRole}</strong>
+                  Most of this number is the skill check. CGPA moves it a little. Target: <strong className="text-[var(--color-text-primary)]">{targetRole}</strong>
                 </p>
               </div>
 

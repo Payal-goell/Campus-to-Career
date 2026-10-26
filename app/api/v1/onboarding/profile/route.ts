@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { placementYearFromCurrentYear } from '@/lib/placement-year';
 import type { SkillAssessmentRecord } from '@/lib/skill-assessment';
 import { DEFAULT_COLLEGE, avatarError, cgpaError, normalizeIndianMobile, phoneError } from '@/lib/field-rules';
+import { developmentScoreFromProfile } from '@/lib/development-score';
 
 const assessmentSchema = z.object({
   name: z.string().min(1).max(80),
@@ -86,20 +87,10 @@ export async function POST(req: NextRequest) {
     const { basicInfo, academicDetails, currentSkills, skillAssessments, careerPreferences, goals } = parsed.data;
     const placementYear = placementYearFromCurrentYear(academicDetails.currentYear);
 
-    // Calculate baseline development score
-    let score = 45; // base score for completing onboarding
-    if (academicDetails.cgpa) {
-      score += Math.min(Math.round((academicDetails.cgpa / 10) * 20), 20);
-    }
-    if (skillAssessments.length > 0) {
-      const average = Math.round(skillAssessments.reduce((sum, item) => sum + item.percent, 0) / skillAssessments.length);
-      score += Math.min(Math.round(average / 5), 20);
-    } else {
-      score += Math.min(currentSkills.length * 4, 20);
-    }
-    if (goals.primaryGoal) score += 5;
-    if (careerPreferences.targetRole) score += 5;
-    score = Math.min(Math.max(score, 50), 95);
+    const score = developmentScoreFromProfile({
+      cgpa: academicDetails.cgpa,
+      assessments: skillAssessments,
+    });
 
     const profileData: LocalProfile = {
       fullName: basicInfo.fullName,

@@ -286,11 +286,12 @@ export async function POST(req: NextRequest) {
     });
 
     // Recompute development score
-    const allCompleted = await prisma.userRoadmapMilestone.count({
-      where: { userId: session.id, completed: true },
+    const existingScore = await prisma.studentProfile.findUnique({
+      where: { userId: session.id },
+      select: { developmentScore: true },
     });
-
-    const newScore = Math.min(50 + allCompleted * 4, 98);
+    const base = existingScore?.developmentScore ?? 25;
+    const newScore = Math.max(8, Math.min(96, base + (completed ? 3 : -3)));
     await prisma.studentProfile.updateMany({
       where: { userId: session.id },
       data: { developmentScore: newScore },

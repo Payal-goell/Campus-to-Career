@@ -181,6 +181,110 @@ export function capHours(nodes: RoadmapNode[], weeklyHours: number): RoadmapNode
   return nodes.filter((n) => keep.has(n.id));
 }
 
+function rankForStudent(node: RoadmapNode, profile: StudentProfile): number {
+  let score = 0;
+  if (node.domain !== 'Generic' && profile.interestDomains.includes(node.domain as InterestDomain)) score += 10;
+  if (
+    node.talentTrack &&
+    node.talentTrack !== 'Personality' &&
+    profile.talentInterests.includes(node.talentTrack as TalentInterest)
+  ) {
+    score += 8;
+  }
+  if (node.templateId.startsWith('rgpv-')) score += 6;
+  if (
+    node.pillar === 'project' &&
+    node.domain !== 'Generic' &&
+    profile.interestDomains.includes(node.domain as InterestDomain)
+  ) {
+    score += 8;
+  }
+  const skill = node.skillGain[0]?.skill;
+  if (skill) {
+    const have = skillLevel(profile, skill);
+    if (have >= 4) score -= 6;
+    else if (have > 0 && have < 3) score += 5;
+    else score += 2;
+  }
+  if (node.estimatedHours > 20) score -= 3;
+  if (node.pillar === 'placement' && node.year < 3) score -= 8;
+  return score;
+}
+
+function plainStep(node: RoadmapNode, profile: StudentProfile): RoadmapNode {
+  const role = profile.targetRole || 'your target role';
+  let why = `Year ${node.year} step toward ${role}.`;
+  if (node.templateId.startsWith('rgpv-') || node.pillar === 'subjects') {
+    why = `Stay with this Year ${node.year} ${profile.branch} subject. The rest of the plan assumes these labs are done.`;
+  } else if (node.pillar === 'skills') {
+    why = `Practice this while it is still behind the level a ${role} role expects.`;
+  } else if (node.pillar === 'project') {
+    why = `One project you can finish this year and show for ${role}.`;
+  } else if (node.pillar === 'certification') {
+    why = `One certificate that matches ${role}. Finish the free parts on a college week.`;
+  } else if (node.pillar === 'placement') {
+    why = `Placement work for Year ${node.year}, aimed at ${role}.`;
+  } else if (TALENT_PILLARS.includes(node.pillar)) {
+    const talent = node.talentTrack && node.talentTrack !== 'Personality' ? node.talentTrack : profile.talentInterests[0];
+    why = talent
+      ? `Keep ${talent} in the week so the year is not only coursework.`
+      : `One people-skill habit for the year, beside the coursework.`;
+  }
+  return {
+    ...node,
+    why,
+    deliverables: node.deliverables.slice(0, 1),
+    checklist: node.checklist.slice(0, 3),
+  };
+}
+
+function pickBest(
+  pool: RoadmapNode[],
+  profile: StudentProfile,
+  used: Set<string>
+): RoadmapNode | undefined {
+  return pool
+    .filter((node) => !used.has(node.id))
+    .sort((a, b) => rankForStudent(b, profile) - rankForStudent(a, profile) || a.estimatedHours - b.estimatedHours)[0];
+}
+
+/** A short plan: college subject, one skill or project, one talent, and a certificate only when it fits. */
+export function alignToStudent(nodes: RoadmapNode[], profile: StudentProfile): RoadmapNode[] {
+  const years = ([1, 2, 3, 4] as AcademicYear[]).filter((year) => year >= profile.currentYear);
+  const kept: RoadmapNode[] = [];
+  const used = new Set<string>();
+
+  years.forEach((year) => {
+    const bucket = nodes.filter((node) => node.year === year);
+    const current = year === profile.currentYear;
+    const slots: Array<(node: RoadmapNode) => boolean> = [
+      (node) => node.templateId.startsWith('rgpv-') || node.pillar === 'subjects',
+      (node) => node.pillar === 'skills' || node.pillar === 'project',
+      (node) => TALENT_PILLARS.includes(node.pillar),
+    ];
+    if (current) slots.push((node) => node.pillar === 'certification');
+    if (year >= 3) slots.push((node) => node.pillar === 'placement');
+
+    slots.forEach((match) => {
+      const pick = pickBest(bucket.filter(match), profile, used);
+      if (!pick) return;
+      used.add(pick.id);
+      kept.push(plainStep(pick, profile));
+    });
+  });
+
+  if (!kept.some((node) => node.pillar === 'certification')) {
+    const cert = pickBest(
+      nodes.filter((node) => node.pillar === 'certification' && node.year >= profile.currentYear),
+      profile,
+      used
+    );
+    if (cert) kept.push(plainStep(cert, profile));
+  }
+
+  return kept.length ? kept : nodes.filter((node) => node.year >= profile.currentYear).slice(0, 6);
+}
+
 export function balancePillars(nodes: RoadmapNode[], library: RoadmapTemplate[], profile: StudentProfile): RoadmapNode[] {
   const present = new Set(nodes.map((n) => n.id));
   const extras: RoadmapNode[] = [];
@@ -335,6 +439,7 @@ export function generateRoadmap(
   let nodes = gapped.map((t) => toNode(t, profile));
   nodes = balancePillars(nodes, library, profile);
   nodes = capHours(nodes, profile.weeklyHours);
+  nodes = alignToStudent(nodes, profile);
   nodes = orderByPrerequisites(nodes);
   if (profile.customNodes?.length) {
     nodes = orderByPrerequisites([...nodes, ...profile.customNodes]);
