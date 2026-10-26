@@ -211,78 +211,89 @@ function rankForStudent(node: RoadmapNode, profile: StudentProfile): number {
   return score;
 }
 
-function plainStep(node: RoadmapNode, profile: StudentProfile): RoadmapNode {
-  const role = profile.targetRole || 'your target role';
-  let why = `Year ${node.year} step toward ${role}.`;
-  if (node.templateId.startsWith('rgpv-') || node.pillar === 'subjects') {
-    why = `Stay with this Year ${node.year} ${profile.branch} subject. The rest of the plan assumes these labs are done.`;
-  } else if (node.pillar === 'skills') {
-    why = `Practice this while it is still behind the level a ${role} role expects.`;
-  } else if (node.pillar === 'project') {
-    why = `One project you can finish this year and show for ${role}.`;
-  } else if (node.pillar === 'certification') {
-    why = `One certificate that matches ${role}. Finish the free parts on a college week.`;
-  } else if (node.pillar === 'placement') {
-    why = `Placement work for Year ${node.year}, aimed at ${role}.`;
-  } else if (TALENT_PILLARS.includes(node.pillar)) {
-    const talent = node.talentTrack && node.talentTrack !== 'Personality' ? node.talentTrack : profile.talentInterests[0];
-    why = talent
-      ? `Keep ${talent} in the week so the year is not only coursework.`
-      : `One people-skill habit for the year, beside the coursework.`;
-  }
-  return {
-    ...node,
-    why,
-    deliverables: node.deliverables.slice(0, 1),
-    checklist: node.checklist.slice(0, 3),
-  };
-}
-
-function pickBest(
+function takeDistinct(
   pool: RoadmapNode[],
   profile: StudentProfile,
+  limit: number,
   used: Set<string>
-): RoadmapNode | undefined {
-  return pool
+): RoadmapNode[] {
+  const ranked = pool
     .filter((node) => !used.has(node.id))
-    .sort((a, b) => rankForStudent(b, profile) - rankForStudent(a, profile) || a.estimatedHours - b.estimatedHours)[0];
+    .sort((a, b) => rankForStudent(b, profile) - rankForStudent(a, profile) || a.estimatedHours - b.estimatedHours);
+  const picked: RoadmapNode[] = [];
+  const seen = new Set<string>();
+  for (const node of ranked) {
+    const key = (node.skillGain[0]?.skill || node.title).toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    picked.push(node);
+    if (picked.length >= limit) break;
+  }
+  return picked;
 }
 
-/** A short plan: college subject, one skill or project, one talent, and a certificate only when it fits. */
+/**
+ * Full RGPV paper list for the year, plus a technical set and an extracurricular set.
+ * Those three feed the year milestone.
+ */
 export function alignToStudent(nodes: RoadmapNode[], profile: StudentProfile): RoadmapNode[] {
   const years = ([1, 2, 3, 4] as AcademicYear[]).filter((year) => year >= profile.currentYear);
   const kept: RoadmapNode[] = [];
-  const used = new Set<string>();
 
   years.forEach((year) => {
     const bucket = nodes.filter((node) => node.year === year);
-    const current = year === profile.currentYear;
-    const slots: Array<(node: RoadmapNode) => boolean> = [
-      (node) => node.templateId.startsWith('rgpv-') || node.pillar === 'subjects',
-      (node) => node.pillar === 'skills' || node.pillar === 'project',
-      (node) => TALENT_PILLARS.includes(node.pillar),
-    ];
-    if (current) slots.push((node) => node.pillar === 'certification');
-    if (year >= 3) slots.push((node) => node.pillar === 'placement');
+    const used = new Set<string>();
+    const papers = bucket.filter((node) => node.templateId.startsWith('rgpv-'));
+    const subjects = papers.length
+      ? papers
+      : bucket.filter((node) => node.pillar === 'subjects').slice(0, 1);
 
-    slots.forEach((match) => {
-      const pick = pickBest(bucket.filter(match), profile, used);
-      if (!pick) return;
-      used.add(pick.id);
-      kept.push(plainStep(pick, profile));
-    });
-  });
-
-  if (!kept.some((node) => node.pillar === 'certification')) {
-    const cert = pickBest(
-      nodes.filter((node) => node.pillar === 'certification' && node.year >= profile.currentYear),
+    const skillLimit = year === profile.currentYear ? 3 : 2;
+    const talentLimit = year === profile.currentYear ? 2 : 1;
+    const technical = takeDistinct(
+      bucket.filter(
+        (node) =>
+          (node.pillar === 'skills' || node.pillar === 'project' || node.pillar === 'certification') &&
+          !node.templateId.startsWith('rgpv-')
+      ),
       profile,
+      skillLimit,
       used
     );
-    if (cert) kept.push(plainStep(cert, profile));
-  }
+    technical.forEach((node) => used.add(node.id));
+    const extracurricular = takeDistinct(
+      bucket.filter((node) => TALENT_PILLARS.includes(node.pillar) && node.landmarkKind !== 'year-end'),
+      profile,
+      talentLimit,
+      used
+    );
 
-  return kept.length ? kept : nodes.filter((node) => node.year >= profile.currentYear).slice(0, 6);
+    const feeders = [...subjects, ...technical, ...extracurricular];
+    feeders.forEach((node) => {
+      if (node.templateId.startsWith('rgpv-')) {
+        kept.push(node);
+        return;
+      }
+      const role = profile.targetRole || 'your target role';
+      const why = TALENT_PILLARS.includes(node.pillar)
+        ? `Extracurricular work for Year ${year}. It counts toward the year milestone beside the RGPV papers.`
+        : `Technical practice for ${role}. It sits next to the RGPV papers on the way to the Year ${year} milestone.`;
+      kept.push({ ...node, why });
+    });
+
+    const gate = bucket.find((node) => node.landmarkKind === 'year-end');
+    if (gate) {
+      kept.push({
+        ...gate,
+        title: `Year ${year} milestone`,
+        why: `Received when the Year ${year} RGPV papers, the technical skill set, and the extracurricular set are done.`,
+        prerequisites: feeders.map((node) => node.id),
+        isLandmark: true,
+      });
+    }
+  });
+
+  return kept.length ? kept : nodes.filter((node) => node.year >= profile.currentYear);
 }
 
 export function balancePillars(nodes: RoadmapNode[], library: RoadmapTemplate[], profile: StudentProfile): RoadmapNode[] {

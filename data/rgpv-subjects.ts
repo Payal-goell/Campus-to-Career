@@ -285,40 +285,30 @@ export function rgpvSubjectTemplates(): RoadmapTemplate[] {
     ([1, 2, 3, 4] as AcademicYear[]).forEach((year) => {
       YEAR_SEMS[year].forEach((sem) => {
         const papers = papersFor(key, sem);
-        if (!papers.length) return;
-        const codes = papers.map((p) => p.code).join(', ');
-        const names = papers.map((p) => `${p.code} ${p.name}`).join('; ');
-        const mid = papers.filter((p) => p.kind !== 'lab' && p.kind !== 'project').slice(0, 4);
-        out.push(
-          tpl({
-            id: `rgpv-${key}-y${year}-sem${sem}`,
-            year,
-            period: PERIOD_FOR_SEM[sem],
-            pillar: 'subjects',
-            title: `RGPV Sem ${sem} (${key.toUpperCase()}): ${mid.map((p) => p.name).slice(0, 2).join(' + ')}`,
-            why: `These are official RGPV B.Tech papers for {branch}. Scoring well in ${codes} keeps TPO shortlists, GATE, and {role} internships open.`,
-            deliverables: [
-              `Mid-sem + end-sem plan for: ${names}`,
-              'Unit-wise notes mapped to RGPV scheme credits',
-            ],
-            checklist: [
-              'Download the current RGPV scheme PDF for this semester',
-              ...mid.slice(0, 3).map((p) => `Finish Unit 1–2 notes for ${p.code} ${p.name}`),
-              'Attempt last 2 RGPV end-sem question papers',
-              'Book a faculty doubt slot before mid-sem',
-            ],
-            hours: 18,
-            skill: 'RGPV academics',
-            gain: 1,
-            teachesLevel: year === 1 ? 1 : year,
-            resources: [
-              rgpvNotes,
-              nptel(mid[0]?.name ?? 'Engineering core'),
-              gfg(mid[1]?.name ?? 'DSA'),
-              free('Unacademy / Physics Wallah RGPV playlist (free lectures)', 'https://www.youtube.com', 'video'),
-            ],
-          })
-        );
+        papers.forEach((paper) => {
+          const kindLabel = paper.kind === 'lab' ? 'Lab' : paper.kind === 'project' ? 'Project' : paper.kind === 'audit' ? 'Audit' : 'Theory';
+          out.push(
+            tpl({
+              id: `rgpv-${key}-y${year}-sem${sem}-${paper.code.toLowerCase()}`,
+              year,
+              period: PERIOD_FOR_SEM[sem],
+              pillar: 'subjects',
+              title: `${paper.code} ${paper.name}`,
+              why: `RGPV Sem ${sem} ${kindLabel.toLowerCase()} paper for {branch}. Finishing it is part of the Year ${year} milestone.`,
+              deliverables: [`Notes and past-paper attempt for ${paper.code} ${paper.name}`],
+              checklist: [
+                `Read the RGPV syllabus unit list for ${paper.code}`,
+                'Finish the first two units and one lab or tutorial sheet',
+                'Solve one recent end-sem question on this paper',
+              ],
+              hours: paper.kind === 'project' ? 20 : paper.kind === 'lab' ? 10 : 12,
+              skill: 'RGPV academics',
+              gain: 1,
+              teachesLevel: year === 1 ? 1 : 2,
+              resources: [rgpvNotes, nptel(paper.name), gfg(paper.name)],
+            })
+          );
+        });
       });
     });
   }
