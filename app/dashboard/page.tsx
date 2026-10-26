@@ -353,17 +353,17 @@ export default function StudentDashboardPage() {
             </p>
             <div className="p-3.5 rounded-xl bg-[var(--color-surface-raised)] border border-[var(--color-border-subtle)] text-xs space-y-1">
               <span className="text-[10px] font-bold text-[var(--color-brand-primary)] uppercase tracking-wider block">
-                Lead Coordinator Available
+                Placement Head
               </span>
-              <p className="font-bold text-[var(--color-text-primary)]">Sarah Connor</p>
-              <p className="text-[11px] text-[var(--color-text-muted)]">Placement Cell • Mon-Fri 2-5 PM</p>
+              <p className="font-bold text-[var(--color-text-primary)]">Prachi Srivastava</p>
+              <p className="text-[11px] text-[var(--color-text-muted)]">Training and Placement · call or WhatsApp from the desk</p>
             </div>
           </div>
 
           <div className="pt-4">
             <Link href="/coordinators" className="w-full">
               <Button variant="secondary" size="sm" className="w-full">
-                Submit Coordinator Query
+                Open coordinator desk
               </Button>
             </Link>
           </div>

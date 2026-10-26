@@ -110,63 +110,31 @@ export default function CoordinatorsPage() {
     }
   };
 
+  const showEmpty = filteredDesks.length === 0 && filtered.length === 0;
+
   return (
     <div className="space-y-8 py-6">
       <Card variant="raised" className="p-6 sm:p-8 border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/90 backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
         <div>
           <div className="flex items-center gap-2 mb-2.5">
-            <Badge variant="primary" size="sm">SAC badge list 2026–27</Badge>
+            <Badge variant="primary" size="sm">SISTec desks</Badge>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] tracking-tight">
-            Faculty and student coordinators
+            Coordinators
           </h1>
           <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-1.5 max-w-2xl leading-relaxed">
-            Faculty coordinators are listed separately from the student office bearers and committee leads. Each card shows the designation from the badge list.
+            Call a published number, or open WhatsApp with a query already written to that person. The SAC badge list for 2026–27 is below the phone directory.
           </p>
         </div>
         <div className="w-full md:w-72 shrink-0">
           <Input
-            placeholder="Search by name, role, or committee..."
+            placeholder="Search by name, club, or committee..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             leftIcon={<Search className="w-4 h-4" />}
           />
         </div>
       </Card>
-
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-sm font-bold text-[var(--text-primary)]">Club, branch, and placement contacts</h2>
-          <p className="text-xs text-[var(--text-muted)] mt-1">
-            Call the number, or open WhatsApp with a query already addressed to that person.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredDesks.map((desk) => (
-            <Card key={desk.id} className="p-5 space-y-4">
-              <div>
-                <h3 className="font-bold text-sm">{desk.title}</h3>
-                <p className="text-[11px] text-[var(--text-muted)] mt-1">{desk.detail}</p>
-              </div>
-              {desk.note && <p className="text-xs text-[var(--text-secondary)]">{desk.note}</p>}
-              <div className="space-y-4">
-                {desk.people.map((person) => (
-                  <div key={person.id} className="space-y-2 border-t border-[var(--border)] pt-3">
-                    <p className="text-sm font-bold">{person.name}</p>
-                    <p className="text-xs text-[var(--primary)] font-semibold">{person.role}</p>
-                    <p className="text-[11px] text-[var(--text-secondary)]">{person.unit}</p>
-                    {person.phone ? (
-                      <ReachButtons phone={person.phone} name={person.name} unit={person.unit} />
-                    ) : (
-                      <p className="text-[11px] text-[var(--text-muted)]">A phone number is not on this list yet.</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
 
       {successTicket && (
         <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
@@ -183,13 +151,67 @@ export default function CoordinatorsPage() {
         </div>
       )}
 
-      {filtered.length === 0 ? (
+      {filteredDesks.length > 0 && (
+        <section className="space-y-6">
+          <div>
+            <h2 className="text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+              <UserCheck className="w-4 h-4 text-[var(--color-brand-primary)]" />
+              Call or WhatsApp
+            </h2>
+            <p className="text-xs text-[var(--color-text-muted)] mt-1">
+              Branch clubs, E-Cell, developer groups, first-year clubs, and the placement cell.
+            </p>
+          </div>
+          {filteredDesks.map((desk) => (
+            <div key={desk.id} className="space-y-3">
+              <div>
+                <h3 className="text-sm font-bold text-[var(--color-text-primary)]">{desk.title}</h3>
+                <p className="text-xs text-[var(--color-text-muted)] mt-1">{desk.detail}</p>
+              </div>
+              {desk.people.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {desk.people.map((person) => (
+                    <Card key={person.id} className="p-5 flex flex-col justify-between gap-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-11 h-11 rounded-2xl bg-[var(--primary-subtle)] text-[var(--primary)] flex items-center justify-center font-bold text-xs shrink-0">
+                          {initials(person.name)}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-sm text-[var(--color-text-primary)]">{person.name}</h3>
+                          <p className="text-xs text-[var(--color-brand-primary)] font-semibold">{person.role}</p>
+                          <p className="text-[11px] text-[var(--color-text-secondary)] mt-1 flex items-center gap-1.5">
+                            <Building className="w-3.5 h-3.5 shrink-0" />
+                            {person.unit}
+                          </p>
+                        </div>
+                      </div>
+                      {person.phone ? (
+                        <ReachButtons phone={person.phone} name={person.name} unit={person.unit} />
+                      ) : (
+                        <p className="text-[11px] text-[var(--color-text-muted)]">A phone number is not on this list yet.</p>
+                      )}
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                desk.note && (
+                  <p className="text-xs text-[var(--color-text-secondary)] rounded-2xl border border-[var(--color-border-subtle)] px-4 py-3">
+                    {desk.note}
+                  </p>
+                )
+              )}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {showEmpty ? (
         <EmptyState
           title="No one matches that search"
-          description="Try a name, a designation, or a committee from the badge list."
+          description="Try a name, a club, or a committee."
           action={{ label: "Clear Search", onClick: () => setSearchQuery("") }}
         />
-      ) : (
+      ) : filtered.length > 0 ? (
         SECTIONS.map((section) => {
           const people = filtered.filter((person) => person.group === section.id);
           if (people.length === 0) return null;
@@ -234,7 +256,7 @@ export default function CoordinatorsPage() {
             </section>
           );
         })
-      )}
+      ) : null}
 
       <Modal open={!!selectedCoord} onOpenChange={(open) => !open && setSelectedCoord(null)}>
         {selectedCoord && (
