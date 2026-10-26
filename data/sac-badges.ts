@@ -1,0 +1,80 @@
+export type SacGroup = 'faculty' | 'student' | 'member';
+
+export interface SacPerson {
+  id: string;
+  name: string;
+  designation: string;
+  committee: string;
+  group: SacGroup;
+}
+
+/** SAC badge list for 2026–27. Faculty and student office-bearers are listed apart from committee members. */
+export const SAC_BADGES: SacPerson[] = [
+  { id: 'sac-faculty-meha', name: 'Prof. Meha Shrivastava', designation: 'SAC Faculty Coordinator', committee: 'Student Activity Council', group: 'faculty' },
+  { id: 'sac-faculty-deepti', name: 'Prof. Deepti Jain', designation: 'SAC Faculty Coordinator', committee: 'Student Activity Council', group: 'faculty' },
+  { id: 'sac-faculty-mitali', name: 'Ms. Mitali Rana', designation: 'Faculty Coordinator', committee: 'Digital and IT Committee', group: 'faculty' },
+  { id: 'sac-faculty-abhishek', name: 'Mr. Abhishek Jharbade', designation: 'Faculty Coordinator', committee: 'Public Relations Committee', group: 'faculty' },
+  { id: 'sac-faculty-sharad', name: 'Mr. Sharad Mohan Shrivastava', designation: 'Faculty Coordinator', committee: 'Public Relations Committee', group: 'faculty' },
+  { id: 'sac-faculty-ravi', name: 'Dr. Ravi Shankar Choudhary', designation: 'Faculty Coordinator', committee: 'Hostel and Mess', group: 'faculty' },
+  { id: 'sac-faculty-amit', name: 'Prof. Amit Swami', designation: 'Faculty Coordinator', committee: 'Hostel and Mess', group: 'faculty' },
+  { id: 'sac-faculty-neelesh', name: 'Mr. Neelesh Mishra', designation: 'Faculty Coordinator', committee: 'Sports Committee', group: 'faculty' },
+  { id: 'sac-faculty-madhu', name: 'Dr. Madhu Shrivastava', designation: 'Faculty Coordinator', committee: 'Art & Culture Committee', group: 'faculty' },
+  { id: 'sac-faculty-deepika', name: 'Prof. Deepika Rajput', designation: 'Faculty Coordinator', committee: 'Editorial Committee', group: 'faculty' },
+  { id: 'sac-faculty-shiwani', name: 'Prof. Shiwani Tiwari', designation: 'Faculty Coordinator', committee: 'Speakers Committee', group: 'faculty' },
+  { id: 'sac-faculty-sachin', name: 'Prof. Sachin Jat', designation: 'Faculty Coordinator', committee: 'Discipline Committee', group: 'faculty' },
+  { id: 'sac-faculty-deepak', name: 'Mr. Deepak Dangi', designation: 'Faculty Coordinator', committee: 'Placement Committee', group: 'faculty' },
+
+  { id: 'sac-student-om', name: 'Om Dwivedi', designation: 'President', committee: 'Office Bearers', group: 'student' },
+  { id: 'sac-student-laiba', name: 'Laiba Khan', designation: 'Vice President', committee: 'Office Bearers', group: 'student' },
+  { id: 'sac-student-adyasha', name: 'Adyasha Pattanaik', designation: 'Vice President', committee: 'Office Bearers', group: 'student' },
+  { id: 'sac-student-aishwary', name: 'Aishwary Kumar', designation: 'Secretary (Cultural & IT)', committee: 'Office Bearers', group: 'student' },
+  { id: 'sac-student-anmol', name: 'Anmol Dalal', designation: 'Secretary (Admin)', committee: 'Office Bearers', group: 'student' },
+  { id: 'sac-student-harshita', name: 'Harshita Mulani', designation: 'Secretary (Communication)', committee: 'Office Bearers', group: 'student' },
+  { id: 'sac-student-saksham', name: 'Saksham Sharma', designation: 'Secretary (Sports)', committee: 'Office Bearers', group: 'student' },
+  { id: 'sac-student-sameer', name: 'Sameer Gupta', designation: 'Treasurer', committee: 'Office Bearers', group: 'student' },
+  { id: 'sac-student-aditya', name: 'Aditya Ranjan', designation: 'Coordinator', committee: 'Hostel and Mess', group: 'student' },
+  { id: 'sac-student-avneet', name: 'Avneet Raj', designation: 'Team Lead', committee: 'Sports Committee', group: 'student' },
+  { id: 'sac-student-vanshika-w', name: 'Vanshika Wadhwa', designation: 'Coordinator', committee: 'Art & Culture Committee', group: 'student' },
+  { id: 'sac-student-vaibhavi', name: 'Vaibhavi Tiwari', designation: 'Coordinator', committee: 'Editorial Committee', group: 'student' },
+  { id: 'sac-student-anjali', name: 'Anjali Khare', designation: 'Coordinator', committee: 'Speakers Committee', group: 'student' },
+  { id: 'sac-student-naman-m', name: 'Naman Mishra', designation: 'Coordinator', committee: 'Discipline Committee', group: 'student' },
+  { id: 'sac-student-deepika-v', name: 'Deepika Vishwakarma', designation: 'Coordinator', committee: 'Placement Committee', group: 'student' },
+
+  { id: 'sac-member-rishabh', name: 'Rishabh Chourasiya', designation: 'Member', committee: 'Digital and IT Committee', group: 'member' },
+  { id: 'sac-member-diya', name: 'Diya Manglani', designation: 'Member', committee: 'Digital and IT Committee', group: 'member' },
+  { id: 'sac-member-akshat', name: 'Akshat Wadhwa', designation: 'Member', committee: 'Digital and IT Committee', group: 'member' },
+  { id: 'sac-member-abhishek-l', name: 'Abhishek Lodhi', designation: 'Member', committee: 'Digital and IT Committee', group: 'member' },
+  { id: 'sac-member-kartik', name: 'Kartik Meena', designation: 'Member', committee: 'Digital and IT Committee', group: 'member' },
+  { id: 'sac-member-drishti', name: 'Drishti Vaswani', designation: 'Member', committee: 'Public Relations Committee', group: 'member' },
+  { id: 'sac-member-samrudhi', name: 'Samrudhi Gupta', designation: 'Member', committee: 'Public Relations Committee', group: 'member' },
+  { id: 'sac-member-aarush', name: 'Aarush Chawda', designation: 'Member', committee: 'Public Relations Committee', group: 'member' },
+  { id: 'sac-member-ali', name: 'Ali Asgar Hussain', designation: 'Member', committee: 'Public Relations Committee', group: 'member' },
+  { id: 'sac-member-aiza', name: 'Aiza Siddiqui', designation: 'Member', committee: 'Public Relations Committee', group: 'member' },
+  { id: 'sac-member-pranjali', name: 'Pranjali Thakre', designation: 'Member', committee: 'Hostel and Mess', group: 'member' },
+  { id: 'sac-member-divyanshu', name: 'Divyanshu Pathak', designation: 'Member', committee: 'Hostel and Mess', group: 'member' },
+  { id: 'sac-member-naman-t', name: 'Naman Thakur', designation: 'Member', committee: 'Hostel and Mess', group: 'member' },
+  { id: 'sac-member-harshit-s', name: 'Harshit Sharma', designation: 'Member', committee: 'Hostel and Mess', group: 'member' },
+  { id: 'sac-member-ananya', name: 'Ananya Pokharna', designation: 'Member', committee: 'Sports Committee', group: 'member' },
+  { id: 'sac-member-yash', name: 'Yash Jaswani', designation: 'Member', committee: 'Sports Committee', group: 'member' },
+  { id: 'sac-member-aashi', name: 'Aashi Sharma', designation: 'Member', committee: 'Sports Committee', group: 'member' },
+  { id: 'sac-member-kushagra', name: 'Kushagra Gupta', designation: 'Member', committee: 'Sports Committee', group: 'member' },
+  { id: 'sac-member-vanshika-p', name: 'Vanshika Pariyani', designation: 'Member', committee: 'Art & Culture Committee', group: 'member' },
+  { id: 'sac-member-rashid', name: 'Rashid Khan', designation: 'Member', committee: 'Art & Culture Committee', group: 'member' },
+  { id: 'sac-member-riya', name: 'Riya Dutta', designation: 'Member', committee: 'Art & Culture Committee', group: 'member' },
+  { id: 'sac-member-charu', name: 'Charu Upadhyay', designation: 'Member', committee: 'Art & Culture Committee', group: 'member' },
+  { id: 'sac-member-mahim', name: 'Mahim Khan', designation: 'Member', committee: 'Editorial Committee', group: 'member' },
+  { id: 'sac-member-maaz', name: 'Maaz Khan', designation: 'Member', committee: 'Editorial Committee', group: 'member' },
+  { id: 'sac-member-mayur', name: 'Mayur Dhariwal', designation: 'Member', committee: 'Editorial Committee', group: 'member' },
+  { id: 'sac-member-manshi', name: 'Manshi Dhote', designation: 'Member', committee: 'Editorial Committee', group: 'member' },
+  { id: 'sac-member-karan', name: 'Karan Pratap Sinha', designation: 'Member', committee: 'Speakers Committee', group: 'member' },
+  { id: 'sac-member-fatima', name: 'Fatima Sughra Abidi', designation: 'Member', committee: 'Speakers Committee', group: 'member' },
+  { id: 'sac-member-aqsa', name: 'Aqsa Mirza', designation: 'Member', committee: 'Speakers Committee', group: 'member' },
+  { id: 'sac-member-tooba', name: 'Tooba Siddiqui', designation: 'Member', committee: 'Speakers Committee', group: 'member' },
+  { id: 'sac-member-prince', name: 'Prince Kumar', designation: 'Member', committee: 'Discipline Committee', group: 'member' },
+  { id: 'sac-member-harshit-d', name: 'Harshit Dubey', designation: 'Member', committee: 'Discipline Committee', group: 'member' },
+  { id: 'sac-member-nishi', name: 'Nishi Agrawal', designation: 'Member', committee: 'Discipline Committee', group: 'member' },
+  { id: 'sac-member-raja', name: 'Raja Kumar', designation: 'Member', committee: 'Discipline Committee', group: 'member' },
+  { id: 'sac-member-devansh', name: 'Devansh Mishra', designation: 'Member', committee: 'Placement Committee', group: 'member' },
+  { id: 'sac-member-tilak', name: 'Tilak Gupta', designation: 'Member', committee: 'Placement Committee', group: 'member' },
+  { id: 'sac-member-priya', name: 'Priya Sharma', designation: 'Member', committee: 'Placement Committee', group: 'member' },
+];

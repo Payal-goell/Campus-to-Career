@@ -22,7 +22,8 @@ export async function GET(req: NextRequest) {
     });
 
     const studentYear = profile?.currentYear || 2;
-    const targetYear = yearParam ? parseInt(yearParam, 10) : studentYear;
+    const requestedYear = yearParam ? parseInt(yearParam, 10) : studentYear;
+    const targetYear = !requestedYear || requestedYear < studentYear ? studentYear : requestedYear;
 
     const targetRole = roleOverride || profile?.targetRole || 'Full-Stack Software Engineer';
     const preferredDomains = domainOverride

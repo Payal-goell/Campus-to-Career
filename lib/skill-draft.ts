@@ -8,6 +8,8 @@ import {
   type SkillProof,
 } from '@/lib/skill-assessment';
 
+export const QUIZ_LENGTH = 6;
+
 export interface SkillDraft {
   name: string;
   kind: SkillKind;
@@ -25,7 +27,7 @@ export function blankDraft(name: string): SkillDraft {
     kind: defaultKind(name),
     mode: 'basic',
     quizLevel: 'easy',
-    answers: [-1, -1, -1],
+    answers: Array(QUIZ_LENGTH).fill(-1),
     submitted: false,
     percent: 0,
   };

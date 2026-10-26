@@ -1,20 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import {
-  UserCheck,
-  Mail,
-  Phone,
-  Clock,
-  Send,
-  MessageSquare,
-  Search,
-  CheckCircle2,
-  Building,
-  Shield,
-  HelpCircle,
-} from "lucide-react";
+import { UserCheck, Send, MessageSquare, Search, CheckCircle2, Building } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -22,45 +10,61 @@ import { Input } from "@/components/ui/Input";
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalDescription, ModalBody, ModalFooter } from "@/components/ui/Modal";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { toast } from "@/components/ui/Toast";
-import { CoordinatorItem } from "@/lib/types";
+import { SAC_BADGES, type SacGroup, type SacPerson } from "@/data/sac-badges";
+
+const SECTIONS: { id: SacGroup; title: string; detail: string }[] = [
+  {
+    id: "faculty",
+    title: "Faculty coordinators",
+    detail: "SAC faculty and the faculty coordinator named for each committee.",
+  },
+  {
+    id: "student",
+    title: "Main student coordinators",
+    detail: "Office bearers and the student coordinator or team lead for each committee.",
+  },
+  {
+    id: "member",
+    title: "Committee members",
+    detail: "Student members on the 2026–27 badge list, with the committee they sit on.",
+  },
+];
+
+function initials(name: string) {
+  return name
+    .replace(/^(Prof\.|Dr\.|Mr\.|Ms\.)\s+/i, "")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
 
 export default function CoordinatorsPage() {
   const { user } = useAuth();
-  const [coordinators, setCoordinators] = useState<CoordinatorItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Contact query modal state
-  const [selectedCoord, setSelectedCoord] = useState<CoordinatorItem | null>(null);
+  const [selectedCoord, setSelectedCoord] = useState<SacPerson | null>(null);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [successTicket, setSuccessTicket] = useState<{ ticketId: string; coordName: string } | null>(null);
 
-  useEffect(() => {
-    fetchCoordinators();
-  }, []);
-
-  const fetchCoordinators = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/v1/coordinators");
-      if (res.ok) {
-        const json = await res.json();
-        if (json.success) {
-          setCoordinators(json.coordinators || []);
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return SAC_BADGES;
+    return SAC_BADGES.filter((person) =>
+      `${person.name} ${person.designation} ${person.committee}`.toLowerCase().includes(q)
+    );
+  }, [searchQuery]);
 
   const handleSendInquiry = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCoord || !subject || !message) return;
+    if (!user) {
+      toast.error("Sign in to send a query", "The desk keeps the ticket with your account.");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -77,14 +81,13 @@ export default function CoordinatorsPage() {
       const data = await res.json();
       if (data.success) {
         const ticketId = data.ticketId || "tkt_9921";
-        setSuccessTicket({
-          ticketId,
-          coordName: selectedCoord.name,
-        });
+        setSuccessTicket({ ticketId, coordName: selectedCoord.name });
         toast.success("Inquiry transmitted", `Ticket #${ticketId} created successfully.`);
         setSelectedCoord(null);
         setSubject("");
         setMessage("");
+      } else {
+        toast.error("Failed to send inquiry", data.error || "Please try again later.");
       }
     } catch (e) {
       console.error(e);
@@ -94,34 +97,23 @@ export default function CoordinatorsPage() {
     }
   };
 
-  const filteredCoordinators = coordinators.filter((c) =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.role.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div className="space-y-8 py-6">
-      {/* Header */}
       <Card variant="raised" className="p-6 sm:p-8 border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/90 backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
         <div>
           <div className="flex items-center gap-2 mb-2.5">
-            <Badge variant="primary" size="sm">
-              Official University Contact Desk
-            </Badge>
+            <Badge variant="primary" size="sm">SAC badge list 2026–27</Badge>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] tracking-tight">
-            Student & Faculty Coordinator Directory
+            Faculty and student coordinators
           </h1>
           <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-1.5 max-w-2xl leading-relaxed">
-            Need guidance regarding campus recruitment drives, committee join requests, or lab project clearances? Reach designated coordinators directly through verified channels.
+            Faculty coordinators are listed separately from the student office bearers and committee leads. Each card shows the designation from the badge list.
           </p>
         </div>
-
-        {/* Search */}
         <div className="w-full md:w-72 shrink-0">
           <Input
-            placeholder="Search by name or department..."
+            placeholder="Search by name, role, or committee..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             leftIcon={<Search className="w-4 h-4" />}
@@ -129,158 +121,110 @@ export default function CoordinatorsPage() {
         </div>
       </Card>
 
-      {/* Ticket Success Banner */}
       {successTicket && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-600 dark:text-emerald-400 flex items-center justify-between animate-in fade-in">
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
             <div>
-              <p className="font-bold">
-                Inquiry Submitted Successfully to {successTicket.coordName}!
-              </p>
+              <p className="font-bold">Inquiry submitted to {successTicket.coordName}</p>
               <p className="text-[var(--color-text-secondary)] text-[11px]">
-                Tracking Ticket ID: <strong className="font-mono text-emerald-500">#{successTicket.ticketId}</strong>. You will receive an alert when a reply is posted.
+                Tracking ticket <strong className="font-mono text-emerald-500">#{successTicket.ticketId}</strong>
               </p>
             </div>
           </div>
-          <Button
-            size="xs"
-            variant="ghost"
-            onClick={() => setSuccessTicket(null)}
-          >
-            Dismiss
-          </Button>
+          <Button size="xs" variant="ghost" onClick={() => setSuccessTicket(null)}>Dismiss</Button>
         </div>
       )}
 
-      {/* Coordinators Grid */}
-      {loading ? (
-        <div className="text-center py-20 text-[var(--color-text-muted)]">Loading coordinator contacts...</div>
-      ) : filteredCoordinators.length === 0 ? (
+      {filtered.length === 0 ? (
         <EmptyState
-          title="No Coordinators Found"
-          description="Try refining your search keyword or clearing the filter."
-          action={{
-            label: "Clear Search",
-            onClick: () => setSearchQuery(""),
-          }}
+          title="No one matches that search"
+          description="Try a name, a designation, or a committee from the badge list."
+          action={{ label: "Clear Search", onClick: () => setSearchQuery("") }}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredCoordinators.map((c) => (
-            <Card
-              key={c.id}
-              variant="interactive"
-              animate
-              className="p-6 border border-[var(--color-border-subtle)] flex flex-col justify-between space-y-4"
-            >
+        SECTIONS.map((section) => {
+          const people = filtered.filter((person) => person.group === section.id);
+          if (people.length === 0) return null;
+          return (
+            <section key={section.id} className="space-y-3">
               <div>
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[var(--color-brand-primary)] to-[var(--color-accent)] p-0.5 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                      {c.name.split(" ").map((n) => n[0]).join("")}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-[var(--color-text-primary)] text-base leading-tight">{c.name}</h3>
-                      <p className="text-xs text-[var(--color-brand-primary)] font-medium">{c.role}</p>
-                    </div>
-                  </div>
-                  <Badge variant="outline" size="sm">
-                    Verified
-                  </Badge>
-                </div>
-
-                <div className="space-y-2 text-xs text-[var(--color-text-secondary)] pt-2 border-t border-[var(--color-border-subtle)]">
-                  <div className="flex items-center gap-2">
-                    <Building className="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0" />
-                    <span>{c.department}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0" />
-                    <a href={`mailto:${c.email}`} className="text-[var(--color-brand-primary)] hover:underline">
-                      {c.email}
-                    </a>
-                  </div>
-                  {c.phone && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0" />
-                      <span>{c.phone}</span>
-                    </div>
-                  )}
-                  <div className="flex items-start gap-2 bg-[var(--color-surface-raised)] p-2.5 rounded-xl border border-[var(--color-border-subtle)]">
-                    <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-                    <span className="text-[11px] text-[var(--color-text-secondary)]">{c.availableHours}</span>
-                  </div>
-                </div>
+                <h2 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
+                  <UserCheck className="w-4 h-4 text-[var(--primary)]" />
+                  {section.title}
+                </h2>
+                <p className="text-xs text-[var(--text-muted)] mt-1">{section.detail}</p>
               </div>
-
-              <div className="pt-3 border-t border-[var(--color-border-subtle)] flex items-center justify-between">
-                <span className="text-[11px] text-[var(--color-text-muted)]">Response within 24-48 hrs</span>
-                <Button
-                  size="sm"
-                  variant="gradient"
-                  onClick={() => setSelectedCoord(c)}
-                  leftIcon={<MessageSquare className="w-3.5 h-3.5" />}
-                >
-                  Send Query
-                </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {people.map((person) => (
+                  <Card key={person.id} className="p-5 flex flex-col justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-[var(--primary-subtle)] text-[var(--primary)] flex items-center justify-center font-bold text-xs shrink-0">
+                        {initials(person.name)}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-sm text-[var(--text-primary)]">{person.name}</h3>
+                        <p className="text-xs text-[var(--primary)] font-semibold">{person.designation}</p>
+                        <p className="text-[11px] text-[var(--text-secondary)] mt-1 flex items-center gap-1.5">
+                          <Building className="w-3.5 h-3.5 shrink-0" />
+                          {person.committee}
+                        </p>
+                      </div>
+                    </div>
+                    {person.group !== "member" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedCoord(person)}
+                        leftIcon={<MessageSquare className="w-3.5 h-3.5" />}
+                      >
+                        Send query
+                      </Button>
+                    )}
+                  </Card>
+                ))}
               </div>
-            </Card>
-          ))}
-        </div>
+            </section>
+          );
+        })
       )}
 
-      {/* Query Form Modal */}
       <Modal open={!!selectedCoord} onOpenChange={(open) => !open && setSelectedCoord(null)}>
         {selectedCoord && (
           <ModalContent>
             <ModalHeader>
-              <ModalTitle>Submit Inquiry to {selectedCoord.name}</ModalTitle>
+              <ModalTitle>Submit inquiry to {selectedCoord.name}</ModalTitle>
               <ModalDescription>
-                {selectedCoord.role} • {selectedCoord.department}
+                {selectedCoord.designation} · {selectedCoord.committee}
               </ModalDescription>
             </ModalHeader>
-
             <form onSubmit={handleSendInquiry}>
               <ModalBody className="space-y-4">
                 <Input
                   label="Subject *"
                   required
-                  placeholder="e.g. Eligibility criteria for upcoming recruitment drive"
+                  placeholder="Badge duty, committee join, or a campus question"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                 />
-
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] block">
-                    Inquiry Details *
+                    Inquiry details *
                   </label>
                   <textarea
                     rows={4}
                     required
-                    placeholder="Describe your inquiry clearly so the coordinator can respond accurately..."
+                    placeholder="Say which committee this is about and what you need."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     className="w-full rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)] px-3.5 py-2.5 text-xs text-[var(--color-text-primary)] focus:border-[var(--color-border-focus)] outline-none"
                   />
                 </div>
               </ModalBody>
-
               <ModalFooter>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setSelectedCoord(null)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="gradient"
-                  loading={submitting}
-                  leftIcon={<Send className="w-3.5 h-3.5" />}
-                >
-                  Send Message
+                <Button type="button" variant="ghost" onClick={() => setSelectedCoord(null)}>Cancel</Button>
+                <Button type="submit" variant="gradient" loading={submitting} leftIcon={<Send className="w-3.5 h-3.5" />}>
+                  Send message
                 </Button>
               </ModalFooter>
             </form>

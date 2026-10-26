@@ -87,13 +87,6 @@ function writeStore(state: StoredState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function seedPriorYears(engine: RoadmapEngine, profile: StudentProfile): StudentProfile {
-  if (profile.currentYear <= 1) return profile;
-  const draft = engine.generateRoadmap({ ...profile, completedNodeIds: [] });
-  const prior = draft.nodes.filter((n) => n.year < profile.currentYear).map((n) => n.id);
-  return { ...profile, completedNodeIds: Array.from(new Set([...(profile.completedNodeIds ?? []), ...prior])) };
-}
-
 export function RoadmapProvider({ children }: { children: React.ReactNode }) {
   const engineRef = useRef<RoadmapEngine | null>(null);
   const [engine, setEngine] = useState<RoadmapEngine | null>(null);
@@ -194,8 +187,7 @@ export function RoadmapProvider({ children }: { children: React.ReactNode }) {
       const run = (current: RoadmapEngine) => {
         const persona = current.personaById(id);
         if (!persona) return;
-        const seeded = seedPriorYears(current, persona.profile);
-        saveProfile(seeded);
+        saveProfile(persona.profile);
         toast.success(`Loaded ${persona.label}`, persona.desc);
       };
       if (engineRef.current) {

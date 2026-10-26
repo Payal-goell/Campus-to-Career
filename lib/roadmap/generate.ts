@@ -270,7 +270,7 @@ function markStartHere(nodes: RoadmapNode[], profile: StudentProfile): { nodes: 
 }
 
 function yearSummaries(nodes: RoadmapNode[], profile: StudentProfile): YearSummary[] {
-  return ([1, 2, 3, 4] as AcademicYear[]).map((year) => {
+  return ([1, 2, 3, 4] as AcademicYear[]).filter((year) => year >= profile.currentYear).map((year) => {
     const bucket = nodes.filter((n) => n.year === year);
     const completedCount = bucket.filter((n) => n.status === 'completed').length;
     const totalXp = bucket.reduce((s, n) => s + n.xp, 0);
@@ -340,6 +340,7 @@ export function generateRoadmap(
     nodes = orderByPrerequisites([...nodes, ...profile.customNodes]);
   }
   nodes = applyStatus(nodes, profile);
+  nodes = nodes.filter((n) => n.year >= profile.currentYear);
   const marked = markStartHere(nodes, profile);
   nodes = marked.nodes;
 

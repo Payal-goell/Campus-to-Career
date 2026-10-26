@@ -359,8 +359,139 @@ function generic(skill: string): Bank {
   };
 }
 
+function genericExtra(skill: string): Bank {
+  return {
+    easy: [
+      { prompt: `A beginner exercise in ${skill} is done when:`, choices: ['You can run it again without the walkthrough', 'You only saved the link', 'The file name contains the skill', 'You changed your branch'], answer: 0 },
+      { prompt: `The first thing you check when a basic ${skill} step fails is:`, choices: ['The exact error and the last change', 'A new certificate', 'Your CGPA', 'A different career goal'], answer: 0 },
+      { prompt: `Basic ${skill} vocabulary is useful because:`, choices: ['You can follow a lab handout and ask a precise question', 'It replaces practice', 'It sets the placement year', 'It skips the assignment'], answer: 0 },
+    ],
+    medium: [
+      { prompt: `Intermediate ${skill} work includes:`, choices: ['Changing one part and predicting the result', 'Watching a full playlist with no file of your own', 'Renaming folders only', 'Copying an answer you cannot explain'], answer: 0 },
+      { prompt: `You would debug ${skill} by:`, choices: ['Reproducing the failure, then testing one cause', 'Rewriting the whole project first', 'Hiding the error', 'Asking for the scored sheet'], answer: 0 },
+      { prompt: `A classmate can review your ${skill} work when:`, choices: ['They can run or read the steps you kept', 'You only name the tool', 'The screenshot is a homepage', 'The note is on your phone with no file'], answer: 0 },
+    ],
+    hard: [
+      { prompt: `An advanced ${skill} choice should name:`, choices: ['What you gained and what gets worse if the input grows', 'Only the happy path', 'The course thumbnail', 'Your section'], answer: 0 },
+      { prompt: `Before calling a ${skill} design finished, you:`, choices: ['Write the failure you expect and how you would notice it', 'Assume it never fails', 'Hide the steps', 'Skip review'], answer: 0 },
+      { prompt: `A useful critique of ${skill} work points at:`, choices: ['A concrete risk and a smaller alternative', '“Looks fine” with no look', 'The font', 'Someone else’s marks'], answer: 0 },
+    ],
+  };
+}
+
+const EXTRAS: Record<string, Bank> = {
+  python: {
+    easy: [
+      { prompt: 'Which value is an int?', choices: ['"3"', '3', '3.0 only as text', '[3]'], answer: 1 },
+      { prompt: 'input() returns:', choices: ['Always an int', 'A string', 'A list', 'A file'], answer: 1 },
+      { prompt: 'Indentation in Python:', choices: ['Is optional decoration', 'Groups the lines inside a block', 'Replaces the colon', 'Only matters in comments'], answer: 1 },
+    ],
+    medium: [
+      { prompt: 'range(2) yields:', choices: ['1, 2', '0, 1', '2, 3', '0, 2'], answer: 1 },
+      { prompt: 'A for loop over a list visits:', choices: ['Each item, in order', 'Only the last item', 'The indexes as strings only', 'Nothing unless you call len'], answer: 0 },
+      { prompt: 's.lower() on "Py" returns:', choices: ['"PY"', '"Py"', '"py"', '"pY"'], answer: 2 },
+    ],
+    hard: [
+      { prompt: 'A function that returns None and one that prints a value differ because:', choices: ['Return gives a value the caller can use; print only shows it', 'They are the same', 'Print stores the value in a list', 'Return always writes a file'], answer: 0 },
+      { prompt: 'Why keep a virtual environment for a project?', choices: ['The project’s packages stay separate from other projects', 'Python refuses global installs always', 'It compiles C++', 'It sets your CGPA'], answer: 0 },
+      { prompt: 'An exception you do not catch will:', choices: ['Stop that run and show a traceback', 'Turn into an empty list', 'Be ignored in every program', 'Convert the value to 0'], answer: 0 },
+    ],
+  },
+  javascript: {
+    easy: [
+      { prompt: 'Which pair of quotes starts a string?', choices: ['/* */', '"hello"', '#hello', '<hello>'], answer: 1 },
+      { prompt: 'An array is written with:', choices: ['( )', '{ } only', '[ ]', '<% %>'], answer: 2 },
+      { prompt: 'true is a:', choices: ['string', 'boolean', 'number', 'element'], answer: 1 },
+    ],
+    medium: [
+      { prompt: 'What is "5" + 1 in JavaScript?', choices: ['6', '"51"', 'NaN always', '1'], answer: 1 },
+      { prompt: 'A function saved in a const is called with:', choices: ['the name and parentheses', 'git commit', 'SELECT', 'a CSS class'], answer: 0 },
+      { prompt: 'obj.name reads:', choices: ['The name property', 'The file name on disk', 'The git branch', 'The quiz level'], answer: 0 },
+    ],
+    hard: [
+      { prompt: 'const user = { city: "Bhopal" }; user.city = "Indore" is:', choices: ['Allowed, because the binding is fixed but the object can change', 'A syntax error always', 'A SQL update', 'Impossible with const'], answer: 0 },
+      { prompt: 'filter returns:', choices: ['A new array of items that pass the test', 'The original array, emptied', 'A single boolean', 'A promise only'], answer: 0 },
+      { prompt: 'await can be used:', choices: ['Inside an async function, in front of a promise', 'Before any const', 'Only in CSS', 'Only on numbers'], answer: 0 },
+    ],
+  },
+  java: {
+    easy: [
+      { prompt: 'A class is saved in a file that usually ends with:', choices: ['.py', '.java', '.jsx', '.sql'], answer: 1 },
+      { prompt: 'int age = 20; stores:', choices: ['Text', 'A whole number', 'A table', 'A webpage'], answer: 1 },
+      { prompt: 'public static void main is:', choices: ['Where a simple program starts', 'A CSS selector', 'A git command', 'A React hook'], answer: 0 },
+    ],
+    medium: [
+      { prompt: 'A constructor runs when:', choices: ['The object is created with new', 'The file is renamed', 'You print the class name only', 'The semester ends'], answer: 0 },
+      { prompt: 'An ArrayList index starts at:', choices: ['1', '0', '-1', 'The length'], answer: 1 },
+      { prompt: 'private on a field means:', choices: ['Other classes should use methods instead of touching it directly', 'The field is global', 'The field is a web route', 'The field is deleted'], answer: 0 },
+    ],
+    hard: [
+      { prompt: 'Overriding a method means:', choices: ['A subclass supplies its own version of a parent method', 'You delete the JDK', 'You rename the file twice', 'You skip main'], answer: 0 },
+      { prompt: 'A NullPointerException often means:', choices: ['You used an object reference that was null', 'The class name is too long', 'The file compiled to Python', 'The list is merely empty and that is always this error'], answer: 0 },
+      { prompt: 'try / catch is for:', choices: ['Handling a failure you expect might happen', 'Declaring a variable', 'Importing a package', 'Printing every line twice'], answer: 0 },
+    ],
+  },
+  'data structures & algorithms': {
+    easy: [
+      { prompt: 'The item at the front of a queue is the one:', choices: ['Inserted most recently', 'Waiting the longest', 'With the longest name', 'Never inserted'], answer: 1 },
+      { prompt: 'Linear search checks items:', choices: ['One by one until it finds a match or finishes', 'Only at the middle', 'In random pairs', 'By compiling them'], answer: 0 },
+      { prompt: 'O(1) means the work:', choices: ['Grows with every extra item', 'Stays about the same as the input grows', 'Is always one byte of RAM', 'Is impossible'], answer: 1 },
+    ],
+    medium: [
+      { prompt: 'A binary search on 1000 sorted items needs about:', choices: ['1000 checks', 'A handful of checks, around log2 of 1000', 'One check only if the item is last', 'n! checks'], answer: 1 },
+      { prompt: 'Push then pop on a stack returns:', choices: ['The older item underneath', 'The item you just pushed', 'A sorted copy', 'Nothing, stacks cannot pop'], answer: 1 },
+      { prompt: 'A hash collision is when:', choices: ['Two keys land in the same slot', 'The array is unsorted on purpose', 'The stack is empty', 'The graph has no edges'], answer: 0 },
+    ],
+    hard: [
+      { prompt: 'Merge sort’s usual time is:', choices: ['O(n log n)', 'O(1) for any input', 'O(n!) always', 'The length of the longest string only'], answer: 0 },
+      { prompt: 'BFS on an unweighted graph finds:', choices: ['A shortest path in number of edges', 'The maximum spanning tree only', 'A CSS layout', 'A sorted hash'], answer: 0 },
+      { prompt: 'You pick a linked list over an array when:', choices: ['You insert and delete in the middle often and can afford slower index lookup', 'You need O(1) index every time', 'The data must be a video', 'You need SQL joins'], answer: 0 },
+    ],
+  },
+  sql: {
+    easy: [
+      { prompt: 'SELECT name FROM students limits the result to:', choices: ['Every column', 'The name column', 'The database server log', 'A React list'], answer: 1 },
+      { prompt: 'INSERT adds:', choices: ['A new row', 'A new programming language', 'A CSS file', 'A git branch'], answer: 0 },
+      { prompt: 'NULL means:', choices: ['The number 0', 'An empty string always', 'No value is stored', 'The row is deleted'], answer: 2 },
+    ],
+    medium: [
+      { prompt: 'WHERE cgpa >= 8 keeps rows that:', choices: ['Have CGPA of 8 or more', 'Have any CGPA', 'Are the first row only', 'Have a null name'], answer: 0 },
+      { prompt: 'COUNT(branch) skips:', choices: ['Rows where branch is NULL', 'Every row', 'Rows where branch is CSE', 'Nothing, it equals COUNT(*)'], answer: 0 },
+      { prompt: 'A foreign key points at:', choices: ['A primary key in another table', 'A CSS class', 'A file path only', 'The query’s comment'], answer: 0 },
+    ],
+    hard: [
+      { prompt: 'LEFT JOIN keeps:', choices: ['Every row from the left table, with matches from the right when they exist', 'Only rows that match', 'Only the right table', 'A cartesian product with no condition you can filter'], answer: 0 },
+      { prompt: 'An index you never use still:', choices: ['Can slow writes, because it must be updated', 'Makes every SELECT instant with no cost', 'Replaces the primary key', 'Deletes duplicate rows'], answer: 0 },
+      { prompt: 'A transaction COMMIT means:', choices: ['The grouped changes are saved together', 'The database is dropped', 'The query is only printed', 'The table is renamed to git'], answer: 0 },
+    ],
+  },
+  react: {
+    easy: [
+      { prompt: 'You pass a title into a component through:', choices: ['props', 'the file extension', 'a SQL column', 'git status'], answer: 0 },
+      { prompt: 'A component name in JSX should start with:', choices: ['a lowercase tag like a plain div only', 'a capital letter', 'a number', 'a #'], answer: 1 },
+      { prompt: 'useState’s first value is:', choices: ['The initial state', 'The CSS file', 'The server port', 'The route list'], answer: 0 },
+    ],
+    medium: [
+      { prompt: 'Changing state with the setter:', choices: ['Schedules a re-render with the new value', 'Edits the DOM string in place and skips React', 'Writes a database row', 'Renames the component'], answer: 0 },
+      { prompt: 'Conditional rendering {ok && <Badge />} shows the badge when:', choices: ['ok is truthy', 'ok is always false', 'the file is .css', 'the key is missing'], answer: 0 },
+      { prompt: 'A controlled input’s value comes from:', choices: ['React state', 'A random attribute each keystroke', 'The database only', 'The component’s file name'], answer: 0 },
+    ],
+    hard: [
+      { prompt: 'A missing effect dependency can:', choices: ['Show stale state inside the effect', 'Make JSX illegal', 'Turn props into SQL', 'Disable the bundler'], answer: 0 },
+      { prompt: 'You lift state when:', choices: ['Two children must share the same value', 'You want each child to invent a different copy on purpose', 'The value is a CSS color only', 'The component is a string'], answer: 0 },
+      { prompt: 'React.memo skips a re-render when:', choices: ['The props you compare have not changed', 'Any parent state changes, always', 'The component uses useState', 'The file is named page.tsx'], answer: 0 },
+    ],
+  },
+};
+
 export function questionsFor(skill: string, level: QuizLevel): QuizQuestion[] {
   const key = skill.trim().toLowerCase();
-  const bank = BANKS[key] ?? generic(skill.trim() || 'this skill');
-  return bank[level];
+  const alias = key.replace(/\.js$/, '');
+  const bank = BANKS[key] ?? BANKS[alias] ?? generic(skill.trim() || 'this skill');
+  const extra =
+    EXTRAS[key]?.[level] ??
+    EXTRAS[alias]?.[level] ??
+    (alias === 'postgresql' || alias === 'dsa' ? EXTRAS[alias === 'dsa' ? 'data structures & algorithms' : 'sql']?.[level] : undefined) ??
+    genericExtra(skill.trim() || 'this skill')[level];
+  return [...bank[level], ...extra].slice(0, 6);
 }

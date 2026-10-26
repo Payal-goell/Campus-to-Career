@@ -204,7 +204,7 @@ export async function POST(req: NextRequest) {
 
     if (existingMilestones.length === 0) {
       const allMilestones = await prisma.roadmapMilestone.findMany({
-        where: { year: { lte: academicDetails.currentYear } },
+        where: { year: academicDetails.currentYear },
       });
 
       for (const m of allMilestones) {
@@ -212,8 +212,8 @@ export async function POST(req: NextRequest) {
           data: {
             userId: session.id,
             milestoneId: m.id,
-            completed: m.year < academicDetails.currentYear,
-            status: m.year < academicDetails.currentYear ? 'COMPLETED' : 'IN_PROGRESS',
+            completed: false,
+            status: 'IN_PROGRESS',
           },
         });
       }

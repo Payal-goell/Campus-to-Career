@@ -277,6 +277,11 @@ function testPersonasPopulated() {
     const r = generateRoadmap(p.profile, library);
     assert.ok(r.nodes.length > 8, `${p.id} should have a full roadmap`);
     for (const year of [1, 2, 3, 4] as const) {
+      if (year < p.profile.currentYear) {
+        assert.equal(r.nodes.filter((n) => n.year === year).length, 0, `${p.id} hides year ${year}`);
+        assert.ok(!r.yearSummaries.some((y) => y.year === year));
+        continue;
+      }
       const bucket = r.nodes.filter((n) => n.year === year);
       assert.ok(
         bucket.some((n) => TECHNICAL_PILLARS.includes(n.pillar) || n.pillar === 'placement'),

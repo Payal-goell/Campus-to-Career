@@ -2,7 +2,7 @@
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { questionsFor } from '@/data/skill-quizzes';
-import { blankDraft, type SkillDraft } from '@/lib/skill-draft';
+import { blankDraft, QUIZ_LENGTH, type SkillDraft } from '@/lib/skill-draft';
 import {
   MODE_PERCENT,
   type QuizLevel,
@@ -175,6 +175,7 @@ const SkillCard = React.memo(function SkillCard({
   onPatch: (name: string, partial: Partial<SkillDraft>) => void;
 }) {
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<number[]>(() => Array(QUIZ_LENGTH).fill(-1));
   const questions = useMemo(
     () => (open && draft.kind === 'technical' ? questionsFor(draft.name, draft.quizLevel) : []),
     [open, draft.kind, draft.name, draft.quizLevel]
@@ -210,32 +211,38 @@ const SkillCard = React.memo(function SkillCard({
 
   const setKind = (kind: SkillKind) => {
     setQuestionIndex(0);
+    setAnswers(Array(QUIZ_LENGTH).fill(-1));
     update({
       kind,
       submitted: false,
       percent: 0,
-      answers: [-1, -1, -1],
+      answers: Array(QUIZ_LENGTH).fill(-1),
       proof: kind === 'technical' ? undefined : draft.proof,
     });
   };
 
   const setLevel = (quizLevel: QuizLevel) => {
     setQuestionIndex(0);
-    update({ quizLevel, submitted: false, percent: 0, answers: [-1, -1, -1] });
+    setAnswers(Array(QUIZ_LENGTH).fill(-1));
+    update({ quizLevel, submitted: false, percent: 0, answers: Array(QUIZ_LENGTH).fill(-1) });
   };
 
   const answer = (choice: number) => {
-    const answers = draft.answers.slice();
-    answers[questionIndex] = choice;
-    update({ answers, submitted: false, percent: 0 });
-    if (questionIndex < questions.length - 1 && answers[questionIndex + 1] < 0) {
+    setAnswers((current) => {
+      const next = current.slice();
+      next[questionIndex] = choice;
+      return next;
+    });
+    if (draft.submitted) update({ submitted: false, percent: 0 });
+    if (questionIndex < questions.length - 1 && (answers[questionIndex + 1] ?? -1) < 0) {
       setQuestionIndex(questionIndex + 1);
     }
   };
 
   const submitQuiz = () => {
-    const correct = questions.filter((question, index) => draft.answers[index] === question.answer).length;
-    update({ submitted: true, percent: Math.round((correct / questions.length) * 100) });
+    const correct = questions.filter((question, index) => answers[index] === question.answer).length;
+    const percent = Math.round((correct / questions.length) * 100);
+    update({ answers, submitted: true, percent });
   };
 
   const onProof = (file: File | undefined) => {
@@ -309,7 +316,7 @@ const SkillCard = React.memo(function SkillCard({
               <p className="text-xs font-semibold text-[var(--color-text-primary)]">{question.prompt}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                 {question.choices.map((choice, choiceIndex) => {
-                  const picked = draft.answers[questionIndex] === choiceIndex;
+                  const picked = answers[questionIndex] === choiceIndex;
                   const reveal = draft.submitted;
                   const right = question.answer === choiceIndex;
                   const tone = reveal
@@ -338,7 +345,7 @@ const SkillCard = React.memo(function SkillCard({
           <button
             type="button"
             onClick={submitQuiz}
-            disabled={draft.answers.some((value) => value < 0)}
+            disabled={questions.some((_, index) => answers[index] === undefined || answers[index] < 0)}
             className="px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--color-brand-primary)] text-white disabled:opacity-40"
           >
             {draft.submitted ? `Score saved · ${draft.percent}%` : 'Score this quiz'}
