@@ -112,11 +112,17 @@ export function RoadmapProvider({ children }: { children: React.ReactNode }) {
         engineRef.current = mod;
         const stored = readStore();
         if (stored?.profile) {
-          setProfile(stored.profile);
+          const profile = stored.profile.onboardedAt
+            ? stored.profile
+            : { ...stored.profile, onboardedAt: new Date().toISOString() };
+          setProfile(profile);
           setPendingDiff(stored.pendingDiff);
           setPendingReveal(Boolean(stored.pendingReveal));
-          setSelectedYear(stored.profile.currentYear);
+          setSelectedYear(profile.currentYear);
           setLastOpenedId(stored.lastOpenedId ?? null);
+          if (!stored.profile.onboardedAt) {
+            writeStore({ ...stored, profile });
+          }
         } else {
           const seeded = mod.EXPLORER_PROFILE;
           setProfile(seeded);

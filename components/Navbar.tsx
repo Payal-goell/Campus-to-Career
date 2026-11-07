@@ -8,8 +8,8 @@ import { useAuth } from '@/context/AuthContext';
 import {
   Compass, Map, BookOpen, Users, Briefcase,
   Shield, Bell, Menu, X, LogOut, Sparkles, ChevronDown,
-  UserCheck, MoreHorizontal, User, Wrench, FolderKanban, Medal,
-  Bot, BarChart3, FileText, MessageSquare, Heart,
+  UserCheck, Rocket, User, Wrench, FolderKanban, Medal,
+  Bot, BarChart3, FileText, MessageSquare, Heart, Flame, Radar, UsersRound,
 } from 'lucide-react';
 import { NotificationDrawer } from './NotificationDrawer';
 import { ThemeToggle } from './ui/ThemeToggle';
@@ -46,6 +46,9 @@ const supportingLinks = [
   { name: 'Interview', href: '/interview', icon: MessageSquare, requireAuth: false },
   { name: 'Placement', href: '/placement', icon: Briefcase, requireAuth: false },
   { name: 'Analytics', href: '/analytics', icon: BarChart3, requireAuth: false },
+  { name: 'Trending', href: '/trending', icon: Flame, requireAuth: false },
+  { name: 'Open Calls', href: '/opportunities', icon: Radar, requireAuth: false },
+  { name: 'Circles', href: '/circles', icon: UsersRound, requireAuth: false },
   { name: 'Coordinators', href: '/coordinators', icon: UserCheck, requireAuth: false },
 ];
 
@@ -274,11 +277,11 @@ export function Navbar() {
                     }}
                     aria-expanded={moreOpen}
                     aria-haspopup="menu"
-                    aria-label="More pages"
+                    aria-label="Launchpad — extra campus desks"
                     className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-inset)]"
                   >
-                    <MoreHorizontal className="w-4 h-4" />
-                    <span className="hidden xl:inline">More</span>
+                    <Rocket className="w-4 h-4" />
+                    <span className="hidden xl:inline">Launchpad</span>
                   </button>
                   {moreOpen &&
                     createPortal(

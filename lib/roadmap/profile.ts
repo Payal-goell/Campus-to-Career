@@ -136,6 +136,7 @@ export function normalizeProfile(input: Partial<StudentProfile> | null | undefin
     customNodes: input.customNodes ?? [],
     isPersonalized: input.isPersonalized !== false,
     personaId: input.personaId,
+    onboardedAt: input.onboardedAt,
   };
 
   const emptyish =

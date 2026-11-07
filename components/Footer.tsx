@@ -75,6 +75,21 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/trending" className="hover:text-[var(--color-brand-primary)] transition-colors">
+                  Trending technologies
+                </Link>
+              </li>
+              <li>
+                <Link href="/opportunities" className="hover:text-[var(--color-brand-primary)] transition-colors">
+                  Open calls
+                </Link>
+              </li>
+              <li>
+                <Link href="/circles" className="hover:text-[var(--color-brand-primary)] transition-colors">
+                  Study circles
+                </Link>
+              </li>
+              <li>
                 <Link href="/ai-tools" className="hover:text-[var(--color-brand-primary)] transition-colors">
                   AI Tools
                 </Link>

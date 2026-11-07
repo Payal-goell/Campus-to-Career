@@ -17,6 +17,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useRoadmap } from '@/context/RoadmapContext';
 import { PILLAR_FILTERS, YEAR_THEMES } from '@/lib/roadmap/constants';
+import { calendarPeriodLabel, journeySpan } from '@/lib/roadmap/calendar';
 import { filterNodes } from '@/lib/roadmap/generate';
 import type { AcademicYear, PillarFilterId, RoadmapNode } from '@/lib/roadmap/types';
 import { JourneyMap } from '@/components/roadmap/JourneyMap';
@@ -63,8 +64,16 @@ export default function RoadmapPage() {
 
   const yearLocked = selectedYear > profile.currentYear;
   const yearNodes = useMemo(
-    () => filterNodes(roadmap.nodes, { filter, query, onlyThisMonth, year: selectedYear }),
-    [filter, onlyThisMonth, query, roadmap.nodes, selectedYear]
+    () =>
+      filterNodes(roadmap.nodes, {
+        filter,
+        query,
+        onlyThisMonth,
+        year: selectedYear,
+        startDate: profile.onboardedAt,
+        currentYear: profile.currentYear,
+      }),
+    [filter, onlyThisMonth, profile.currentYear, profile.onboardedAt, query, roadmap.nodes, selectedYear]
   );
 
   const nextActions = roadmap.nodes.filter(
@@ -144,6 +153,7 @@ export default function RoadmapPage() {
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
             {profile.branch} · {profile.targetRole} · {profile.weeklyHours} hrs/week
+            {journeySpan(profile) ? ` · ${journeySpan(profile)}` : ''}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -221,9 +231,14 @@ export default function RoadmapPage() {
                 {YEAR_THEMES[tab.year as AcademicYear].split(' ').slice(0, 3).join(' ')}
               </h3>
               <p className={cn('text-[11px] mt-1', selected ? 'text-[var(--primary-fg)]/80' : 'text-[var(--text-secondary)]')}>
-                {tab.completionPct}% · {tab.xp} XP
+                {tab.calendarRange || `${tab.completionPct}% · ${tab.xp} XP`}
                 {tab.year > profile.currentYear ? ' · locked' : ''}
               </p>
+              {tab.calendarRange && (
+                <p className={cn('text-[10px] mt-0.5', selected ? 'text-[var(--primary-fg)]/70' : 'text-[var(--text-muted)]')}>
+                  {tab.completionPct}% · {tab.xp} XP
+                </p>
+              )}
             </button>
           );
         })}
@@ -313,6 +328,7 @@ export default function RoadmapPage() {
           zoom={zoom}
           previewFuture={previewFuture}
           yearLocked={yearLocked}
+          profile={profile}
         />
       ) : (
         <ul className="space-y-2" aria-label="Roadmap list">
@@ -332,6 +348,9 @@ export default function RoadmapPage() {
                     {n.status}
                   </Badge>
                 </div>
+                <p className="text-xs text-[var(--text-muted)] mt-1">
+                  {calendarPeriodLabel(profile, selectedYear, n.period)}
+                </p>
                 <p className="text-xs text-[var(--text-muted)] mt-1 line-clamp-2">{n.why}</p>
               </button>
             </li>

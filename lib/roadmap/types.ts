@@ -58,6 +58,8 @@ export interface StudentProfile {
   customNodes?: RoadmapNode[];
   isPersonalized?: boolean;
   personaId?: string;
+  /** ISO date of onboarding. Calendar windows run from this day and month through graduation. */
+  onboardedAt?: string;
 }
 
 export interface RoadmapResource {
@@ -131,6 +133,7 @@ export interface YearSummary {
   nodeCount: number;
   completedCount: number;
   locked: boolean;
+  calendarRange?: string | null;
 }
 
 export interface RoadmapDiffItem {

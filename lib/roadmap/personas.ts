@@ -19,6 +19,7 @@ export const ROADMAP_PERSONAS: Array<{ id: string; label: string; desc: string; 
       completedNodeIds: [],
       isPersonalized: true,
       personaId: 'priya-cse-y1',
+      onboardedAt: '2026-10-26',
     },
   },
   {
@@ -42,6 +43,7 @@ export const ROADMAP_PERSONAS: Array<{ id: string; label: string; desc: string; 
       completedNodeIds: [],
       isPersonalized: true,
       personaId: 'arjun-ece-y2',
+      onboardedAt: '2026-10-26',
     },
   },
   {
@@ -65,6 +67,7 @@ export const ROADMAP_PERSONAS: Array<{ id: string; label: string; desc: string; 
       completedNodeIds: [],
       isPersonalized: true,
       personaId: 'neha-cse-y3',
+      onboardedAt: '2026-10-26',
     },
   },
 ];

@@ -15,6 +15,7 @@ import {
   regenerateWithDiff,
   subtractSkillGaps,
 } from './generate';
+import { calendarPeriodLabel, formatDay, journeySpan, yearStartDate, parseOnboardDate } from './calendar';
 import { EXPLORER_PROFILE, normalizeProfile } from './profile';
 import { ROADMAP_PERSONAS } from './personas';
 import { TALENT_PILLARS, TECHNICAL_PILLARS } from './constants';
@@ -301,6 +302,20 @@ function testPersonasPopulated() {
   }
 }
 
+function testCalendarFromOnboarding() {
+  const start = parseOnboardDate('2026-10-26');
+  assert.equal(formatDay(yearStartDate(start, 2, 2)), '26 Oct 2026');
+  assert.equal(yearStartDate(start, 2, 4).getFullYear(), 2028);
+  const arjun = ROADMAP_PERSONAS.find((p) => p.id === 'arjun-ece-y2')!;
+  const span = journeySpan(arjun.profile);
+  assert.ok(span && span.includes('26 Oct 2026'));
+  assert.ok(span && span.includes('2029'));
+  const label = calendarPeriodLabel(arjun.profile, 2, 'M1-2');
+  assert.ok(label.includes('Oct'));
+  const r = generateRoadmap(arjun.profile, library);
+  assert.ok(r.yearSummaries.every((y) => y.calendarRange));
+}
+
 function testEmptyExplorerVsValid() {
   const empty = generateRoadmap({} as StudentProfile, library);
   assert.equal(empty.usedFallback, true);
@@ -321,6 +336,7 @@ const tests: Array<[string, () => void]> = [
   ['adaptive re-generation diff', testAdaptiveDiff],
   ['personas fully populated', testPersonasPopulated],
   ['year 2 differs from year 1', testEmptyExplorerVsValid],
+  ['calendar windows follow onboarding date', testCalendarFromOnboarding],
 ];
 
 let failed = 0;

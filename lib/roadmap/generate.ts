@@ -10,6 +10,7 @@ import {
 import { diffRoadmaps } from './diff';
 import { normalizeProfile, skillLevel } from './profile';
 import { resolveRgpvBranch } from '@/data/rgpv-subjects';
+import { calendarYearRange, parseOnboardDate, periodContaining } from './calendar';
 import type {
   AcademicYear,
   GeneratedRoadmap,
@@ -400,6 +401,7 @@ function yearSummaries(nodes: RoadmapNode[], profile: StudentProfile): YearSumma
       nodeCount: bucket.length,
       completedCount,
       locked: year > profile.currentYear && !yearEndDone,
+      calendarRange: calendarYearRange(profile, year),
     };
   });
 }
@@ -483,24 +485,34 @@ export function regenerateWithDiff(
   return { roadmap, diff: diffRoadmaps(prevNodes, roadmap.nodes) };
 }
 
-export function thisMonthPeriod(now = new Date()): PeriodSlot {
-  const m = now.getMonth() + 1;
-  if (m <= 2) return 'M1-2';
-  if (m <= 4) return 'M3-4';
-  if (m <= 6) return 'M5-6';
-  if (m <= 9) return 'M7-9';
-  return 'M10-12';
+export function thisMonthPeriod(
+  now = new Date(),
+  startDate?: string,
+  currentYear: AcademicYear = 1
+): PeriodSlot {
+  const start = parseOnboardDate(startDate, now);
+  return periodContaining(start, currentYear, currentYear, now) ?? 'M1-2';
 }
 
 export function filterNodes(
   nodes: RoadmapNode[],
-  opts: { filter: string; query: string; onlyThisMonth: boolean; year: AcademicYear }
+  opts: {
+    filter: string;
+    query: string;
+    onlyThisMonth: boolean;
+    year: AcademicYear;
+    startDate?: string;
+    currentYear?: AcademicYear;
+  }
 ): RoadmapNode[] {
   const q = opts.query.trim().toLowerCase();
-  const month = thisMonthPeriod();
+  const currentYear = opts.currentYear ?? 1;
+  const livePeriod = opts.startDate
+    ? periodContaining(parseOnboardDate(opts.startDate), currentYear, opts.year)
+    : thisMonthPeriod();
   return nodes.filter((n) => {
     if (n.year !== opts.year) return false;
-    if (opts.onlyThisMonth && n.period !== month) return false;
+    if (opts.onlyThisMonth && (!livePeriod || n.period !== livePeriod)) return false;
     if (opts.filter === 'subjects-skills' && n.pillar !== 'subjects' && n.pillar !== 'skills') return false;
     if (opts.filter === 'certifications' && n.pillar !== 'certification') return false;
     if (opts.filter === 'projects' && n.pillar !== 'project') return false;

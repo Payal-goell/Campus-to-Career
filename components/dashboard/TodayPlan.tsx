@@ -7,8 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ProgressBar } from '@/components/ui/Progress';
 import { useRoadmapOptional } from '@/context/RoadmapContext';
-import { PERIOD_LABELS } from '@/lib/roadmap/constants';
-import type { PeriodSlot } from '@/lib/roadmap/types';
+import { calendarPeriodLabel } from '@/lib/roadmap/calendar';
 
 export function TodayPlan() {
   const ctx = useRoadmapOptional();
@@ -54,7 +53,7 @@ export function TodayPlan() {
             </p>
             <p className="font-bold text-sm mt-1">{resume.title}</p>
             <p className="text-[11px] text-[var(--text-muted)]">
-              {PERIOD_LABELS[resume.period as PeriodSlot]} · {resume.status.replace('-', ' ')}
+              {calendarPeriodLabel(profile, profile.currentYear, resume.period)} · {resume.status.replace('-', ' ')}
             </p>
           </div>
           <Button size="sm" variant="gradient" href="/roadmap" leftIcon={<Play className="w-3.5 h-3.5" />}>
@@ -81,7 +80,7 @@ export function TodayPlan() {
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold leading-snug">{n.title}</span>
                     <span className="text-[11px] text-[var(--text-muted)]">
-                      {PERIOD_LABELS[n.period as PeriodSlot]} · ~{n.estimatedHours} hrs
+                      {calendarPeriodLabel(profile, profile.currentYear, n.period)} · ~{n.estimatedHours} hrs
                     </span>
                   </span>
                 </Link>

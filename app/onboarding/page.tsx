@@ -123,6 +123,7 @@ export default function OnboardingPage() {
       weeklyHours: parseWeeklyHours(hoursPerWeek),
       completedNodeIds: [] as string[],
       isPersonalized: true,
+      onboardedAt: new Date().toISOString(),
     };
     roadmap?.saveProfile(profile, { reveal: true });
   };

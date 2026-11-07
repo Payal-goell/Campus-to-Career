@@ -123,6 +123,22 @@ export default function HomePage() {
       accent: "var(--color-info)",
       cta: "Open coordinators",
     },
+    {
+      title: "Trending Technologies",
+      desc: "The stacks 2026 campus JDs name, each with one place to start and a free or paid label.",
+      icon: TrendingUp,
+      link: "/trending",
+      accent: "var(--color-accent)",
+      cta: "Open trending",
+    },
+    {
+      title: "Open Calls",
+      desc: "SIH, GSoC, GitHub Student Pack, NPTEL, GATE, and campus ambassador desks you can actually finish.",
+      icon: Target,
+      link: "/opportunities",
+      accent: "var(--color-brand-secondary)",
+      cta: "Open calls",
+    },
   ];
 
   return (

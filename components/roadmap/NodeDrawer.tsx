@@ -5,7 +5,8 @@ import { X, Clock, Link2, CheckSquare, Square } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import type { RoadmapNode } from '@/lib/roadmap/types';
-import { PERIOD_LABELS } from '@/lib/roadmap/constants';
+import { calendarPeriodLabel } from '@/lib/roadmap/calendar';
+import { useRoadmapOptional } from '@/context/RoadmapContext';
 import { pillarLabel } from './pillarStyle';
 import { cn } from '@/lib/cn';
 
@@ -26,6 +27,7 @@ export function NodeDrawer({
   onToggleCheck: (item: string, checked: boolean) => void;
   onNote: (note: string) => void;
 }) {
+  const roadmap = useRoadmapOptional();
   const [tab, setTab] = useState<'overview' | 'checklist' | 'resources'>('overview');
   const [resourceCost, setResourceCost] = useState<'all' | 'free' | 'paid'>('all');
   const [draft, setDraft] = useState(note);
@@ -69,7 +71,7 @@ export function NodeDrawer({
         <div className="pr-12 space-y-4">
           <div className="flex flex-wrap gap-2">
             <Badge variant="primary" size="sm">
-              Year {node.year} · {PERIOD_LABELS[node.period]}
+              Year {node.year} · {roadmap ? calendarPeriodLabel(roadmap.profile, node.year, node.period) : node.period}
             </Badge>
             <Badge variant="outline" size="sm">
               {pillarLabel(node.pillar)}

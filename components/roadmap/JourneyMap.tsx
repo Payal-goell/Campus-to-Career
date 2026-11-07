@@ -2,8 +2,9 @@
 
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Lock, Check, Medal, Flag, Sparkles } from 'lucide-react';
-import { PERIOD_LABELS, PERIODS, PILLAR_LANE } from '@/lib/roadmap/constants';
-import type { AcademicYear, PeriodSlot, RoadmapNode } from '@/lib/roadmap/types';
+import { PERIODS, PILLAR_LANE } from '@/lib/roadmap/constants';
+import { calendarPeriodLabel } from '@/lib/roadmap/calendar';
+import type { AcademicYear, PeriodSlot, RoadmapNode, StudentProfile } from '@/lib/roadmap/types';
 import { cn } from '@/lib/cn';
 import { laneVar, pillarLabel } from './pillarStyle';
 
@@ -17,6 +18,7 @@ interface JourneyMapProps {
   zoom: number;
   previewFuture: boolean;
   yearLocked: boolean;
+  profile: Pick<StudentProfile, 'onboardedAt' | 'currentYear'>;
 }
 
 const LANES = [
@@ -39,6 +41,7 @@ export function JourneyMap({
   zoom,
   previewFuture,
   yearLocked,
+  profile,
 }: JourneyMapProps) {
   const scroller = useRef<HTMLDivElement>(null);
 
@@ -115,7 +118,7 @@ export function JourneyMap({
                 <header className="sticky top-0 z-[1] rounded-xl bg-[var(--surface)] border border-[var(--border)] px-3 py-2">
                   <p className="text-[10px] font-mono text-[var(--text-muted)]">{g.period}</p>
                   <p className="text-xs font-bold text-[var(--text-primary)]">
-                    {PERIOD_LABELS[g.period as PeriodSlot]}
+                    {calendarPeriodLabel(profile, year, g.period as PeriodSlot)}
                   </p>
                 </header>
 
@@ -130,6 +133,7 @@ export function JourneyMap({
                       <NodeCard
                         key={node.id}
                         node={node}
+                        periodLabel={calendarPeriodLabel(profile, year, node.period as PeriodSlot)}
                         focused={focusedId === node.id}
                         dimmed={Boolean(focusedId) && focusedId !== node.id}
                         onFocus={() => onFocus(node.id)}
@@ -157,9 +161,9 @@ export function JourneyMap({
                 const el = scroller.current?.querySelector(`[data-node-id="${first?.id}"]`);
                 if (el instanceof HTMLElement) el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
               }}
-              className="h-8 min-w-[88px] flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface-inset)] text-[10px] text-[var(--text-muted)]"
+              className="h-8 min-w-[120px] flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface-inset)] text-[10px] text-[var(--text-muted)] px-2 truncate"
             >
-              {g.period} {done}/{g.count}
+              {calendarPeriodLabel(profile, year, g.period as PeriodSlot)} · {done}/{g.count}
             </button>
           );
         })}
@@ -170,12 +174,14 @@ export function JourneyMap({
 
 function NodeCard({
   node,
+  periodLabel,
   focused,
   dimmed,
   onFocus,
   onOpen,
 }: {
   node: RoadmapNode;
+  periodLabel: string;
   focused: boolean;
   dimmed: boolean;
   onFocus: () => void;
@@ -231,7 +237,7 @@ function NodeCard({
         </span>
         <div className="min-w-0">
           <p className="text-[10px] font-mono text-[var(--text-muted)]">
-            {PERIOD_LABELS[node.period as PeriodSlot]} · {pillarLabel(node.pillar)}
+            {periodLabel} · {pillarLabel(node.pillar)}
           </p>
           <p className="text-xs font-bold text-[var(--text-primary)] line-clamp-3">{node.title}</p>
           {node.pillar === 'certification' && (
