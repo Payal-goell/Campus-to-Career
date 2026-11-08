@@ -47,6 +47,11 @@ export function Footer() {
                   Campus Life
                 </Link>
               </li>
+              <li>
+                <Link href="/team" className="hover:text-[var(--color-brand-primary)] transition-colors">
+                  Team
+                </Link>
+              </li>
               {profileReady && (
                 <>
               <li>

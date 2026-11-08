@@ -24,6 +24,7 @@ import { ROADMAP_PERSONAS } from '@/lib/roadmap/personas';
 const openLinks = [
   { name: 'Explore', href: '/explore', icon: Compass, requireAuth: false },
   { name: 'Campus Life', href: '/campus-life', icon: Users, requireAuth: false },
+  { name: 'Team', href: '/team', icon: UsersRound, requireAuth: false },
 ];
 
 const coreLinks = [

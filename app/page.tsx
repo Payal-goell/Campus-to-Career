@@ -27,6 +27,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { AnimatedCount } from "@/components/ui/Progress";
 import { useAuth } from "@/context/AuthContext";
 import { hasStudentProfile } from "@/lib/profile-access";
+import { ProjectTeam } from "@/components/ProjectTeam";
 
 export default function HomePage() {
   const { user, isLoading } = useAuth();
@@ -304,6 +305,8 @@ export default function HomePage() {
           })}
         </div>
       </section>
+
+      <ProjectTeam compact />
 
       {/* Transparent Development Score Explainer */}
       <section className="rounded-3xl p-5 sm:p-12 border border-[var(--color-border-subtle)] bg-[var(--color-surface)] relative overflow-hidden shadow-lg">
