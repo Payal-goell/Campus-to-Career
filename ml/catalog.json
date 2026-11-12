@@ -1,0 +1,129 @@
+{
+  "levels": { "0": "none", "1": "basic", "2": "good", "3": "strong" },
+  "courses": ["CSE", "IT", "ECE", "EE", "ME", "OTHER"],
+  "goals": ["product_company", "service_company", "startup", "higher_studies"],
+  "skills": [
+    "programming", "dsa", "web_basics", "fullstack", "sql", "git",
+    "statistics", "ml_basics", "system_design", "cloud", "aptitude",
+    "communication", "projects", "extracurricular"
+  ],
+  "skill_labels": {
+    "programming": "programming",
+    "dsa": "DSA",
+    "web_basics": "web basics",
+    "fullstack": "full-stack development",
+    "sql": "SQL",
+    "git": "Git",
+    "statistics": "statistics",
+    "ml_basics": "machine learning",
+    "system_design": "system design",
+    "cloud": "cloud",
+    "aptitude": "aptitude",
+    "communication": "communication",
+    "projects": "project experience",
+    "extracurricular": "extracurricular activity"
+  },
+  "roles": {
+    "sde": {
+      "label": "Software Engineer (SDE)",
+      "required": {
+        "programming": 3, "dsa": 3, "web_basics": 0, "fullstack": 0, "sql": 1, "git": 2,
+        "statistics": 0, "ml_basics": 0, "system_design": 2, "cloud": 1, "aptitude": 2,
+        "communication": 2, "projects": 2, "extracurricular": 1
+      }
+    },
+    "web_dev": {
+      "label": "Web Developer",
+      "required": {
+        "programming": 2, "dsa": 2, "web_basics": 3, "fullstack": 3, "sql": 2, "git": 2,
+        "statistics": 0, "ml_basics": 0, "system_design": 0, "cloud": 1, "aptitude": 1,
+        "communication": 2, "projects": 2, "extracurricular": 1
+      }
+    },
+    "data_analyst": {
+      "label": "Data Analyst",
+      "required": {
+        "programming": 2, "dsa": 1, "web_basics": 0, "fullstack": 0, "sql": 3, "git": 1,
+        "statistics": 3, "ml_basics": 1, "system_design": 0, "cloud": 0, "aptitude": 2,
+        "communication": 3, "projects": 2, "extracurricular": 1
+      }
+    },
+    "ml_engineer": {
+      "label": "ML Engineer",
+      "required": {
+        "programming": 3, "dsa": 2, "web_basics": 0, "fullstack": 0, "sql": 2, "git": 2,
+        "statistics": 3, "ml_basics": 3, "system_design": 0, "cloud": 1, "aptitude": 2,
+        "communication": 2, "projects": 2, "extracurricular": 1
+      }
+    },
+    "cloud_devops": {
+      "label": "Cloud / DevOps Engineer",
+      "required": {
+        "programming": 2, "dsa": 1, "web_basics": 0, "fullstack": 0, "sql": 1, "git": 3,
+        "statistics": 0, "ml_basics": 0, "system_design": 1, "cloud": 3, "aptitude": 1,
+        "communication": 2, "projects": 2, "extracurricular": 1
+      }
+    }
+  },
+  "goal_adjust": {
+    "product_company": { "dsa": 1, "system_design": 1 },
+    "service_company": { "aptitude": 1, "dsa": -1 },
+    "startup": { "fullstack": 1, "projects": 1, "extracurricular": 1 },
+    "higher_studies": { "aptitude": 1, "statistics": 1, "dsa": -1 }
+  },
+  "milestones": [
+    { "id": "prog_basics", "title": "Learn programming basics (Python or C++)", "skill": "programming", "to_level": 1, "prereqs": [], "hours": 40, "why": "Every technical role starts here: variables, loops, functions." },
+    { "id": "prog_intermediate", "title": "Programming: OOP, files, libraries, debugging", "skill": "programming", "to_level": 2, "prereqs": ["prog_basics"], "hours": 60, "why": "You need to write real programs, not just small exercises." },
+    { "id": "prog_advanced", "title": "Programming: clean code, testing, one language in depth", "skill": "programming", "to_level": 3, "prereqs": ["prog_intermediate"], "hours": 60, "why": "Interviews and jobs expect strong command of one language." },
+    { "id": "dsa_basics", "title": "DSA basics: arrays, strings, recursion, complexity", "skill": "dsa", "to_level": 1, "prereqs": ["prog_basics"], "hours": 50, "why": "Problem-solving is the base of every coding round." },
+    { "id": "dsa_practice", "title": "DSA: stacks, trees, graphs, sorting - solve 100+ problems", "skill": "dsa", "to_level": 2, "prereqs": ["dsa_basics", "prog_intermediate"], "hours": 100, "why": "Most companies test these topics in online assessments." },
+    { "id": "dsa_advanced", "title": "DSA: dynamic programming, hard problems, contests", "skill": "dsa", "to_level": 3, "prereqs": ["dsa_practice"], "hours": 120, "why": "Product companies ask medium-to-hard problems." },
+    { "id": "web_html_css", "title": "HTML and CSS: build 3 static pages", "skill": "web_basics", "to_level": 1, "prereqs": [], "hours": 30, "why": "The foundation of anything shown in a browser." },
+    { "id": "web_javascript", "title": "JavaScript and DOM: build interactive pages", "skill": "web_basics", "to_level": 2, "prereqs": ["web_html_css", "prog_basics"], "hours": 40, "why": "Makes your pages dynamic; required before any framework." },
+    { "id": "web_frontend_framework", "title": "React: build a component-based app", "skill": "web_basics", "to_level": 3, "prereqs": ["web_javascript"], "hours": 50, "why": "Most web jobs ask for React or a similar framework." },
+    { "id": "fs_backend_basics", "title": "Backend basics: Node.js/Express or Flask", "skill": "fullstack", "to_level": 1, "prereqs": ["web_javascript"], "hours": 45, "why": "Your app needs a server that handles requests." },
+    { "id": "fs_rest_api_db", "title": "Build REST APIs with a database and login", "skill": "fullstack", "to_level": 2, "prereqs": ["fs_backend_basics", "sql_basics"], "hours": 60, "why": "Real apps store data and have users." },
+    { "id": "fs_deploy_app", "title": "Deploy a full-stack app live (Vercel/Render)", "skill": "fullstack", "to_level": 3, "prereqs": ["fs_rest_api_db", "git_basics"], "hours": 40, "why": "A live demo link is far stronger than code on a laptop." },
+    { "id": "sql_basics", "title": "SQL basics: SELECT, WHERE, GROUP BY", "skill": "sql", "to_level": 1, "prereqs": [], "hours": 25, "why": "Almost every role uses databases." },
+    { "id": "sql_joins", "title": "SQL: joins, subqueries, window functions", "skill": "sql", "to_level": 2, "prereqs": ["sql_basics"], "hours": 35, "why": "Joins are asked in most interviews." },
+    { "id": "sql_advanced", "title": "SQL: query optimization and real datasets", "skill": "sql", "to_level": 3, "prereqs": ["sql_joins"], "hours": 40, "why": "Needed for analyst and data-heavy roles." },
+    { "id": "git_basics", "title": "Git and GitHub basics: commit, push, branch", "skill": "git", "to_level": 1, "prereqs": [], "hours": 10, "why": "Every team uses version control." },
+    { "id": "git_collab", "title": "Git: pull requests, merge conflicts, open-source contribution", "skill": "git", "to_level": 2, "prereqs": ["git_basics"], "hours": 15, "why": "Shows you can work in a team and contribute beyond solo commits." },
+    { "id": "git_ci", "title": "Git workflows and CI pipelines (GitHub Actions)", "skill": "git", "to_level": 3, "prereqs": ["git_collab"], "hours": 25, "why": "Core skill for DevOps roles." },
+    { "id": "stats_basics", "title": "Statistics basics: mean, variance, probability", "skill": "statistics", "to_level": 1, "prereqs": [], "hours": 40, "why": "The language of data and ML." },
+    { "id": "stats_inference", "title": "Statistics: distributions, hypothesis tests", "skill": "statistics", "to_level": 2, "prereqs": ["stats_basics"], "hours": 50, "why": "Needed to draw correct conclusions from data." },
+    { "id": "stats_applied", "title": "Applied statistics and A/B testing on real data", "skill": "statistics", "to_level": 3, "prereqs": ["stats_inference"], "hours": 50, "why": "Analyst roles are judged on this." },
+    { "id": "ml_intro", "title": "Machine learning intro: regression, classification", "skill": "ml_basics", "to_level": 1, "prereqs": ["prog_intermediate", "stats_basics"], "hours": 50, "why": "First step into ML." },
+    { "id": "ml_models", "title": "ML models: trees, SVM, evaluation, scikit-learn", "skill": "ml_basics", "to_level": 2, "prereqs": ["ml_intro"], "hours": 70, "why": "You must be able to train and evaluate models." },
+    { "id": "ml_pipeline", "title": "End-to-end ML project: data to deployed model", "skill": "ml_basics", "to_level": 3, "prereqs": ["ml_models", "stats_inference"], "hours": 80, "why": "ML jobs value complete projects over theory." },
+    { "id": "sd_basics", "title": "System design basics: client-server, databases, APIs", "skill": "system_design", "to_level": 1, "prereqs": ["prog_intermediate", "sql_basics"], "hours": 40, "why": "You need the vocabulary before the case studies." },
+    { "id": "sd_core", "title": "System design: caching, load balancing, scaling", "skill": "system_design", "to_level": 2, "prereqs": ["sd_basics", "dsa_practice"], "hours": 60, "why": "Asked in interviews for experienced candidates." },
+    { "id": "sd_cases", "title": "System design case studies (URL shortener, chat app)", "skill": "system_design", "to_level": 3, "prereqs": ["sd_core"], "hours": 60, "why": "Product-company interviews include design rounds." },
+    { "id": "cloud_basics", "title": "Cloud basics: compute, storage, networking", "skill": "cloud", "to_level": 1, "prereqs": ["prog_basics"], "hours": 30, "why": "Most software now runs on the cloud." },
+    { "id": "cloud_cert", "title": "Earn a cloud certification (AWS/Azure/GCP fundamentals)", "skill": "cloud", "to_level": 2, "prereqs": ["cloud_basics"], "hours": 50, "why": "A certificate is verifiable proof for your resume." },
+    { "id": "cloud_devops_tools", "title": "Docker, Kubernetes and Linux for deployment", "skill": "cloud", "to_level": 3, "prereqs": ["cloud_cert", "git_collab"], "hours": 60, "why": "Core daily tools for DevOps roles." },
+    { "id": "apt_basics", "title": "Aptitude basics: percentages, ratios, time and work", "skill": "aptitude", "to_level": 1, "prereqs": [], "hours": 30, "why": "First round of most campus drives." },
+    { "id": "apt_practice", "title": "Aptitude + logical reasoning practice sets", "skill": "aptitude", "to_level": 2, "prereqs": ["apt_basics"], "hours": 50, "why": "Speed and accuracy decide cut-offs." },
+    { "id": "apt_mocks", "title": "Full-length aptitude mock tests", "skill": "aptitude", "to_level": 3, "prereqs": ["apt_practice"], "hours": 40, "why": "Builds exam stamina and time management." },
+    { "id": "comm_basics", "title": "Communication basics: speaking and email writing", "skill": "communication", "to_level": 1, "prereqs": [], "hours": 20, "why": "You will explain your work to others every day." },
+    { "id": "comm_gd_hr", "title": "Group discussion and HR interview practice", "skill": "communication", "to_level": 2, "prereqs": ["comm_basics"], "hours": 30, "why": "Many campus drives have GD and HR rounds." },
+    { "id": "comm_present", "title": "Present a project demo in front of an audience", "skill": "communication", "to_level": 3, "prereqs": ["comm_gd_hr"], "hours": 30, "why": "Confident presentation sets you apart." },
+    { "id": "project_mini", "title": "Build one mini project and put it on GitHub", "skill": "projects", "to_level": 1, "prereqs": ["prog_basics"], "hours": 40, "why": "Proof that you can build things." },
+    { "id": "project_major", "title": "Build a major project with real users or real data", "skill": "projects", "to_level": 2, "prereqs": ["project_mini", "prog_intermediate"], "hours": 80, "why": "Recruiters ask about projects in almost every interview." },
+    { "id": "project_capstone", "title": "Build a capstone project with live demo and write-up", "skill": "projects", "to_level": 3, "prereqs": ["project_major", "git_collab"], "hours": 120, "why": "A polished flagship project can carry your resume." },
+    { "id": "join_club", "title": "Join a technical club or committee", "skill": "extracurricular", "to_level": 1, "prereqs": [], "hours": 10, "why": "Peers, mentors and early exposure." },
+    { "id": "hackathon", "title": "Take part in a hackathon", "skill": "extracurricular", "to_level": 2, "prereqs": ["join_club"], "hours": 30, "why": "Teamwork under pressure, plus a story for interviews." },
+    { "id": "lead_event", "title": "Lead or organise a campus event", "skill": "extracurricular", "to_level": 3, "prereqs": ["hackathon"], "hours": 30, "why": "Shows leadership and ownership." },
+    { "id": "resume_ats", "title": "Build an ATS-friendly resume and LinkedIn profile", "skill": null, "to_level": null, "prereqs": [], "hours": 15, "why": "Your resume decides if you even get a first call.", "stage": 3 },
+    { "id": "internship", "title": "Apply for a summer internship", "skill": null, "to_level": null, "prereqs": ["prog_intermediate", "resume_ats"], "hours": 80, "why": "Internships are the strongest route to full-time offers.", "stage": 4 },
+    { "id": "mock_interviews", "title": "Give mock technical and HR interviews", "skill": null, "to_level": null, "prereqs": ["resume_ats"], "hours": 40, "why": "Practice under real conditions before the real thing.", "stage": 4 },
+    { "id": "placement_applications", "title": "Track and apply to company drives", "skill": null, "to_level": null, "prereqs": ["mock_interviews", "resume_ats"], "hours": 30, "why": "Placement season is the time to apply widely.", "stage": 5 },
+    { "id": "higher_studies_prep", "title": "Prepare for higher-studies exams (GATE/GRE) and applications", "skill": null, "to_level": null, "prereqs": [], "hours": 100, "why": "Your goal is higher studies, so exam preparation starts early.", "stage": 4 },
+    { "id": "academic_plan", "title": "RGPV / semester scoring plan for core subjects", "skill": null, "to_level": null, "prereqs": [], "hours": 16, "why": "Internals and end-sem scores keep TPO shortlists and higher-studies options open.", "stage": 1 },
+    { "id": "habits_basics", "title": "Time management and weekly habit tracker", "skill": null, "to_level": null, "prereqs": [], "hours": 10, "why": "Technical output only sticks if study habits and rest scale with it.", "stage": 1 },
+    { "id": "cert_intro", "title": "Complete one free cert or NPTEL audit that matches your role", "skill": null, "to_level": null, "prereqs": ["prog_basics"], "hours": 20, "why": "A finished certificate proves follow-through on your resume.", "stage": 2 },
+    { "id": "testing_basics", "title": "Add tests and a simple CI check to one project", "skill": null, "to_level": null, "prereqs": ["prog_intermediate", "git_basics"], "hours": 16, "why": "Teams expect you to catch regressions before they ship.", "stage": 2 },
+    { "id": "web_security", "title": "Web security basics: OWASP top 10 for your apps", "skill": null, "to_level": null, "prereqs": ["web_javascript"], "hours": 14, "why": "Security headers and common flaws matter for web and full-stack roles.", "stage": 3 },
+    { "id": "portfolio_polish", "title": "Portfolio polish: two case studies with live demos", "skill": null, "to_level": null, "prereqs": ["project_major", "resume_ats"], "hours": 16, "why": "Recruiters skim case studies and live links before reading the rest of the resume.", "stage": 4 }
+  ]
+}

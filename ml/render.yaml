@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: campus-to-career-ml
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: ML_MODEL_PATH
+        value: /app/artifacts/roadmap_model.joblib

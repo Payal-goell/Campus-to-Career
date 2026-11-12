@@ -33,6 +33,8 @@ model User {
   inquiries         CoordinatorInquiry[]
   notifications     Notification[]
   activityLogs      ActivityLog[]
+  generatedRoadmaps GeneratedRoadmap[]
+  roadmapFeedback   RoadmapFeedback[]
 
   @@map("users")
 }
@@ -56,6 +58,13 @@ model StudentProfile {
   targetPlacementYear Int?
   targetCompanyTier   String?                @default("Tier-1 Product Tech")
   primaryGoal         String?
+  /// ML career goal enum: product_company | service_company | startup | higher_studies
+  careerGoal          String?
+  weeklyHours         Int?
+  readiness           Int?
+  graduationYear      Int?
+  /// Map of catalog skill id -> level 0-3
+  skillLevels         Json?
   profileCompletion   Int                    @default(20)
   developmentScore    Int                    @default(50)
   selectedCourseId    String?
@@ -66,6 +75,41 @@ model StudentProfile {
   certifications      StudentCertification[]
 
   @@map("student_profiles")
+}
+
+model GeneratedRoadmap {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Profile used for generation without name/mobile PII
+  profile    Json
+  steps      Json
+  source     String   // "ml" | "rules"
+  note       String?
+  totalHours Int?
+  hoursAvailable Int?
+  skipped    Json?
+  createdAt  DateTime @default(now())
+  feedback   RoadmapFeedback[]
+
+  @@index([userId, createdAt])
+  @@map("roadmaps")
+}
+
+model RoadmapFeedback {
+  id         String   @id @default(cuid())
+  roadmapId  String
+  roadmap    GeneratedRoadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stepId     String
+  /// completed | skipped | liked | disliked
+  action     String
+  createdAt  DateTime @default(now())
+
+  @@index([roadmapId])
+  @@index([userId, createdAt])
+  @@map("roadmap_feedback")
 }
 
 model StudentProject {

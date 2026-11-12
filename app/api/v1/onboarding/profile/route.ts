@@ -61,7 +61,14 @@ const onboardingSchema = z.object({
   goals: z.object({
     targetPlacementYear: z.number().int().optional(),
     primaryGoal: z.string().trim().min(8, 'Choose a career milestone').max(180),
+    careerGoal: z
+      .enum(['product_company', 'service_company', 'startup', 'higher_studies'])
+      .optional(),
+    weeklyHours: z.number().int().min(1).max(60).optional(),
+    readiness: z.number().int().min(0).max(100).optional(),
+    graduationYear: z.number().int().min(2024).max(2040).optional(),
   }),
+  skillLevels: z.record(z.number().int().min(0).max(3)).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -84,8 +91,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { basicInfo, academicDetails, currentSkills, skillAssessments, careerPreferences, goals } = parsed.data;
-    const placementYear = placementYearFromCurrentYear(academicDetails.currentYear);
+    const { basicInfo, academicDetails, currentSkills, skillAssessments, careerPreferences, goals, skillLevels } =
+      parsed.data;
+    const placementYear =
+      goals.graduationYear ??
+      goals.targetPlacementYear ??
+      placementYearFromCurrentYear(academicDetails.currentYear);
 
     const score = developmentScoreFromProfile({
       cgpa: academicDetails.cgpa,
@@ -106,6 +117,11 @@ export async function POST(req: NextRequest) {
       targetRole: careerPreferences.targetRole,
       preferredDomains: careerPreferences.preferredDomains,
       primaryGoal: goals.primaryGoal,
+      careerGoal: goals.careerGoal ?? null,
+      weeklyHours: goals.weeklyHours ?? null,
+      readiness: goals.readiness ?? null,
+      graduationYear: placementYear,
+      skillLevels: skillLevels ?? null,
       profileCompletion: 85,
       developmentScore: score,
     };
@@ -159,6 +175,11 @@ export async function POST(req: NextRequest) {
         preferredDomains: careerPreferences.preferredDomains,
         targetPlacementYear: placementYear,
         primaryGoal: goals.primaryGoal,
+        careerGoal: goals.careerGoal ?? null,
+        weeklyHours: goals.weeklyHours ?? null,
+        readiness: goals.readiness ?? null,
+        graduationYear: placementYear,
+        skillLevels: skillLevels ?? undefined,
         profileCompletion: 85,
         developmentScore: score,
       },
@@ -174,6 +195,11 @@ export async function POST(req: NextRequest) {
         preferredDomains: careerPreferences.preferredDomains,
         targetPlacementYear: placementYear,
         primaryGoal: goals.primaryGoal,
+        careerGoal: goals.careerGoal ?? null,
+        weeklyHours: goals.weeklyHours ?? null,
+        readiness: goals.readiness ?? null,
+        graduationYear: placementYear,
+        skillLevels: skillLevels ?? undefined,
         profileCompletion: 85,
         developmentScore: score,
       },

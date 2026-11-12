@@ -25,9 +25,11 @@ import { NodeDrawer } from '@/components/roadmap/NodeDrawer';
 import { TunePanel } from '@/components/roadmap/TunePanel';
 import { SummaryStrip } from '@/components/roadmap/SummaryStrip';
 import { RevealOverlay } from '@/components/roadmap/RevealOverlay';
+import { CareerPathPanel } from '@/components/roadmap/CareerPathPanel';
 import { cn } from '@/lib/cn';
 import { toast } from '@/components/ui/Toast';
 import { PERIODS } from '@/lib/roadmap/constants';
+import type { MapProfileInput } from '@/lib/roadmap/ml-profile';
 
 export default function RoadmapPage() {
   const {
@@ -63,6 +65,17 @@ export default function RoadmapPage() {
   const [tuneOpen, setTuneOpen] = useState(false);
 
   const yearLocked = selectedYear > profile.currentYear;
+  const careerProfileInput = useMemo<MapProfileInput>(
+    () => ({
+      branch: profile.branch,
+      currentYear: profile.currentYear,
+      targetRole: profile.targetRole,
+      weeklyHours: profile.weeklyHours,
+      skills: profile.skills.map((s) => ({ name: s.name, level: s.level })),
+      readiness: undefined,
+    }),
+    [profile.branch, profile.currentYear, profile.skills, profile.targetRole, profile.weeklyHours]
+  );
   const yearNodes = useMemo(
     () =>
       filterNodes(roadmap.nodes, {
@@ -142,6 +155,8 @@ export default function RoadmapPage() {
           </div>
         </div>
       )}
+
+      <CareerPathPanel profileInput={careerProfileInput} />
 
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>

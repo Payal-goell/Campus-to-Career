@@ -21,6 +21,11 @@ export interface LocalProfile {
   targetRole?: string | null;
   preferredDomains: string[];
   primaryGoal?: string | null;
+  careerGoal?: string | null;
+  weeklyHours?: number | null;
+  readiness?: number | null;
+  graduationYear?: number | null;
+  skillLevels?: Record<string, number> | null;
   profileCompletion: number;
   developmentScore: number;
 }
