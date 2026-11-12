@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { UserRole, UserSession } from './types';
 import { prisma } from './prisma';
 import { sessionForPayload, readLocalAccounts } from './local-accounts';
@@ -36,6 +36,57 @@ export async function hashPassword(plain: string): Promise<string> {
 
 export async function comparePassword(plain: string, hashed: string): Promise<boolean> {
   return bcrypt.compare(plain, hashed);
+}
+
+/** Issue the access cookie and JSON payload after email + password succeed. */
+export function authSessionResponse(user: {
+  id: string;
+  email: string;
+  role: UserRole;
+  isOnboarded: boolean;
+  name?: string | null;
+  avatarUrl?: string | null;
+  developmentScore?: number | null;
+  status?: number;
+}) {
+  const accessToken = signAccessToken({
+    userId: user.id,
+    email: user.email,
+    role: user.role,
+  });
+  const refreshToken = signRefreshToken({
+    userId: user.id,
+    email: user.email,
+    role: user.role,
+  });
+
+  const response = NextResponse.json(
+    {
+      success: true,
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        isOnboarded: user.isOnboarded,
+        name: user.name || user.email.split('@')[0],
+        avatarUrl: user.avatarUrl ?? undefined,
+        developmentScore: user.developmentScore ?? undefined,
+      },
+    },
+    { status: user.status ?? 200 }
+  );
+
+  response.cookies.set('token', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60,
+  });
+
+  return response;
 }
 
 export async function getSessionUser(req: NextRequest): Promise<UserSession | null> {
@@ -76,7 +127,7 @@ export async function getSessionUser(req: NextRequest): Promise<UserSession | nu
     return sessionForPayload(req, payload);
   }
 
-  if (!user || !user.isVerified) {
+  if (!user) {
     return sessionForPayload(req, payload);
   }
 

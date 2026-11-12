@@ -18,7 +18,7 @@
   * Open preview of available careers, branches, colleges, and public resource repositories.
 * **Authentication**:
   * Login / Sign Up portal with role selection.
-  * Email verification and account activation screens.
+  * Login and registration screens with email and password.
 
 ---
 

@@ -15,9 +15,7 @@ added later.
 
 ## 2. Student Account and Profile
 
-- Student registration and login.
-- Email verification where supported by the selected authentication
-  setup.
+- Student registration and login with email and password.
 - Profile creation and editing.
 - Academic details: college, branch, course, year of study, and
   graduation year.

@@ -21,22 +21,12 @@ This document defines the RESTful API endpoints for the **Campus to Career** pla
 * **Response (201 Created)**:
   ```json
   {
-    "message": "User registered successfully. Verification email sent.",
+    "message": "User registered successfully.",
     "userId": "usr_987654321"
   }
   ```
 
-### 2.2 Verify Email
-* **Endpoint**: `POST /api/v1/auth/verify-email`
-* **Access**: Public
-* **Request Body**:
-  ```json
-  {
-    "token": "verification_token_string"
-  }
-  ```
-
-### 2.3 Login User
+### 2.2 Login User
 * **Endpoint**: `POST /api/v1/auth/login`
 * **Access**: Public
 * **Request Body**:

@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { comparePassword, hashPassword, signAccessToken, signRefreshToken } from '@/lib/auth';
+import { authSessionResponse, comparePassword, hashPassword } from '@/lib/auth';
 import { emailError, loginPasswordError } from '@/lib/field-rules';
 import { clientAddress, rateLimit } from '@/lib/rate-limit';
-import { generateOtp, hashOtp, issueEmailOtp } from '@/lib/otp';
-import { sendOtpEmail } from '@/lib/mail';
 import { demoLoginUser, findDemoAccount, isDatabaseError } from '@/lib/demo-accounts';
-import { readLocalAccounts, upsertLocalAccount, writeLocalAccounts } from '@/lib/local-accounts';
+import { readLocalAccounts } from '@/lib/local-accounts';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -41,100 +39,15 @@ async function loginLocalAccount(req: NextRequest, email: string, password: stri
     matches = false;
   }
   if (!matches) return null;
-  if (!account.isVerified) {
-    const otp = generateOtp();
-    const now = new Date();
-    const updated = {
-      ...account,
-      verificationToken: hashOtp(otp),
-      otpExpiresAt: new Date(now.getTime() + 10 * 60 * 1000).toISOString(),
-      otpSentAt: now.toISOString(),
-      otpAttempts: 0,
-    };
-    let emailSent = false;
-    let configured = false;
-    try {
-      const delivery = await sendOtpEmail(account.email, otp);
-      emailSent = delivery.ok;
-      configured = delivery.configured;
-    } catch (error) {
-      console.error('Login local OTP email failed:', error);
-    }
-    const hideCode =
-      (configured && emailSent) ||
-      (configured && process.env.NODE_ENV === 'production' && !emailSent);
-    const response = NextResponse.json({
-      success: false,
-      needsVerification: true,
-      email: account.email,
-      error: emailSent
-        ? `Verify the code sent to ${account.email} before signing in.`
-        : 'Enter the verification code for this account before signing in.',
-      emailSent,
-      devOtp: hideCode ? undefined : otp,
-    });
-    writeLocalAccounts(response, upsertLocalAccount(readLocalAccounts(req), updated));
-    return response;
-  }
-  return sessionResponse({
+  return authSessionResponse({
     id: account.id,
     email: account.email,
     role: account.role,
     isOnboarded: account.isOnboarded,
-    studentProfile: account.profile
-      ? {
-          fullName: account.profile.fullName,
-          avatarUrl: account.profile.avatarUrl ?? null,
-          developmentScore: account.profile.developmentScore,
-        }
-      : null,
-    coordinator: account.role === 'COORDINATOR' ? { name: account.name || account.email.split('@')[0] } : null,
+    name: account.profile?.fullName || account.name || account.email.split('@')[0],
+    avatarUrl: account.profile?.avatarUrl ?? account.avatarUrl ?? null,
+    developmentScore: account.profile?.developmentScore ?? account.developmentScore ?? null,
   });
-}
-
-function sessionResponse(user: {
-  id: string;
-  email: string;
-  role: 'STUDENT' | 'ADMIN' | 'RECRUITER' | 'COORDINATOR';
-  isOnboarded: boolean;
-  studentProfile: { fullName: string; avatarUrl: string | null; developmentScore: number } | null;
-  coordinator: { name: string } | null;
-}) {
-  const accessToken = signAccessToken({
-    userId: user.id,
-    email: user.email,
-    role: user.role,
-  });
-  const refreshToken = signRefreshToken({
-    userId: user.id,
-    email: user.email,
-    role: user.role,
-  });
-
-  const response = NextResponse.json({
-    success: true,
-    accessToken,
-    refreshToken,
-    user: {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      isOnboarded: user.isOnboarded,
-      name: user.studentProfile?.fullName || user.coordinator?.name || user.email.split('@')[0],
-      avatarUrl: user.studentProfile?.avatarUrl,
-      developmentScore: user.studentProfile?.developmentScore,
-    },
-  });
-
-  response.cookies.set('token', accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 7 * 24 * 60 * 60,
-  });
-
-  return response;
 }
 
 async function readBody(req: NextRequest): Promise<unknown> {
@@ -203,8 +116,18 @@ export async function POST(req: NextRequest) {
       const localResponse = await loginLocalAccount(req, email, password);
       if (localResponse) return localResponse;
       const demo = findDemoAccount(email, password);
-      if (demo) return sessionResponse(demoLoginUser(demo));
-      // DB unreachable and no cookie/demo account — friendly auth message (no infra dump)
+      if (demo) {
+        const demoUser = demoLoginUser(demo);
+        return authSessionResponse({
+          id: demoUser.id,
+          email: demoUser.email,
+          role: demoUser.role,
+          isOnboarded: demoUser.isOnboarded,
+          name: demoUser.studentProfile?.fullName || demoUser.coordinator?.name || demoUser.email.split('@')[0],
+          avatarUrl: demoUser.studentProfile?.avatarUrl ?? null,
+          developmentScore: demoUser.studentProfile?.developmentScore ?? null,
+        });
+      }
       if (isDatabaseError(dbError)) {
         return NextResponse.json(
           {
@@ -241,31 +164,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!user.isVerified) {
-      let issued: Awaited<ReturnType<typeof issueEmailOtp>> | null = null;
-      try {
-        issued = await issueEmailOtp(user.id, user.email);
-      } catch (error) {
-        console.error('Login OTP error:', error);
-      }
-      return NextResponse.json({
-        success: false,
-        needsVerification: true,
-        email: user.email,
-        error: issued?.ok
-          ? 'Verify the code sent to your email before signing in.'
-          : issued?.error || 'Enter the verification code for this account before signing in.',
-        emailSent: issued?.ok ? issued.emailSent : false,
-        devOtp: issued?.ok ? issued.devOtp : undefined,
-      });
-    }
-
-    return sessionResponse(user);
+    return authSessionResponse({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      isOnboarded: user.isOnboarded,
+      name: user.studentProfile?.fullName || user.coordinator?.name || user.email.split('@')[0],
+      avatarUrl: user.studentProfile?.avatarUrl ?? null,
+      developmentScore: user.studentProfile?.developmentScore ?? null,
+    });
   } catch (error) {
     const localResponse = await loginLocalAccount(req, email, password);
     if (localResponse) return localResponse;
     const demo = findDemoAccount(email, password);
-    if (demo) return sessionResponse(demoLoginUser(demo));
+    if (demo) {
+      const demoUser = demoLoginUser(demo);
+      return authSessionResponse({
+        id: demoUser.id,
+        email: demoUser.email,
+        role: demoUser.role,
+        isOnboarded: demoUser.isOnboarded,
+        name: demoUser.studentProfile?.fullName || demoUser.coordinator?.name || demoUser.email.split('@')[0],
+        avatarUrl: demoUser.studentProfile?.avatarUrl ?? null,
+        developmentScore: demoUser.studentProfile?.developmentScore ?? null,
+      });
+    }
 
     const message = error instanceof Error ? error.message : 'Internal server error during login';
     console.error('Login error:', message);

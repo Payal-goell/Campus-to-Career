@@ -20,11 +20,7 @@ model User {
   email             String                 @unique
   password          String
   role              Role                   @default(STUDENT)
-  isVerified        Boolean                @default(false)
-  verificationToken String?
-  otpExpiresAt      DateTime?
-  otpSentAt         DateTime?
-  otpAttempts       Int                    @default(0)
+  isVerified        Boolean                @default(true)
   isOnboarded       Boolean                @default(false)
   createdAt         DateTime               @default(now())
   updatedAt         DateTime               @updatedAt

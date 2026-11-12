@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { emailError, newPasswordError } from "@/lib/field-rules";
-const DEV_OTP_KEY = "ctc.otp.dev";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -43,12 +42,7 @@ export default function RegisterPage() {
     setLoading(false);
 
     if (result.success) {
-      if (result.devOtp) {
-        sessionStorage.setItem(DEV_OTP_KEY, result.devOtp);
-      } else {
-        sessionStorage.removeItem(DEV_OTP_KEY);
-      }
-      router.push(`/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+      router.push(result.isOnboarded ? "/dashboard" : "/onboarding");
     } else {
       setError(result.error || "Registration failed");
     }
@@ -77,7 +71,7 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
-              Student accounts only. After you submit, a one-time code is created for this email. The account stays locked until that code is entered.
+              Student accounts only. Use your college email and a password to create the account and sign in.
             </p>
 
             <Input
@@ -133,7 +127,7 @@ export default function RegisterPage() {
               loading={loading}
               className="w-full mt-2 py-3 shadow-md shadow-[var(--color-brand-primary)]/20"
             >
-              Email me a verification code
+              Create account
               <ArrowRight className="w-4 h-4 ml-1.5" />
             </Button>
           </form>

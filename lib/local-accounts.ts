@@ -32,10 +32,6 @@ export interface LocalAccount {
   role: UserRole;
   isVerified: boolean;
   isOnboarded: boolean;
-  verificationToken: string | null;
-  otpExpiresAt: string | null;
-  otpSentAt: string | null;
-  otpAttempts: number;
   name?: string;
   avatarUrl?: string | null;
   developmentScore?: number;
@@ -186,7 +182,7 @@ export function sessionForPayload(
       avatarUrl: local?.profile?.avatarUrl || demo.avatarUrl,
     };
   }
-  if (!local?.isVerified) return null;
+  if (!local) return null;
   return {
     id: local.id,
     email: local.email,

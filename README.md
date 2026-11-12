@@ -26,8 +26,8 @@ The product is for students of Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), 
 ## How a student moves through the product
 
 1. **Land.** `/` explains the four-year arc, the modules, and what the Development Score is. Public pages (`/explore`, `/resources`, `/campus-life`, `/coordinators`) work without an account.
-2. **Create a student account.** `/register` posts to `POST /api/v1/auth/register`, which hashes the password and writes an unverified `User`. A unique 6-digit code is stored as a hash. The session cookie is set only after `POST /api/v1/auth/verify-otp` succeeds. New students have `isOnboarded: false`.
-3. **Sign in.** `/login`, or the navbar **Demo** menu (laptop width) / **Demo profiles** list (phone menu). After login, a student who has not finished onboarding is sent to `/onboarding`.
+2. **Create a student account.** `/register` posts to `POST /api/v1/auth/register`, which hashes the password, creates the `User`, and sets the session cookie. New students have `isOnboarded: false`.
+3. **Sign in.** `/login` with email and password, or the navbar **Demo** menu (laptop width) / **Demo profiles** list (phone menu). After login, a student who has not finished onboarding is sent to `/onboarding`.
 4. **Onboard.** Six steps collect name and contact, college and year, skills, interests and target role, weekly hours, and placement confidence. Saving calls `POST /api/v1/onboarding/profile`, which creates `StudentProfile` and flips `isOnboarded`. The same answers can be applied to the client roadmap.
 5. **Work from the dashboard.** `/dashboard` loads `GET /api/v1/dashboard/student`: profile, Development Score, roadmap progress, skill-gap bars, recommended actions, upcoming events, saved-resource count, and application count. Students who are not signed in are sent to `/login`.
 6. **Follow the roadmap.** `/roadmap` builds a personal map from branch, year, domains, and talents. Progress for that map lives in the browser (`localStorage` key `ctc.roadmap.v1`). A separate database milestone list still exists at `/api/v1/dashboard/roadmap` for the older year-wise checklist.
@@ -45,8 +45,7 @@ Auth in the table means what the page itself enforces. The API underneath may st
 | :--- | :--- | :--- |
 | `/` | Public | Landing page: growth arc, modules, Development Score explainer |
 | `/login` | Public | Email and password sign-in, plus demo account buttons |
-| `/register` | Public | Student registration. Sends the account to email verification |
-| `/verify-email` | Public | Enter the 6-digit code for that email. Seeded demo accounts are already verified |
+| `/register` | Public | Student registration with email and password. Signs the student in immediately |
 | `/onboarding` | Student | Six-step profile wizard. Skipping it blocks the dashboard |
 | `/explore` | Public | Branches, careers, and course paths. `/courses` redirects here |
 | `/resources` | Public catalog | Filterable courses, videos, docs, books, and practice sets. Saving a resource needs a session |
@@ -81,16 +80,12 @@ Base path: `/api/v1`. Protected handlers read the `token` cookie or a Bearer tok
 
 | Method | Path | Access | Notes |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/auth/register` | Public | Student accounts only. Creates an unverified user and a unique 6-digit code. Does not set a session cookie |
-| `POST` | `/auth/verify-otp` | Public | Body: `email`, `otp`. Checks that account’s code, then sets the access cookie |
-| `POST` | `/auth/resend-otp` | Public | Body: `email`. Issues a new code for an unverified account (60 second cooldown) |
-| `POST` | `/auth/login` | Public | Body: `email`, `password`. Unverified accounts get a new code and no cookie. Verified accounts get the access cookie |
+| `POST` | `/auth/register` | Public | Student accounts only. Creates the user and sets the access cookie |
+| `POST` | `/auth/login` | Public | Body: `email`, `password`. Sets the access cookie on a match |
 | `POST` | `/auth/logout` | Public | Clears the cookie |
-| `GET` | `/auth/me` | Session | Current verified user, role, onboarding flag, name |
+| `GET` | `/auth/me` | Session | Current user, role, onboarding flag, name |
 
-Each new account gets its own code. The code is stored as a hash, expires in 10 minutes, and is rejected after 5 wrong attempts. A session cookie is issued only after the code matches, or on login for an account that is already verified. Seeded demo users are created with `isVerified: true`, so the navbar demo sign-in still works. Public registration cannot create admin, coordinator, or recruiter accounts.
-
-When `SMTP_HOST` is set, the code is emailed with Nodemailer. When it is not set, development shows that account’s code on `/verify-email`. Production responses never include the code.
+Auth is email and password only. Public registration cannot create admin, coordinator, or recruiter accounts. Seeded demo users work from the navbar demo sign-in.
 
 ### Student data
 
@@ -258,10 +253,6 @@ Open [http://localhost:3000](http://localhost:3000).
 | `JWT_SECRET` | Yes in production | Access-token signing key. A dev fallback exists in `lib/auth.ts` if this is unset |
 | `JWT_REFRESH_SECRET` | Yes in production | Refresh-token signing key. Same fallback behavior |
 | `NEXT_PUBLIC_APP_URL` | No | Public origin, default `http://localhost:3000` |
-| `SMTP_HOST` | For real email | SMTP server. Empty in development shows the code on the verify screen |
-| `SMTP_PORT` | No | Defaults to `587`. Port `465` uses TLS |
-| `SMTP_USER` / `SMTP_PASS` | With SMTP | Mailbox credentials |
-| `SMTP_FROM` | No | From address for verification mail |
 | `OPENAI_API_KEY` | No | Unused by the current code |
 
 Change both JWT secrets before any shared or production deploy. Cookies are marked `secure` only when `NODE_ENV` is `production`.
@@ -281,4 +272,4 @@ prisma/schema.prisma database
 scripts/seed.mjs     demo data
 ```
 
-Related write-ups already in the repo: `Features.md`, `api_specifications.md`, `DESIGN_SYSTEM.md`, `tech_stack_specification.md`, and `Project specifications.md`. Where those disagree with this file, the code and this README are the ones to trust. The API spec still describes a recruiter registration flow that the route handlers do not implement. Verification is `POST /auth/verify-otp`, not the path named in that older spec.
+Related write-ups already in the repo: `Features.md`, `api_specifications.md`, `DESIGN_SYSTEM.md`, `tech_stack_specification.md`, and `Project specifications.md`. Where those disagree with this file, the code and this README are the ones to trust. Auth is email and password only.

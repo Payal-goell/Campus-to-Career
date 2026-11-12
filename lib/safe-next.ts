@@ -6,7 +6,7 @@ export function safeNextPath(raw: string | null | undefined, fallback = '/dashbo
     return fallback;
   }
   // Block auth loops
-  if (value.startsWith('/login') || value.startsWith('/register') || value.startsWith('/verify-email')) {
+  if (value.startsWith('/login') || value.startsWith('/register')) {
     return fallback;
   }
   return value;

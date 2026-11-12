@@ -4,7 +4,7 @@ import React, { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { GraduationCap, Lock, Mail, ArrowRight, AlertCircle, Sparkles, ShieldCheck } from "lucide-react";
+import { GraduationCap, Lock, Mail, ArrowRight, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -54,16 +54,6 @@ function LoginForm() {
 
     const result = await login(submittedEmail, submittedPassword);
     setLoading(false);
-
-    if (result.needsVerification) {
-      if (result.devOtp) {
-        sessionStorage.setItem("ctc.otp.dev", result.devOtp);
-      }
-      router.push(
-        `/verify-email?email=${encodeURIComponent(submittedEmail.toLowerCase())}&next=${encodeURIComponent(nextPath)}`
-      );
-      return;
-    }
 
     if (result.success) {
       goAfterAuth(Boolean(result.isOnboarded));
@@ -160,7 +150,7 @@ function LoginForm() {
                   type="button"
                   onClick={async () => {
                     const result = await quickLogin(acc.email, acc.password);
-                    if (!result.success && !result.needsVerification) {
+                    if (!result.success) {
                       setError(result.error || "Could not sign in");
                     }
                   }}

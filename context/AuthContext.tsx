@@ -9,8 +9,6 @@ interface AuthResult {
   success: boolean;
   error?: string;
   isOnboarded?: boolean;
-  needsVerification?: boolean;
-  devOtp?: string;
 }
 
 interface AuthContextType {
@@ -18,7 +16,6 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<AuthResult>;
   register: (email: string, password: string, role?: UserRole) => Promise<AuthResult>;
-  verifyOtp: (email: string, otp: string) => Promise<AuthResult>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   markProfileReady: () => void;
@@ -73,15 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       const data = await res.json();
 
-      if (data.needsVerification) {
-        return {
-          success: false,
-          needsVerification: true,
-          error: data.error || 'Verify the code sent to your email',
-          devOtp: data.devOtp,
-        };
-      }
-
       if (!res.ok || !data.success) {
         return { success: false, error: data.error || 'Failed to sign in' };
       }
@@ -107,28 +95,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: data.error || 'Registration failed' };
       }
 
-      return { success: true, devOtp: data.devOtp };
-    } catch {
-      return { success: false, error: 'Network error during registration' };
-    }
-  };
-
-  const verifyOtp = async (email: string, otp: string) => {
-    try {
-      const res = await fetch('/api/v1/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false, error: data.error || 'Verification failed' };
+      const onboarded = Boolean(data.user?.isOnboarded) || profileMarkedReady(data.user?.id);
+      if (data.user) {
+        setUser(onboarded ? { ...data.user, isOnboarded: true } : data.user);
       }
-      const onboarded = Boolean(data.user.isOnboarded) || profileMarkedReady(data.user.id);
-      setUser(onboarded ? { ...data.user, isOnboarded: true } : data.user);
       return { success: true, isOnboarded: onboarded };
     } catch {
-      return { success: false, error: 'Network error during verification' };
+      return { success: false, error: 'Network error during registration' };
     }
   };
 
@@ -153,16 +126,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!next || !next.startsWith('/') || next.startsWith('//') || next.includes('://')) {
         return '/dashboard';
       }
-      if (next.startsWith('/login') || next.startsWith('/register') || next.startsWith('/verify-email')) {
+      if (next.startsWith('/login') || next.startsWith('/register')) {
         return '/dashboard';
       }
       return next;
     })();
-    if (result.needsVerification) {
-      router.push(
-        `/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}&next=${encodeURIComponent(dest)}`
-      );
-    } else if (result.success) {
+    if (result.success) {
       router.push(result.isOnboarded ? dest : '/onboarding');
     }
     setIsLoading(false);
@@ -176,7 +145,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         register,
-        verifyOtp,
         logout,
         refreshUser: fetchSession,
         markProfileReady,

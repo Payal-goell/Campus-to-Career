@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { hashPassword } from '@/lib/auth';
-import { generateOtp, hashOtp, issueEmailOtp } from '@/lib/otp';
-import { sendOtpEmail } from '@/lib/mail';
+import { authSessionResponse, hashPassword } from '@/lib/auth';
 import { isDatabaseError } from '@/lib/demo-accounts';
 import {
   LocalAccount,
@@ -80,7 +78,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (existing) {
-      return resumeUnverifiedAccount(existing);
+      return NextResponse.json(
+        { success: false, error: 'This email is already registered. Sign in instead.' },
+        { status: 409 }
+      );
     }
 
     const hashedPassword = await hashPassword(password);
@@ -90,15 +91,24 @@ export async function POST(req: NextRequest) {
           email: normalizedEmail,
           password: hashedPassword,
           role: 'STUDENT',
-          isVerified: false,
+          isVerified: true,
           isOnboarded: false,
         },
       });
-      return sendRegistrationCode(user.id, user.email);
+      return authSessionResponse({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        isOnboarded: user.isOnboarded,
+        name: user.email.split('@')[0],
+        status: 201,
+      });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        const raced = await prisma.user.findUnique({ where: { email: normalizedEmail } });
-        if (raced) return resumeUnverifiedAccount(raced);
+        return NextResponse.json(
+          { success: false, error: 'This email is already registered. Sign in instead.' },
+          { status: 409 }
+        );
       }
       if (isDatabaseError(error)) return registerWithoutDatabase(req, normalizedEmail, password);
       throw error;
@@ -121,96 +131,33 @@ export async function POST(req: NextRequest) {
 async function registerWithoutDatabase(req: NextRequest, email: string, password: string) {
   const accounts = readLocalAccounts(req);
   const existing = accounts.find((account) => account.email === email);
-  if (existing?.isVerified) {
+  if (existing) {
     return NextResponse.json(
       { success: false, error: 'This email is already registered. Sign in instead.' },
       { status: 409 }
     );
   }
 
-  if (existing?.otpSentAt && Date.now() - new Date(existing.otpSentAt).getTime() < 60_000) {
-    const wait = Math.ceil((60_000 - (Date.now() - new Date(existing.otpSentAt).getTime())) / 1000);
-    return NextResponse.json(
-      { success: false, error: `Wait ${wait}s before requesting another code` },
-      { status: 429 }
-    );
-  }
-
-  const otp = generateOtp();
-  const now = new Date();
   const account: LocalAccount = {
-    id: existing?.id || newLocalId(),
+    id: newLocalId(),
     email,
     password: await hashPassword(password),
     role: 'STUDENT',
-    isVerified: false,
-    isOnboarded: existing?.isOnboarded || false,
-    verificationToken: hashOtp(otp),
-    otpExpiresAt: new Date(now.getTime() + 10 * 60 * 1000).toISOString(),
-    otpSentAt: now.toISOString(),
-    otpAttempts: 0,
-    name: existing?.name,
-    avatarUrl: existing?.avatarUrl,
-    profile: existing?.profile,
+    isVerified: true,
+    isOnboarded: false,
+    name: email.split('@')[0],
+    avatarUrl: null,
+    profile: null,
   };
 
-  let emailSent = false;
-  let configured = false;
-  try {
-    const delivery = await sendOtpEmail(email, otp);
-    emailSent = delivery.ok;
-    configured = delivery.configured;
-  } catch (error) {
-    console.error('OTP email failed for', email, error);
-  }
-
-  const hideCode =
-    (configured && emailSent) ||
-    (configured && process.env.NODE_ENV === 'production' && !emailSent);
-
-  const response = NextResponse.json(
-    {
-      success: true,
-      message: emailSent
-        ? `Account created. Enter the code sent to ${email}.`
-        : 'Account created. Enter the verification code to activate it.',
-      email,
-      emailSent,
-      devOtp: hideCode ? undefined : otp,
-    },
-    { status: 201 }
-  );
+  const response = authSessionResponse({
+    id: account.id,
+    email: account.email,
+    role: account.role,
+    isOnboarded: false,
+    name: account.name,
+    status: 201,
+  });
   writeLocalAccounts(response, upsertLocalAccount(accounts, account));
   return response;
-}
-
-async function resumeUnverifiedAccount(user: { id: string; email: string; isVerified: boolean }) {
-  if (user.isVerified) {
-    return NextResponse.json(
-      { success: false, error: 'This email is already registered. Sign in instead.' },
-      { status: 409 }
-    );
-  }
-
-  return sendRegistrationCode(user.id, user.email, true);
-}
-
-async function sendRegistrationCode(userId: string, email: string, force = false) {
-  const issued = await issueEmailOtp(userId, email, { force });
-  if (!issued.ok) {
-    return NextResponse.json({ success: false, error: issued.error }, { status: issued.status });
-  }
-
-  return NextResponse.json(
-    {
-      success: true,
-      message: issued.emailSent
-        ? `Account created. Enter the code sent to ${email}.`
-        : 'Account created. Enter the verification code to activate it.',
-      email,
-      emailSent: issued.emailSent,
-      devOtp: issued.devOtp,
-    },
-    { status: 201 }
-  );
 }
