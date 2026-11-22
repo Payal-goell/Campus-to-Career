@@ -17,7 +17,8 @@ The product is for students of Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), 
 | Auth | JWT (7-day access, 30-day refresh) in an HttpOnly `token` cookie, or `Authorization: Bearer` |
 | Passwords | bcrypt (cost 10) |
 | Data | PostgreSQL + Prisma 5 |
-| Roadmap engine | TypeScript templates in `data/roadmap-templates`, run in the browser and stored in `localStorage` |
+| Year map | TypeScript templates in `data/roadmap-templates`, run in the browser and stored in `localStorage` |
+| Career path | Hybrid catalog + RandomForest + rules service in `ml/` (FastAPI). Next.js calls it and falls back to the TypeScript rules if the service is down |
 
 `OPENAI_API_KEY` is listed in `.env.example` and is not read by the app. Resume scoring is a local keyword match, not an external model call.
 
@@ -28,9 +29,9 @@ The product is for students of Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), 
 1. **Land.** `/` explains the four-year arc, the modules, and what the Development Score is. Public pages (`/explore`, `/resources`, `/campus-life`, `/coordinators`) work without an account.
 2. **Create a student account.** `/register` posts to `POST /api/v1/auth/register`, which hashes the password, creates the `User`, and sets the session cookie. New students have `isOnboarded: false`.
 3. **Sign in.** `/login` with email and password, or the navbar **Demo** menu (laptop width) / **Demo profiles** list (phone menu). After login, a student who has not finished onboarding is sent to `/onboarding`.
-4. **Onboard.** Six steps collect name and contact, college and year, skills, interests and target role, weekly hours, and placement confidence. Saving calls `POST /api/v1/onboarding/profile`, which creates `StudentProfile` and flips `isOnboarded`. The same answers can be applied to the client roadmap.
+4. **Onboard.** Six steps collect name and contact (identity only), college, branch, and year, skill levels from None to Strong (0–3, including extracurricular), interests and target role, career goal (product company, service company, startup, or higher studies), graduation year, weekly hours (1–60), and placement readiness (0–100). Saving calls `POST /api/v1/onboarding/profile`, which creates `StudentProfile` and flips `isOnboarded`. Name and mobile are stored on the profile and are never sent as ML features.
 5. **Work from the dashboard.** `/dashboard` loads `GET /api/v1/dashboard/student`: profile, Development Score, roadmap progress, skill-gap bars, recommended actions, upcoming events, saved-resource count, and application count. Students who are not signed in are sent to `/login`.
-6. **Follow the roadmap.** `/roadmap` builds a personal map from branch, year, domains, and talents. Progress for that map lives in the browser (`localStorage` key `ctc.roadmap.v1`). A separate database milestone list still exists at `/api/v1/dashboard/roadmap` for the older year-wise checklist.
+6. **Follow the roadmap.** `/roadmap` shows two surfaces. The **Career path** panel calls `POST /api/v1/roadmap/generate` and lists numbered steps with hours, a required reason, a Prerequisite badge when a step was inserted automatically, hours planned versus hours available, and a collapsed **Do later** list. Students can mark a step done or mark it useful / not useful (`POST /api/v1/roadmap/feedback`). Below that, the year-by-year **journey map** is still built in the browser from branch, year, domains, and talents (`localStorage` key `ctc.roadmap.v1`). A separate database milestone list still exists at `/api/v1/dashboard/roadmap` for the older year-wise checklist.
 7. **Prepare and apply.** Resources, projects, certifications, training, resume scan, interview bank, and the placement Kanban sit on their own routes. Coordinator questions become tickets.
 
 Coordinators and admins use the same login. `/admin` is limited to `ADMIN` and `COORDINATOR`.
@@ -54,7 +55,7 @@ Auth in the table means what the page itself enforces. The API underneath may st
 | `/dashboard` | Signed-in student | Command center. Redirects to `/login` or `/onboarding` when those steps are missing |
 | `/profile` | Signed-in | Profile completion, academics, skills, projects, certifications |
 | `/skills` | Signed-in | Skill list and the gap chart |
-| `/roadmap` | Signed-in | Personalized journey map, list view, tune panel, node drawer |
+| `/roadmap` | Signed-in | Career path from the ML service (or the rules fallback), plus the year-by-year journey map, list view, tune panel, and node drawer |
 | `/projects` | Signed-in | Feasible project catalog |
 | `/certifications` | Signed-in | Recommended certificates for the student's path |
 | `/ai-tools` | Signed-in | Links and helpers for study and placement tools |
@@ -95,6 +96,8 @@ Auth is email and password only. Public registration cannot create admin, coordi
 | `GET` | `/dashboard/student` | Session | Profile, score, milestone progress, skill-gap series, events, counts |
 | `GET` | `/dashboard/roadmap` | Session | Database milestones for the student's year, with completion state |
 | `POST` | `/dashboard/roadmap` | Session | Toggle a milestone (`milestoneId`, `completed`) |
+| `POST` | `/roadmap/generate` | Session | Hybrid career path. Calls the ML service (8s timeout) and falls back to the TypeScript rules. Stores the profile (no name or mobile) and steps |
+| `POST` | `/roadmap/feedback` | Session | Body: `roadmapId`, `stepId`, `action` (`completed`, `skipped`, `liked`, `disliked`) |
 | `GET` | `/notifications` | Session | Inbox |
 | `POST` | `/notifications` | Session | Mark one or all as read |
 | `POST` | `/resources/save` | Session | Bookmark a catalog resource (`SAVED`, `IN_PROGRESS`, `COMPLETED`) |
@@ -140,7 +143,9 @@ Prisma schema: `prisma/schema.prisma`. PostgreSQL URL: `DATABASE_URL`.
 | Model | Role |
 | :--- | :--- |
 | `User` | Account. Roles: `STUDENT`, `ADMIN`, `COORDINATOR`, `RECRUITER`. Public signup creates students only. Admin and coordinator rows come from the seed |
-| `StudentProfile` | Name, college, branch, year, CGPA, skills, target role, domains, `profileCompletion`, `developmentScore` |
+| `StudentProfile` | Name, college, branch, year, CGPA, skills, target role, domains, `careerGoal`, `weeklyHours`, `readiness`, `graduationYear`, `skillLevels`, `profileCompletion`, `developmentScore` |
+| `GeneratedRoadmap` | One generated career path: profile JSON, steps JSON, `source` (`ml` or `rules`), hours, skipped titles. Table `roadmaps` |
+| `RoadmapFeedback` | Per-step events (`completed`, `skipped`, `liked`, `disliked`) used later as training data. Table `roadmap_feedback` |
 | `StudentProject`, `StudentCertification` | Evidence attached to a profile |
 | `Course`, `CareerPath` | Explore catalog |
 | `Resource`, `UserSavedResource` | Learning catalog and per-user status |
@@ -155,9 +160,32 @@ Seed script `scripts/seed.mjs` fills users, an onboarded CSE profile (projects a
 
 ---
 
+## Career path (hybrid ML + rules)
+
+The model does not invent steps. It scores a fixed catalog, then a rules layer adds prerequisites, orders them, caps hours at 80% of available time, and writes a reason for every step. If the model file is missing, unsure, or the service errors, the student still gets a roadmap.
+
+Full factor list, 48-feature vector, 53 milestones, RandomForest settings, and eval metrics: [`ml/README.md`](ml/README.md).
+
+| Piece | Where |
+| :--- | :--- |
+| Catalog | `ml/catalog.json` (roles, skills 0–3, milestones) |
+| Features, teacher rules, safety, reasons | `ml/rules.py` |
+| Training and `--eval` | `ml/train.py` |
+| Inference and fallback | `ml/roadmap.py` |
+| HTTP service | `ml/app.py` — `GET /health`, `POST /api/roadmap` |
+| Next.js caller | `app/api/v1/roadmap/generate/route.ts` reads `ML_SERVICE_URL` |
+| Profile mapping | `lib/roadmap/ml-profile.ts` (strips name and mobile) |
+| UI | `components/roadmap/CareerPathPanel.tsx` |
+
+Deploy the ML service separately (Render, Railway, or Fly). The model artifact is about 13 MB compressed and is a poor fit for a Vercel Python function. Next.js stays on Vercel and points at `ML_SERVICE_URL`. Leave that variable empty to use only the in-app rules fallback.
+
+Recent local eval (about 2,500 synthetic students, 500 held out): step-level precision / recall / F1 about 0.94 / 0.89 / 0.91, finalized overlap with the rule roadmap about 0.88, prerequisite-order violations 0. Re-run `python train.py --eval` after a catalog change.
+
+---
+
 ## Roadmap engine
 
-The interactive map on `/roadmap` does not wait on Prisma.
+The interactive year map on `/roadmap` does not wait on Prisma. The Career path panel above it does call the API.
 
 - Templates live in `data/roadmap-templates` (generic, domain, talent, and RGPV subject tracks).
 - `lib/roadmap/generate.ts` picks templates from branch, academic year, interest domains, and talent interests, then fills `{branch}`, `{role}`, `{domain}`, and `{talent}` in the copy.
@@ -220,11 +248,12 @@ The navbar demo buttons call login with `Password123!` for every row. That match
 
 ## Run it locally
 
-Requirements: Node 20+, PostgreSQL 14+.
+Requirements: Node 20+, PostgreSQL 14+, Python 3.11+ for the career-path service (3.14 works with the current `ml/requirements.txt`).
 
 ```bash
 cp .env.example .env
-# DATABASE_URL, JWT_SECRET, and JWT_REFRESH_SECRET
+# DATABASE_URL, JWT_SECRET, JWT_REFRESH_SECRET
+# ML_SERVICE_URL="http://127.0.0.1:8000"
 
 npm install
 npx prisma generate
@@ -233,7 +262,18 @@ npm run prisma:seed
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+In a second terminal:
+
+```bash
+cd ml
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+export ML_MODEL_PATH=artifacts/roadmap_model.joblib
+uvicorn app:app --host 127.0.0.1 --port 8000
+```
+
+Open [http://localhost:3000](http://localhost:3000). Career path generation uses the ML service when `ML_SERVICE_URL` is set and the process on port 8000 is up. Otherwise `/roadmap` still renders a rules roadmap.
 
 | Script | What it does |
 | :--- | :--- |
@@ -254,6 +294,8 @@ Open [http://localhost:3000](http://localhost:3000).
 | `JWT_REFRESH_SECRET` | Yes in production | Refresh-token signing key. Same fallback behavior |
 | `NEXT_PUBLIC_APP_URL` | No | Public origin, default `http://localhost:3000` |
 | `OPENAI_API_KEY` | No | Unused by the current code |
+| `ML_SERVICE_URL` | No | Base URL of the FastAPI career-path service, for example `http://127.0.0.1:8000`. Empty means the TypeScript rules fallback |
+| `ML_MODEL_PATH` | No | Path to `roadmap_model.joblib` inside the ML process. Default `ml/artifacts/roadmap_model.joblib` |
 
 Change both JWT secrets before any shared or production deploy. Cookies are marked `secure` only when `NODE_ENV` is `production`.
 
@@ -265,11 +307,12 @@ Change both JWT secrets before any shared or production deploy. Cookies are mark
 app/                 pages and /api/v1 route handlers
 components/          navbar, dashboard, roadmap, placement, ui kit
 context/             AuthContext, RoadmapContext
-lib/                 auth, prisma client, roadmap engine
+lib/                 auth, prisma client, roadmap engine, ML profile mapper
 data/                roadmap templates, courses, projects, interview bank, campus media
 design-tokens/       color palettes and CSS variables
+ml/                  catalog, RandomForest trainer, rules layer, FastAPI service, tests, model README
 prisma/schema.prisma database
 scripts/seed.mjs     demo data
 ```
 
-Related write-ups already in the repo: `Features.md`, `api_specifications.md`, `DESIGN_SYSTEM.md`, `tech_stack_specification.md`, and `Project specifications.md`. Where those disagree with this file, the code and this README are the ones to trust. Auth is email and password only.
+Related write-ups already in the repo: `ml/README.md` (model factors, features, metrics), `Features.md`, `api_specifications.md`, `DESIGN_SYSTEM.md`, `tech_stack_specification.md`, and `Project specifications.md`. Where those disagree with this file, the code and this README are the ones to trust. Auth is email and password only. Sign-in does not use OTP or email verification.
