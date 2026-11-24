@@ -68,6 +68,10 @@ export default function AdminPortalPage() {
         router.replace("/login?next=/admin");
         return;
       }
+      if (user.role !== "ADMIN" && user.role !== "COORDINATOR") {
+        router.replace("/dashboard");
+        return;
+      }
     }
     fetchAnalytics();
   }, [user, authLoading, router]);
@@ -154,6 +158,16 @@ export default function AdminPortalPage() {
               </span>
             ))}
           </div>
+          {(user?.role === "ADMIN" || user?.role === "COORDINATOR") && (
+            <div className="mt-4 flex gap-2 flex-wrap">
+              <a
+                href="/coordinator-portal"
+                className="text-xs px-3 py-1.5 rounded-full bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-primary)] border border-[var(--color-brand-primary)]/30 font-semibold hover:bg-[var(--color-brand-primary)]/20 transition-colors"
+              >
+                → Go to Coordinator Portal
+              </a>
+            </div>
+          )}
         </div>
       </Card>
 

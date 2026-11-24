@@ -24,9 +24,17 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const goAfterAuth = (isOnboarded: boolean) => {
+  const goAfterAuth = (isOnboarded: boolean, role?: string) => {
+    if (role === 'ADMIN') {
+      router.push('/admin');
+      return;
+    }
+    if (role === 'COORDINATOR') {
+      router.push('/coordinator-portal');
+      return;
+    }
     if (!isOnboarded) {
-      router.push("/onboarding");
+      router.push('/onboarding');
       return;
     }
     router.push(nextPath);
@@ -34,7 +42,7 @@ function LoginForm() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      goAfterAuth(user.isOnboarded);
+      goAfterAuth(user.isOnboarded, user.role);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user, router, nextPath]);
@@ -56,7 +64,7 @@ function LoginForm() {
     setLoading(false);
 
     if (result.success) {
-      goAfterAuth(Boolean(result.isOnboarded));
+      goAfterAuth(Boolean(result.isOnboarded), result.role);
     } else {
       setError(result.error || "That email and password do not match an account.");
     }

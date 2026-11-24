@@ -9,6 +9,7 @@ interface AuthResult {
   success: boolean;
   error?: string;
   isOnboarded?: boolean;
+  role?: string;
 }
 
 interface AuthContextType {
@@ -76,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const onboarded = Boolean(data.user.isOnboarded) || profileMarkedReady(data.user.id);
       setUser(onboarded ? { ...data.user, isOnboarded: true } : data.user);
-      return { success: true, isOnboarded: onboarded };
+      return { success: true, isOnboarded: onboarded, role: data.user.role };
     } catch {
       return { success: false, error: 'Network error during login' };
     }
@@ -132,7 +133,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return next;
     })();
     if (result.success) {
-      router.push(result.isOnboarded ? dest : '/onboarding');
+      // Role-aware redirect: admins and coordinators go to their own portals
+      const role = result.role;
+      if (role === 'ADMIN') {
+        router.push('/admin');
+      } else if (role === 'COORDINATOR') {
+        router.push('/coordinator-portal');
+      } else {
+        router.push(result.isOnboarded ? dest : '/onboarding');
+      }
     }
     setIsLoading(false);
     return result;

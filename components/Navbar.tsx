@@ -106,7 +106,10 @@ export function Navbar() {
     if (!profileReady) return openLinks;
     const staff = user?.role === 'ADMIN' || user?.role === 'COORDINATOR';
     const extra = staff
-      ? [{ name: 'Admin Portal', href: '/admin', icon: Shield, requireAuth: true }]
+      ? [
+          { name: 'Admin Portal', href: '/admin', icon: Shield, requireAuth: true },
+          { name: 'Coord. Portal', href: '/coordinator-portal', icon: UserCheck, requireAuth: true },
+        ]
       : [];
     return [...coreLinks, ...supportingLinks, ...extra];
   })();
