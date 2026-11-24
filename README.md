@@ -28,8 +28,8 @@ The product is for students of Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV), 
 
 1. **Land.** `/` explains the four-year arc, the modules, and what the Development Score is. Public pages (`/explore`, `/resources`, `/campus-life`, `/coordinators`) work without an account.
 2. **Create a student account.** `/register` posts to `POST /api/v1/auth/register`, which hashes the password, creates the `User`, and sets the session cookie. New students have `isOnboarded: false`.
-3. **Sign in.** `/login` with email and password, or the navbar **Demo** menu (laptop width) / **Demo profiles** list (phone menu). After login, a student who has not finished onboarding is sent to `/onboarding`.
-4. **Onboard.** Six steps collect name and contact (identity only), college, branch, and year, skill levels from None to Strong (0–3, including extracurricular), interests and target role, career goal (product company, service company, startup, or higher studies), graduation year, weekly hours (1–60), and placement readiness (0–100). Saving calls `POST /api/v1/onboarding/profile`, which creates `StudentProfile` and flips `isOnboarded`. Name and mobile are stored on the profile and are never sent as ML features.
+3. **Sign in.** `/login` with email and password, or the navbar **Demo** menu (laptop width) / **Demo profiles** list (phone menu). After login the student is routed by role: `STUDENT` goes to `/onboarding` (first time) or `/dashboard`; `COORDINATOR` goes to `/coordinator-portal`; `ADMIN` goes to `/admin`.
+4. **Onboard.** Six steps collect name and contact (identity only), college, branch, and year, **a full skill quiz and extracurricular proof upload** (Step 3 — see Skill Assessment below), interests and target role, career goal (product company, service company, startup, or higher studies), graduation year, weekly hours (1–60), and placement readiness (0–100). Saving calls `POST /api/v1/onboarding/profile`, which creates `StudentProfile` and flips `isOnboarded`. Name and mobile are stored on the profile and are never sent as ML features.
 5. **Work from the dashboard.** `/dashboard` loads `GET /api/v1/dashboard/student`: profile, Development Score, roadmap progress, skill-gap bars, recommended actions, upcoming events, saved-resource count, and application count. Students who are not signed in are sent to `/login`.
 6. **Follow the roadmap.** `/roadmap` shows two surfaces. The **Career path** panel calls `POST /api/v1/roadmap/generate` and lists numbered steps with hours, a required reason, a Prerequisite badge when a step was inserted automatically, hours planned versus hours available, and a collapsed **Do later** list. Students can mark a step done or mark it useful / not useful (`POST /api/v1/roadmap/feedback`). Below that, the year-by-year **journey map** is still built in the browser from branch, year, domains, and talents (`localStorage` key `ctc.roadmap.v1`). A separate database milestone list still exists at `/api/v1/dashboard/roadmap` for the older year-wise checklist.
 7. **Prepare and apply.** Resources, projects, certifications, training, resume scan, interview bank, and the placement Kanban sit on their own routes. Coordinator questions become tickets.
@@ -66,10 +66,12 @@ Auth in the table means what the page itself enforces. The API underneath may st
 | `/placement` | Signed-in | Application Kanban: Saved, Applied, Interviewing, Offered, Rejected |
 | `/analytics` | Signed-in | Score, skill growth, and roadmap progress for the current student |
 | `/notifications` | Signed-in | Notification inbox. The bell in the navbar opens the same data in a drawer |
-| `/admin` | Admin or coordinator | Cohort metrics, publish a resource, inquiry inbox |
+| `/admin` | Admin or coordinator | Cohort metrics, publish a resource, inquiry inbox. Redirects non-staff to `/dashboard` |
+| `/coordinator-portal` | Coordinator or admin | Paginated student table: CGPA, development score, placement eligibility, skill count, branch/year filters |
+| `/team` | Public | Interactive team page — hover each card to reveal skills, role, quote, and social links |
 | `/design-system` | Public | Living spec of buttons, tokens, and feedback components |
 
-The navbar shows Explore and Resources to everyone. After sign-in it adds Dashboard, Profile, Skills, Roadmap, Projects, Certifications, AI Tools, Campus Life, Training, Personality, Resume, Interview, Placement, Analytics, and Coordinators. Admins and coordinators also get **Admin Portal**. On screens narrower than 1024px those links live in the menu; the demo list is inside that menu too.
+The navbar shows Explore and Resources to everyone. After sign-in it adds Dashboard, Profile, Skills, Roadmap, Projects, Certifications, AI Tools, Campus Life, Training, Personality, Resume, Interview, Placement, Analytics, and Coordinators. Admins and coordinators also get **Admin Portal** and **Coord. Portal**. Login routes by role: students go to dashboard or onboarding, coordinators go to `/coordinator-portal`, admins go to `/admin`. On screens narrower than 1024px those links live in the menu; the demo list is inside that menu too.
 
 ---
 
@@ -126,13 +128,14 @@ Auth is email and password only. Public registration cannot create admin, coordi
 | `DELETE` | `/placement-training/applications` | Session | Remove an application |
 | `POST` | `/placement-training/resume/analyze` | Public handler | JSON `{ resumeText }` or multipart `file` / `resumeText`. Returns a keyword score and missing terms. It does not call an LLM |
 
-### Admin
+### Admin and coordinator
 
 | Method | Path | Access | Notes |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/admin/analytics/overview` | `ADMIN` or `COORDINATOR` | Headcount, average Development Score, roadmap engagement, offer rate, latest inquiries |
 | `POST` | `/admin/resources` | `ADMIN` or `COORDINATOR` | Publish a catalog resource |
 | `DELETE` | `/admin/resources` | `ADMIN` or `COORDINATOR` | Remove a resource |
+| `GET` | `/coordinator/students` | `ADMIN` or `COORDINATOR` | Paginated student list with CGPA, dev score, skills, target role, and placement eligibility. Query params: `page`, `limit`, `search`, `branch`, `year` |
 
 ---
 
@@ -160,7 +163,29 @@ Seed script `scripts/seed.mjs` fills users, an onboarded CSE profile (projects a
 
 ---
 
-## Career path (hybrid ML + rules)
+## Skill assessment during onboarding
+
+Step 3 of onboarding uses `SkillCheck` (`components/onboarding/SkillCheck.tsx`). Every skill the student picks goes through a real check before it enters the ML model.
+
+**Technical skills** (JavaScript, Python, DSA, SQL, Docker, etc.):
+- Student picks a difficulty level: Easy, Medium, or Hard.
+- A 6-question multiple-choice quiz runs entirely in the browser — no server round-trip.
+- Score is `correct / 6 × 100`. That percentage feeds the ML feature vector as the skill level (≥80 → 3, ≥60 → 2, ≥30 → 1, else 0).
+- Questions come from `data/skill-quizzes.ts`, which has 3-level banks for 15+ skills and a generic fallback for any other name.
+
+**Extracurricular skills** (dance, sports, music, volunteering, etc.):
+- Student marks Basic / Intermediate / Advanced.
+- Student uploads a file (certificate PDF, photo, or performance video). The file stays on the student's device — only the filename, type, and size are recorded in the profile cookie.
+- The stated level maps to a fixed percentage (Basic 40%, Intermediate 70%, Advanced 90%), held as provisional until a coordinator reviews the proof.
+
+**Why this matters for the ML model:**
+- The 48-feature vector the RandomForest receives contains real quiz scores for each of the 14 ML skill dimensions (`programming`, `dsa`, `web_basics`, `fullstack`, `sql`, `git`, `statistics`, `ml_basics`, `system_design`, `cloud`, `aptitude`, `communication`, `projects`, `extracurricular`).
+- Before this change, those values were self-reported 0–3 levels. Now they are quiz-derived percentages mapped to that same 0–3 scale via `mapSkillLevels` in `lib/roadmap/ml-profile.ts`.
+- The roadmap engine therefore knows precisely how far each skill sits from the role bar and surfaces the right next step — not a generic "improve your skills" message.
+
+The quiz scores and proof metadata are stored as `skillAssessments` in `StudentProfile` and are readable by the Skills page (`/skills`) and the gap chart without any extra API call.
+
+---
 
 The model does not invent steps. It scores a fixed catalog, then a rules layer adds prerequisites, orders them, caps hours at 80% of available time, and writes a reason for every step. If the model file is missing, unsure, or the service errors, the student still gets a roadmap.
 

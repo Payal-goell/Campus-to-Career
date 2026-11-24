@@ -32,7 +32,7 @@ import {
   type TalentInterest,
 } from "@/lib/roadmap";
 import { placementYearFromCurrentYear } from "@/lib/placement-year";
-import { averageKnowledge, storeAssessments, type SkillAssessmentRecord } from "@/lib/skill-assessment";
+import { averageKnowledge, storeAssessments } from "@/lib/skill-assessment";
 import {
   DEFAULT_COLLEGE,
   avatarError,
@@ -41,16 +41,15 @@ import {
 } from "@/lib/field-rules";
 import { overviewFromSavedProfile, rememberSavedProfile } from "@/lib/saved-profile";
 import {
-  ML_SKILLS,
   type MlGoal,
-  type MlSkillId,
-  type MlSkillLevel,
+  mapSkillLevels,
 } from "@/lib/roadmap/ml-profile";
 import { skillsFromNames } from "@/lib/roadmap/profile";
+import { draftReady, toRecord, type SkillDraft } from "@/lib/skill-draft";
 
-const MlSkillLevels = dynamic(
-  () => import("@/components/onboarding/MlSkillLevels").then((mod) => mod.MlSkillLevels),
-  { ssr: false, loading: () => <p className="text-xs text-[var(--color-text-muted)]">Loading skill levels…</p> }
+const SkillCheck = dynamic(
+  () => import("@/components/onboarding/SkillCheck").then((mod) => ({ default: mod.SkillCheck })),
+  { ssr: false, loading: () => <p className="text-xs text-[var(--color-text-muted)]">Loading skill check…</p> }
 );
 
 const ML_CAREER_GOALS: { id: MlGoal; label: string; primaryGoal: string }[] = [
@@ -59,24 +58,6 @@ const ML_CAREER_GOALS: { id: MlGoal; label: string; primaryGoal: string }[] = [
   { id: "startup", label: "Startup", primaryGoal: "Build a placement-ready project portfolio" },
   { id: "higher_studies", label: "Higher studies", primaryGoal: "Prepare for higher studies (M.Tech or MS)" },
 ];
-
-function assessmentsFromLevels(levels: Partial<Record<MlSkillId, MlSkillLevel>>): SkillAssessmentRecord[] {
-  return ML_SKILLS.filter((id) => (levels[id] ?? 0) > 0).map((id) => {
-    const level = levels[id] ?? 1;
-    const mode = level <= 1 ? "basic" : level === 2 ? "intermediate" : "advanced";
-    const percent = level <= 1 ? 40 : level === 2 ? 65 : 88;
-    if (id === "extracurricular") {
-      return {
-        name: id,
-        kind: "extracurricular" as const,
-        mode,
-        percent,
-        proof: { fileName: "self-reported-level", fileType: "text/plain", fileSize: 12 },
-      };
-    }
-    return { name: id, kind: "technical" as const, mode, percent, quizLevel: "medium" as const };
-  });
-}
 
 const TARGET_ROLES = [
   "Full-Stack Software Engineer",
@@ -89,6 +70,13 @@ const TARGET_ROLES = [
 ];
 
 const DOMAINS = [...ROADMAP_DOMAINS];
+
+function percentToMlLevel(percent: number): 0 | 1 | 2 | 3 {
+  if (percent >= 80) return 3;
+  if (percent >= 60) return 2;
+  if (percent >= 30) return 1;
+  return 0;
+}
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -111,10 +99,7 @@ export default function OnboardingPage() {
   const [collegeName, setCollegeName] = useState(DEFAULT_COLLEGE);
   const [cgpa, setCgpa] = useState("");
 
-  const [skillLevels, setSkillLevels] = useState<Partial<Record<MlSkillId, MlSkillLevel>>>({
-    programming: 1,
-    extracurricular: 0,
-  });
+  const [skillDrafts, setSkillDrafts] = useState<SkillDraft[]>([]);
 
   const [targetRole, setTargetRole] = useState("Full-Stack Software Engineer");
   const [preferredDomains, setPreferredDomains] = useState<string[]>(["Web Development"]);
@@ -126,8 +111,11 @@ export default function OnboardingPage() {
   const [graduationYear, setGraduationYear] = useState(placementYearFromCurrentYear(1));
 
   const placementYear = graduationYear || placementYearFromCurrentYear(Number(currentYear));
-  const skillRecords = useMemo(() => assessmentsFromLevels(skillLevels), [skillLevels]);
-  const skillsReady = skillRecords.length > 0;
+  const skillRecords = useMemo(
+    () => skillDrafts.filter(draftReady).map(toRecord),
+    [skillDrafts]
+  );
+  const skillsReady = skillDrafts.some(draftReady);
   const primaryGoal =
     ML_CAREER_GOALS.find((g) => g.id === careerGoal)?.primaryGoal || "Clear a campus drive (TCS, Infosys, Wipro, or the college pool)";
   const contactReady = fullName.trim().length >= 2 && !phoneError(phone) && !avatarError(avatarUrl);
@@ -144,7 +132,15 @@ export default function OnboardingPage() {
   };
 
   const persistRoadmapProfile = () => {
-    const named = Object.entries(skillLevels)
+    const derivedLevels = mapSkillLevels({
+      skillLevels: Object.fromEntries(
+        skillDrafts.filter(draftReady).map((d) => {
+          const rec = toRecord(d);
+          return [d.name.toLowerCase(), percentToMlLevel(rec.percent)];
+        })
+      ),
+    });
+    const named = Object.entries(derivedLevels)
       .filter(([, level]) => (level ?? 0) > 0)
       .map(([name, level]) => ({ name, level: level as number }));
     const profile = {
@@ -180,7 +176,7 @@ export default function OnboardingPage() {
       return;
     }
     if (!skillsReady) {
-      setFormError("Set at least one skill above None.");
+      setFormError("Complete at least one skill quiz or upload proof before continuing.");
       setCurrentStep(3);
       return;
     }
@@ -213,7 +209,12 @@ export default function OnboardingPage() {
         },
         currentSkills: skillRecords.map((record) => record.name),
         skillAssessments: skillRecords,
-        skillLevels,
+        skillLevels: Object.fromEntries(
+          skillDrafts.filter(draftReady).map((d) => {
+            const rec = toRecord(d);
+            return [d.name.toLowerCase(), percentToMlLevel(rec.percent)];
+          })
+        ),
         careerPreferences: {
           targetRole,
           preferredDomains,
@@ -452,15 +453,15 @@ export default function OnboardingPage() {
                   <Code className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-[var(--color-text-primary)]">3. Technical & Professional Skills</h2>
-                  <p className="text-xs text-[var(--color-text-secondary)]">Rate each skill None / Basic / Good / Strong (0–3). These feed the career path model.</p>
+                  <h2 className="text-lg font-bold text-[var(--color-text-primary)]">3. Technical & Professional Skills — Quiz & Proof</h2>
+                  <p className="text-xs text-[var(--color-text-secondary)]">Pick every skill you use, take the quiz (technical) or upload proof (extracurricular). The scores go straight into your roadmap.</p>
                 </div>
               </div>
 
-              <MlSkillLevels values={skillLevels} onChange={setSkillLevels} />
+              <SkillCheck drafts={skillDrafts} onChange={setSkillDrafts} />
               {!skillsReady && (
                 <p className="text-xs text-amber-600">
-                  Set at least one skill above None before continuing.
+                  Complete at least one skill quiz or upload proof before continuing.
                 </p>
               )}
 
@@ -695,7 +696,7 @@ export default function OnboardingPage() {
 
           {/* STEP 7: Generated Profile */}
           {currentStep === 7 && (
-            <motion.div key="step-6" variants={fadeUp} initial="hidden" animate="visible" exit="hidden" className="text-center py-6 space-y-6">
+            <motion.div key="step-7" variants={fadeUp} initial="hidden" animate="visible" exit="hidden" className="text-center py-6 space-y-6">
               <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
