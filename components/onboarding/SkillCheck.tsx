@@ -10,6 +10,13 @@ import {
   type SkillMode,
 } from '@/lib/skill-assessment';
 
+/** Maps the student's self-rated level to the matching quiz difficulty. */
+const MODE_TO_LEVEL: Record<SkillMode, QuizLevel> = {
+  basic: 'easy',
+  intermediate: 'medium',
+  advanced: 'hard',
+};
+
 const COMMON_SKILLS = [
   'JavaScript',
   'TypeScript',
@@ -29,16 +36,10 @@ const COMMON_SKILLS = [
   'Communication & Leadership',
 ];
 
-const MODES: { id: SkillMode; label: string }[] = [
-  { id: 'basic', label: 'Basic' },
-  { id: 'intermediate', label: 'Intermediate' },
-  { id: 'advanced', label: 'Advanced' },
-];
-
-const LEVELS: { id: QuizLevel; label: string }[] = [
-  { id: 'easy', label: 'Easy' },
-  { id: 'medium', label: 'Medium' },
-  { id: 'hard', label: 'Hard' },
+const MODES: { id: SkillMode; label: string; desc: string }[] = [
+  { id: 'basic',        label: 'Basic',        desc: 'You can complete small guided tasks with a reference.' },
+  { id: 'intermediate', label: 'Intermediate', desc: 'You can build features without a step-by-step guide.' },
+  { id: 'advanced',     label: 'Advanced',     desc: 'You can design, debug, and explain trade-offs on your own.' },
 ];
 
 function ChoiceRow({
@@ -46,7 +47,7 @@ function ChoiceRow({
   value,
   onChange,
 }: {
-  options: { id: string; label: string }[];
+  options: { id: string; label: string; desc?: string }[];
   value: string;
   onChange: (id: string) => void;
 }) {
@@ -57,11 +58,12 @@ function ChoiceRow({
           key={option.id}
           type="button"
           onClick={() => onChange(option.id)}
-          className={`px-3 py-1.5 rounded-xl text-xs font-medium border ${
+          className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${
             value === option.id
               ? 'bg-[var(--color-brand-primary)] text-white border-[var(--color-brand-primary)]'
-              : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border-subtle)]'
+              : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border-subtle)] hover:border-[var(--color-brand-primary)]/50'
           }`}
+          title={option.desc}
         >
           {option.label}
         </button>
@@ -188,7 +190,7 @@ const SkillCard = React.memo(function SkillCard({
   const status =
     draft.kind === 'technical'
       ? draft.submitted
-        ? `${draft.percent}% · ${draft.quizLevel}`
+        ? `${draft.percent}% · ${draft.mode}`
         : 'Quiz not scored'
       : draft.proof
         ? `${MODE_PERCENT[draft.mode]}% · ${draft.proof.fileName}`
@@ -221,10 +223,11 @@ const SkillCard = React.memo(function SkillCard({
     });
   };
 
-  const setLevel = (quizLevel: QuizLevel) => {
+  // When mode changes, auto-derive quiz level and reset the quiz
+  const setMode = (mode: SkillMode) => {
     setQuestionIndex(0);
     setAnswers(Array(QUIZ_LENGTH).fill(-1));
-    update({ quizLevel, submitted: false, percent: 0, answers: Array(QUIZ_LENGTH).fill(-1) });
+    update({ mode, quizLevel: MODE_TO_LEVEL[mode], submitted: false, percent: 0, answers: Array(QUIZ_LENGTH).fill(-1) });
   };
 
   const answer = (choice: number) => {
@@ -281,21 +284,17 @@ const SkillCard = React.memo(function SkillCard({
         />
       </div>
 
-      <div className="space-y-1.5">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
-          Which {draft.name} do you actually use?
-        </p>
-        <ChoiceRow options={MODES} value={draft.mode} onChange={(id) => update({ mode: id as SkillMode })} />
-        <p className="text-[11px] text-[var(--color-text-secondary)]">{modeHelp}</p>
-      </div>
-
       {draft.kind === 'technical' ? (
         <div className="space-y-3">
           <div className="space-y-1.5">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
-              Quiz difficulty — you choose
+              Your level in {draft.name}
             </p>
-            <ChoiceRow options={LEVELS} value={draft.quizLevel} onChange={(id) => setLevel(id as QuizLevel)} />
+            <ChoiceRow options={MODES} value={draft.mode} onChange={(id) => setMode(id as SkillMode)} />
+            <p className="text-[11px] text-[var(--color-text-secondary)]">
+              {MODES.find(m => m.id === draft.mode)?.desc ?? modeHelp}
+              {' '}The quiz difficulty is set automatically from this level.
+            </p>
           </div>
           {question && (
             <div className="space-y-2">
@@ -352,15 +351,23 @@ const SkillCard = React.memo(function SkillCard({
           </button>
           {draft.submitted && (
             <p className="text-[11px] text-[var(--color-text-secondary)]">
-              You marked {draft.mode}. The {draft.quizLevel} quiz measures {draft.percent}% of this skill.
+              Score saved — you answered at the <strong>{draft.mode}</strong> level and got <strong className="text-[var(--color-brand-primary)]">{draft.percent}%</strong>.
             </p>
           )}
         </div>
       ) : (
-        <div className="space-y-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
-            Proof — performance video or winning certificate
-          </p>
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+              Your level in {draft.name}
+            </p>
+            <ChoiceRow options={MODES} value={draft.mode} onChange={(id) => update({ mode: id as SkillMode })} />
+            <p className="text-[11px] text-[var(--color-text-secondary)]">{modeHelp}</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+              Proof — performance video or winning certificate
+            </p>
           <input
             type="file"
             accept="video/*,image/*,.pdf,application/pdf"
@@ -376,6 +383,7 @@ const SkillCard = React.memo(function SkillCard({
               Add a clip of the performance or a photo or PDF of the certificate.
             </p>
           )}
+        </div>
         </div>
       )}
     </div>

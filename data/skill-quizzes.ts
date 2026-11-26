@@ -8,273 +8,562 @@ export interface QuizQuestion {
 
 type Bank = Record<QuizLevel, QuizQuestion[]>;
 
+// ─── Python ──────────────────────────────────────────────────────────────────
 const python: Bank = {
   easy: [
-    { prompt: 'What does print(2 + 3) show?', choices: ['23', '5', '2 + 3', 'None'], answer: 1 },
-    { prompt: 'Which type is the value "hello"?', choices: ['int', 'list', 'str', 'bool'], answer: 2 },
-    { prompt: 'How do you start a comment in Python?', choices: ['//', '#', '/*', '--'], answer: 1 },
+    { prompt: 'What does print(2 + 3) output?', choices: ['23', '5', '2 + 3', 'None'], answer: 1 },
+    { prompt: 'Which keyword defines a function in Python?', choices: ['func', 'def', 'function', 'fn'], answer: 1 },
+    { prompt: 'What is the type of "hello"?', choices: ['int', 'list', 'str', 'bool'], answer: 2 },
+    { prompt: 'How do you start a single-line comment in Python?', choices: ['//', '#', '/*', '--'], answer: 1 },
+    { prompt: 'What does len([1, 2, 3]) return?', choices: ['1', '2', '3', '0'], answer: 2 },
+    { prompt: 'Which loop repeats while a condition is True?', choices: ['repeat', 'for', 'while', 'loop'], answer: 2 },
+    { prompt: 'What does input() always return?', choices: ['int', 'float', 'str', 'list'], answer: 2 },
+    { prompt: 'What is the value of 10 % 3?', choices: ['3', '1', '0', '2'], answer: 1 },
+    { prompt: 'Which operator checks equality in Python?', choices: ['=', '==', '===', ':='], answer: 1 },
+    { prompt: 'What does range(3) produce?', choices: ['[1,2,3]', '[0,1,2]', '[0,1,2,3]', '[1,2]'], answer: 1 },
   ],
   medium: [
-    { prompt: 'What is the value of [1, 2, 3][1]?', choices: ['1', '2', '3', 'Error'], answer: 1 },
-    { prompt: 'Which keyword defines a function?', choices: ['func', 'def', 'function', 'fn'], answer: 1 },
-    { prompt: 'What does len("ab") return?', choices: ['"ab"', '1', '2', '0'], answer: 2 },
+    { prompt: 'What does [x**2 for x in range(4)] produce?', choices: ['[1,4,9,16]', '[0,1,4,9]', '[0,2,4,6]', '[1,2,3,4]'], answer: 1 },
+    { prompt: 'What does *args capture in a function signature?', choices: ['Keyword arguments as a dict', 'Extra positional arguments as a tuple', 'Only integers', 'A single string'], answer: 1 },
+    { prompt: 'What is printed?\n\nd = {"a": 1}\nprint(d.get("b", 0))', choices: ['None', 'KeyError', '0', '1'], answer: 2 },
+    { prompt: 'Which method removes and returns the last item of a list?', choices: ['remove()', 'pop()', 'delete()', 'discard()'], answer: 1 },
+    { prompt: 'What does "".join(["a","b","c"]) return?', choices: ['["a","b","c"]', '"a b c"', '"abc"', 'None'], answer: 2 },
+    { prompt: 'What is the output?\n\ndef f(x=[]):\n    x.append(1)\n    return x\nprint(f(), f())', choices: ['[1] [1]', '[1] [1, 1]', '[1, 1] [1, 1]', 'Error'], answer: 1 },
+    { prompt: 'Which built-in sorts a list in-place?', choices: ['sorted()', 'list.sort()', 'list.order()', 'arrange()'], answer: 1 },
+    { prompt: 'What does isinstance(3.0, int) return?', choices: ['True', 'False', 'None', 'Error'], answer: 1 },
+    { prompt: 'What is the result of bool([]) in Python?', choices: ['True', 'False', 'None', '0'], answer: 1 },
+    { prompt: 'What does open("f.txt", "a") do?', choices: ['Reads the file', 'Overwrites the file', 'Appends to the file', 'Deletes the file'], answer: 2 },
   ],
   hard: [
-    { prompt: 'What does [x * 2 for x in range(3)] produce?', choices: ['[1, 2, 3]', '[0, 2, 4]', '[2, 4, 6]', '[0, 1, 2]'], answer: 1 },
-    { prompt: 'Which statement about a dict is true?', choices: ['Keys can repeat', 'Keys are unique', 'It keeps only values', 'Index 0 is always first'], answer: 1 },
-    { prompt: 'What does *args collect in a function?', choices: ['Keyword pairs', 'A single string', 'Extra positional arguments', 'Only integers'], answer: 2 },
+    { prompt: 'What is the output?\n\nprint(type(lambda x: x))', choices: ['<class "function">', '<class "lambda">', '<class "builtin">', 'None'], answer: 0 },
+    { prompt: 'What does @staticmethod allow?', choices: ['Access to self', 'Calling a method without an instance', 'Overriding a parent method', 'Creating class variables'], answer: 1 },
+    { prompt: 'What does yield do inside a function?', choices: ['Returns a value and exits', 'Pauses and produces a value lazily', 'Raises StopIteration immediately', 'Duplicates the return value'], answer: 1 },
+    { prompt: 'What is the complexity of dict lookup on average?', choices: ['O(n)', 'O(log n)', 'O(1)', 'O(n²)'], answer: 2 },
+    { prompt: 'What does __slots__ do in a class?', choices: ['Prevents inheritance', 'Restricts attributes to save memory', 'Makes all methods static', 'Enables multiple inheritance'], answer: 1 },
+    { prompt: 'What does functools.lru_cache do?', choices: ['Clears the cache', 'Memoizes function results', 'Limits recursion depth', 'Sorts arguments'], answer: 1 },
+    { prompt: 'What is the GIL in CPython?', choices: ['A garbage collector', 'A lock that lets only one thread run Python at a time', 'A type checker', 'A module loader'], answer: 1 },
+    { prompt: 'Which of these creates a shallow copy of a list?', choices: ['list.copy()', 'copy.deepcopy(list)', 'list.clone()', 'list[:]'], answer: 0 },
+    { prompt: 'What does __enter__ and __exit__ enable?', choices: ['Metaclasses', 'Context managers (with statement)', 'Operator overloading', 'Coroutines'], answer: 1 },
+    { prompt: 'What is the output?\n\na = [1, 2]\nb = a\nb.append(3)\nprint(a)', choices: ['[1, 2]', '[1, 2, 3]', '[3]', 'Error'], answer: 1 },
   ],
 };
 
+// ─── JavaScript ──────────────────────────────────────────────────────────────
 const javascript: Bank = {
   easy: [
-    { prompt: 'Which keyword declares a value you can reassign?', choices: ['const', 'let', 'static', 'fixed'], answer: 1 },
-    { prompt: 'What does console.log(2 + 2) print?', choices: ['22', '4', '"2+2"', 'undefined'], answer: 1 },
-    { prompt: 'How do you write a single-line comment?', choices: ['# note', '// note', '<!-- note', '-- note'], answer: 1 },
+    { prompt: 'Which keyword declares a variable that can be reassigned?', choices: ['const', 'let', 'static', 'fixed'], answer: 1 },
+    { prompt: 'What does console.log(typeof "hello") print?', choices: ['string', 'text', 'str', 'char'], answer: 0 },
+    { prompt: 'What does [1, 2, 3].length return?', choices: ['2', '3', '4', '0'], answer: 1 },
+    { prompt: 'How do you write a single-line comment in JS?', choices: ['# note', '// note', '<!-- note', '-- note'], answer: 1 },
+    { prompt: 'What does === check?', choices: ['Value only', 'Value and type', 'Memory address', 'String length'], answer: 1 },
+    { prompt: 'Which method adds an item to the end of an array?', choices: ['push()', 'add()', 'append()', 'insert()'], answer: 0 },
+    { prompt: 'What does null == undefined evaluate to?', choices: ['false', 'true', 'null', 'TypeError'], answer: 1 },
+    { prompt: 'What is the output of 0.1 + 0.2 === 0.3?', choices: ['true', 'false', 'NaN', 'Error'], answer: 1 },
+    { prompt: 'Which loop is used to iterate over object keys?', choices: ['for...of', 'for...in', 'forEach', 'while'], answer: 1 },
+    { prompt: 'What does document.getElementById("x") return if "x" does not exist?', choices: ['undefined', 'null', 'false', 'Error'], answer: 1 },
   ],
   medium: [
-    { prompt: 'What is typeof "5"?', choices: ['number', 'string', 'boolean', 'object'], answer: 1 },
-    { prompt: 'Which method adds an item to the end of an array?', choices: ['push', 'add', 'append', 'insert'], answer: 0 },
-    { prompt: 'What does [10, 20, 30][0] return?', choices: ['20', '30', '10', 'undefined'], answer: 2 },
+    { prompt: 'What is the output?\n\nconst a = [1, 2, 3];\nconst b = [...a, 4];\nconst c = b;\nc.push(5);\nconsole.log(a.length);', choices: ['3', '4', '5', '6'], answer: 0 },
+    { prompt: 'What does Promise.all([p1, p2]) do?', choices: ['Runs them one after another', 'Resolves when all resolve, rejects if any rejects', 'Always resolves', 'Returns the fastest'], answer: 1 },
+    { prompt: 'What is a closure in JavaScript?', choices: ['A syntax to close a tag', 'A function that captures its outer scope variables', 'A way to end a loop', 'An error boundary'], answer: 1 },
+    { prompt: 'What does Array.prototype.map return?', choices: ['The original array mutated', 'A new array of same length', 'A filtered array', 'undefined'], answer: 1 },
+    { prompt: 'What is the output of typeof null?', choices: ['"null"', '"undefined"', '"object"', '"boolean"'], answer: 2 },
+    { prompt: 'What does async/await do under the hood?', choices: ['Runs code in a worker thread', 'Wraps Promises in syntactic sugar', 'Prevents garbage collection', 'Runs synchronously always'], answer: 1 },
+    { prompt: 'What is event delegation?', choices: ['Attaching listeners to every child', 'Listening on a parent to handle child events via bubbling', 'Blocking default events', 'Cloning event objects'], answer: 1 },
+    { prompt: 'What does Object.keys({a:1, b:2}) return?', choices: ['[1, 2]', '["a", "b"]', '{a:1}', 'undefined'], answer: 1 },
+    { prompt: 'Which array method returns a new array excluding items?', choices: ['splice', 'filter', 'shift', 'fill'], answer: 1 },
+    { prompt: 'What does the ?? operator do?', choices: ['Bitwise OR', 'Returns right side if left is null or undefined', 'Strict equality', 'Logical NOT'], answer: 1 },
   ],
   hard: [
-    { prompt: 'What does === compare?', choices: ['Value only, with conversion', 'Value and type', 'Memory address only', 'String length'], answer: 1 },
-    { prompt: 'Which array method returns a new array of transformed items?', choices: ['forEach', 'map', 'push', 'sort in place only'], answer: 1 },
-    { prompt: 'A Promise that fails is handled with:', choices: ['.then only', '.catch or try/catch around await', 'JSON.parse', 'console.log'], answer: 1 },
+    { prompt: 'What is the output?\n\nconst obj = {a: 1};\nObject.freeze(obj);\nobj.a = 2;\nconsole.log(obj.a);', choices: ['2', '1', 'undefined', 'TypeError'], answer: 1 },
+    { prompt: 'What does the Proxy object allow you to do?', choices: ['Copy an object', 'Intercept and redefine fundamental operations on an object', 'Freeze an object', 'Serialize to JSON'], answer: 1 },
+    { prompt: 'What is the difference between microtasks and macrotasks?', choices: ['Microtasks run first after each task before the next macrotask', 'Macrotasks are always faster', 'Microtasks are synchronous', 'They are identical'], answer: 0 },
+    { prompt: 'What does WeakMap differ from Map?', choices: ['WeakMap is faster always', 'Keys must be objects and are weakly referenced (can be GC\'d)', 'WeakMap allows primitive keys', 'WeakMap is immutable'], answer: 1 },
+    { prompt: 'What is a generator function?', choices: ['A constructor for arrays', 'A function that can pause and resume using yield', 'A higher-order function', 'A function that never returns'], answer: 1 },
+    { prompt: 'What does structuredClone(obj) do?', choices: ['Returns a shallow copy', 'Returns a deep clone of a serialisable object', 'Freezes the object', 'Returns JSON.stringify result'], answer: 1 },
+    { prompt: 'What is the temporal dead zone?', choices: ['When the DOM is not ready', 'The period between hoisting and initialisation of let/const', 'A timeout for Promises', 'Garbage collected memory'], answer: 1 },
+    { prompt: 'What does Symbol.iterator enable?', choices: ['Unique property keys', 'Custom iteration with for...of', 'Symbol comparisons', 'Private class fields'], answer: 1 },
+    { prompt: 'What is the output?\n\nconsole.log(1 + "2" + 3);', choices: ['"123"', '6', '"15"', 'NaN'], answer: 0 },
+    { prompt: 'What does Reflect.ownKeys(obj) return compared to Object.keys(obj)?', choices: ['Same result always', 'Also includes Symbols and non-enumerable keys', 'Only Symbol keys', 'Only inherited keys'], answer: 1 },
   ],
 };
-
+// ─── TypeScript ──────────────────────────────────────────────────────────────
 const typescript: Bank = {
   easy: [
-    { prompt: 'TypeScript adds what on top of JavaScript?', choices: ['A new browser', 'Static types', 'A database', 'CSS'], answer: 1 },
-    { prompt: 'Which annotation matches a whole number variable?', choices: ['name: string', 'count: number', 'ok: array', 'id: html'], answer: 1 },
-    { prompt: 'A TypeScript file commonly uses which extension?', choices: ['.py', '.ts', '.sql', '.md'], answer: 1 },
+    { prompt: 'Which keyword adds a type annotation to a variable in TypeScript?', choices: ['types', 'colon (:) after the name', 'typeof', 'declare'], answer: 1 },
+    { prompt: 'What is the TypeScript type for a variable that can be any value?', choices: ['unknown', 'any', 'object', 'generic'], answer: 1 },
+    { prompt: 'What does the readonly modifier do to a property?', choices: ['Hides it from IntelliSense', 'Prevents reassignment after initialisation', 'Makes it optional', 'Removes it at runtime'], answer: 1 },
+    { prompt: 'How do you mark a function parameter as optional?', choices: ['Prefix with ?', 'Suffix with ?', 'Wrap in Optional<>', 'Use the maybe keyword'], answer: 1 },
+    { prompt: 'What is the inferred type of: const x = [1, 2, 3]?', choices: ['any[]', 'Array<number>', 'number[]', 'Both B and C are correct'], answer: 3 },
+    { prompt: 'Which type describes a function that returns nothing?', choices: ['null', 'undefined', 'void', 'never'], answer: 2 },
+    { prompt: 'What does the union type string | number mean?', choices: ['A value that is both simultaneously', 'A value that is either a string or a number', 'An intersection of both', 'A tuple'], answer: 1 },
+    { prompt: 'What does interface vs type alias differ in primarily?', choices: ['interfaces cannot describe functions', 'interfaces can be reopened/merged; type aliases cannot', 'type aliases compile away; interfaces stay', 'No difference at all'], answer: 1 },
+    { prompt: 'What type does TypeScript infer for the return of () => { return 1; }?', choices: ['void', 'any', 'number', 'unknown'], answer: 2 },
+    { prompt: 'How do you assert a value as a specific type at compile time?', choices: ['Using cast()', 'Using as TypeName or <TypeName>value', 'Using assert()', 'Using ensure()'], answer: 1 },
   ],
   medium: [
-    { prompt: 'An interface describes:', choices: ['Runtime memory', 'The shape of an object', 'A CSS class', 'A git branch'], answer: 1 },
-    { prompt: 'string | number means the value may be:', choices: ['Neither', 'Either type', 'Always both at once', 'Only null'], answer: 1 },
-    { prompt: 'What does the ? in user?: string mean?', choices: ['The field is required', 'The field is optional', 'The field is a number', 'The field is private'], answer: 1 },
+    { prompt: 'What does Partial<T> do?', choices: ['Makes all properties required', 'Makes all properties optional', 'Removes all properties', 'Picks specific properties'], answer: 1 },
+    { prompt: 'What does keyof T produce?', choices: ['The values of T', 'A union of the keys of T', 'An array of keys of T', 'The prototype of T'], answer: 1 },
+    { prompt: 'Given function identity<T>(x: T): T, what is T when called with identity(42)?', choices: ['any', 'unknown', 'number', 'object'], answer: 2 },
+    { prompt: 'What does Record<string, number> represent?', choices: ['An array of numbers', 'An object with string keys and number values', 'A Map object', 'A tuple'], answer: 1 },
+    { prompt: 'What does the NonNullable<T> utility type remove?', choices: ['undefined only', 'null only', 'null and undefined', 'any and unknown'], answer: 2 },
+    { prompt: 'What does ReturnType<typeof fn> give you?', choices: ['The parameter types of fn', 'The return type of fn', 'The name of fn', 'The class fn belongs to'], answer: 1 },
+    { prompt: 'What is a discriminated union?', choices: ['A union with no common properties', 'A union where each member has a unique literal property used to narrow', 'A union of primitive types only', 'A union that cannot be narrowed'], answer: 1 },
+    { prompt: 'What does the infer keyword do in conditional types?', choices: ['Infers at runtime', 'Extracts a type variable from a matched type pattern', 'Infers the return type of generics', 'Removes constraints'], answer: 1 },
+    { prompt: 'What does Readonly<T> do?', choices: ['Freezes the object at runtime', 'Makes all properties readonly at the type level', 'Prevents the object from being passed to functions', 'Deep-freezes nested types'], answer: 1 },
+    { prompt: 'Which utility type produces a new type with only specified keys from T?', choices: ['Omit<T, K>', 'Pick<T, K>', 'Extract<T, K>', 'Exclude<T, K>'], answer: 1 },
   ],
   hard: [
-    { prompt: 'A generic function is useful when:', choices: ['The type should stay flexible and still be checked', 'You want to skip errors', 'You only return strings', 'You delete types at runtime yourself'], answer: 0 },
-    { prompt: 'unknown is safer than any because:', choices: ['It turns off the compiler', 'You must narrow it before use', 'It is always a string', 'It allows implicit any'], answer: 1 },
-    { prompt: 'A type error in the editor means:', choices: ['The quiz is wrong', 'The value may not match the declared type', 'JavaScript deleted the file', 'The server is down'], answer: 1 },
+    { prompt: 'What does T extends U ? X : Y evaluate to when T is a union A | B?', choices: ['X | Y based on the whole union', '(A extends U ? X : Y) | (B extends U ? X : Y) — it distributes', 'X if any member extends U', 'A compile error'], answer: 1 },
+    { prompt: 'What does a mapped type { [K in keyof T]: ... } produce?', choices: ['A runtime loop over keys', 'A new type by transforming each property of T', 'An enum from T keys', 'A tuple of T values'], answer: 1 },
+    { prompt: 'What is a template literal type in TypeScript?', choices: ['A string concatenation helper', 'A type built by interpolating other types into a string literal', 'A runtime template engine', 'An ES6 feature only'], answer: 1 },
+    { prompt: 'What does the -? modifier in a mapped type do?', choices: ['Makes properties private', 'Removes the optional (?) marker from each property', 'Removes readonly', 'Negates the property type'], answer: 1 },
+    { prompt: 'What is the difference between unknown and any?', choices: ['They are identical', 'unknown requires narrowing before use; any bypasses all checks', 'any is safer than unknown', 'unknown allows any assignment'], answer: 1 },
+    { prompt: 'What does the never type represent?', choices: ['A nullable type', 'A type for values that can never occur (e.g. exhausted unions, throwing functions)', 'An alias for void', 'An unresolved generic'], answer: 1 },
+    { prompt: 'What is the purpose of satisfies in TypeScript 4.9+?', choices: ['Same as as assertion', 'Validates a value matches a type while preserving its literal inferred type', 'Declares a module', 'Marks a function as async'], answer: 1 },
+    { prompt: 'What does Awaited<T> do?', choices: ['Wraps T in a Promise', 'Recursively unwraps Promise types from T', 'Marks T as async', 'Returns the resolved value at runtime'], answer: 1 },
+    { prompt: 'How do you make a generic type only accept types that have a length property?', choices: ['<T extends any>', '<T extends { length: number }>', '<T where length>', '<T: HasLength>'], answer: 1 },
+    { prompt: 'What does a const assertion (as const) do to an object literal?', choices: ['Freezes it at runtime', 'Makes all properties readonly with literal types inferred', 'Converts it to a class instance', 'Removes excess properties'], answer: 1 },
   ],
 };
 
+// ─── React ───────────────────────────────────────────────────────────────────
 const react: Bank = {
   easy: [
-    { prompt: 'A React component returns:', choices: ['A database row', 'UI (JSX)', 'A CSS file only', 'A terminal command'], answer: 1 },
-    { prompt: 'Which hook stores a value that can change?', choices: ['useState', 'useCss', 'useSql', 'useGit'], answer: 0 },
-    { prompt: 'JSX looks closest to:', choices: ['SQL', 'HTML inside JavaScript', 'A shell script', 'A PDF'], answer: 1 },
+    { prompt: 'What does JSX stand for?', choices: ['JavaScript XML', 'Java Syntax Extension', 'JSON Executable', 'JavaScript Cross'], answer: 0 },
+    { prompt: 'Which hook lets you store state in a functional component?', choices: ['useEffect', 'useState', 'useRef', 'useMemo'], answer: 1 },
+    { prompt: 'What must every React component return?', choices: ['A string', 'A single JSX element (or null)', 'An array', 'An object'], answer: 1 },
+    { prompt: 'What is the correct way to pass a prop named title to a component?', choices: ['<Comp title="Hi"/>', '<Comp .title="Hi"/>', '<Comp :title="Hi"/>', '<Comp @title="Hi"/>'], answer: 0 },
+    { prompt: 'When does useEffect with an empty dependency array run?', choices: ['On every render', 'Only when state changes', 'Once after the first render', 'Never'], answer: 2 },
+    { prompt: 'What does React.Fragment let you do?', choices: ['Animate components', 'Group children without adding a DOM element', 'Memoize renders', 'Lazy-load a component'], answer: 1 },
+    { prompt: 'What is the key prop used for in a list?', choices: ['Styling list items', 'Identifying which items changed/moved for efficient reconciliation', 'Sorting the list', 'Filtering the list'], answer: 1 },
+    { prompt: 'What does useState return?', choices: ['Only the current value', 'Only the setter', 'A tuple of [currentValue, setter]', 'A ref object'], answer: 2 },
+    { prompt: 'How do you conditionally render a component in JSX?', choices: ['if/else outside JSX only', 'Ternary operator or && inside JSX', 'switch statement inside JSX', 'Using display:none prop'], answer: 1 },
+    { prompt: 'What is the virtual DOM?', choices: ['A browser API', 'An in-memory JS representation of the real DOM used to batch updates', 'A CSS selector engine', 'A server-side render cache'], answer: 1 },
   ],
   medium: [
-    { prompt: 'Props are:', choices: ['Inputs passed into a component', 'Secret server keys', 'CSS variables only', 'Database indexes'], answer: 0 },
-    { prompt: 'To render a list, you usually call:', choices: ['array.map', 'array.sql', 'array.git', 'array.ping'], answer: 0 },
-    { prompt: 'A click handler on a button is passed as:', choices: ['className', 'onClick', 'href only', 'key'], answer: 1 },
+    { prompt: 'What does useCallback memoize?', choices: ['A computed value', 'A function reference so it is stable across renders', 'A DOM node', 'A child component'], answer: 1 },
+    { prompt: 'What is the purpose of useMemo?', choices: ['To memoize a callback function', 'To memoize an expensive computed value', 'To cancel a side effect', 'To read a ref'], answer: 1 },
+    { prompt: 'What does React.memo do?', choices: ['Memoizes hook values', 'Prevents re-rendering a component when props have not changed', 'Creates a context', 'Defers rendering'], answer: 1 },
+    { prompt: 'What does the useContext hook do?', choices: ['Creates a new context', 'Reads the nearest matching context value', 'Subscribes to Redux store', 'Clones context'], answer: 1 },
+    { prompt: 'What is a controlled component?', choices: ['A component with no props', 'A form element whose value is driven by React state', 'A component wrapped in memo', 'A component with a ref'], answer: 1 },
+    { prompt: 'What does useReducer return?', choices: ['A single state value', '[state, dispatch]', '[state, reducer]', 'A context'], answer: 1 },
+    { prompt: 'What does lifting state up mean?', choices: ['Moving state to a global store', 'Moving state to the nearest common ancestor of components that need it', 'Removing state from a component', 'Using context instead of props'], answer: 1 },
+    { prompt: 'What is the purpose of the cleanup function returned by useEffect?', choices: ['To set initial state', 'To cancel subscriptions or timers when the effect re-runs or component unmounts', 'To trigger a re-render', 'To reset context'], answer: 1 },
+    { prompt: 'When does React batch state updates (since React 18)?', choices: ['Never', 'Only in event handlers', 'By default in all scenarios including timeouts and Promises', 'Only with useTransition'], answer: 2 },
+    { prompt: 'What is code-splitting with React.lazy used for?', choices: ['Splitting CSS files', 'Dynamically importing components to reduce initial bundle size', 'Splitting the Redux store', 'Splitting routes from hooks'], answer: 1 },
   ],
   hard: [
-    { prompt: 'Why do list items need a stable key?', choices: ['So React can match rows when the list changes', 'To set the page title', 'To hash the password', 'To open a new tab'], answer: 0 },
-    { prompt: 'Lifting state up means:', choices: ['Putting shared state in a parent', 'Deleting useState', 'Moving CSS to the database', 'Inlining every style'], answer: 0 },
-    { prompt: 'useEffect with an empty dependency array runs:', choices: ['On every keystroke', 'After the first render', 'Only during CSS paint', 'Never'], answer: 1 },
+    { prompt: 'What is React Fiber?', choices: ['A new CSS engine', 'The reconciliation engine rewrite enabling incremental rendering and prioritisation', 'A data-fetching library', 'A new JSX syntax'], answer: 1 },
+    { prompt: 'What does useTransition do?', choices: ['Animates component transitions', 'Marks a state update as non-urgent to keep the UI responsive', 'Defers the entire render', 'Removes a component from the tree'], answer: 1 },
+    { prompt: 'What is the difference between useDeferredValue and useTransition?', choices: ['They are identical', 'useDeferredValue defers a value you do not control; useTransition wraps your own state update', 'useTransition is for animations only', 'useDeferredValue is deprecated'], answer: 1 },
+    { prompt: 'What is Concurrent Mode in React 18?', choices: ['A new CSS mode', 'A rendering model where React can interrupt, pause, and resume rendering for responsiveness', 'A multi-threading API', 'A server rendering feature'], answer: 1 },
+    { prompt: 'What does the Suspense component do?', choices: ['Handles errors', 'Shows a fallback while waiting for lazy or async data to load', 'Memoizes children', 'Runs effects asynchronously'], answer: 1 },
+    { prompt: 'What is an error boundary?', choices: ['A try/catch in JSX', 'A class component that catches render errors in its subtree and shows a fallback', 'A hook for handling async errors', 'A router guard'], answer: 1 },
+    { prompt: 'What does the useImperativeHandle hook do?', choices: ['Creates imperative animations', 'Customises the ref value exposed to the parent when using forwardRef', 'Replaces useRef', 'Gives direct DOM access'], answer: 1 },
+    { prompt: 'What is the render prop pattern?', choices: ['Passing a component as a prop via JSX', 'Passing a function as a prop that a component calls to determine what to render', 'Rendering a list of props', 'Cloning elements with new props'], answer: 1 },
+    { prompt: 'What is the purpose of React.createPortal?', choices: ['Creates a context portal', 'Renders children into a DOM node outside the parent component tree', 'Creates an isolated React root', 'Defers hydration'], answer: 1 },
+    { prompt: 'What does hydration mean in the context of React SSR?', choices: ['Adding water to static HTML', 'Attaching React event handlers and state to server-rendered HTML on the client', 'Re-fetching data on the client', 'Converting JSX to HTML'], answer: 1 },
   ],
 };
 
+// ─── Java ────────────────────────────────────────────────────────────────────
 const java: Bank = {
   easy: [
-    { prompt: 'A Java program starts in which method?', choices: ['start()', 'main', 'runWeb()', 'initSql()'], answer: 1 },
-    { prompt: 'Which type stores text?', choices: ['int', 'String', 'boolean only', 'double only'], answer: 1 },
-    { prompt: 'A statement ends with:', choices: [':', ';', '#', '>>'], answer: 1 },
+    { prompt: 'Which keyword is used to define a class in Java?', choices: ['object', 'class', 'struct', 'type'], answer: 1 },
+    { prompt: 'What is the entry point of a Java application?', choices: ['init()', 'run()', 'start()', 'public static void main(String[] args)'], answer: 3 },
+    { prompt: 'Which data type stores a single character in Java?', choices: ['String', 'char', 'byte', 'letter'], answer: 1 },
+    { prompt: 'What does System.out.println("Hi") do?', choices: ['Reads a line', 'Prints "Hi" followed by a newline', 'Opens a stream', 'Throws an exception'], answer: 1 },
+    { prompt: 'What is the default value of an int field in a Java class?', choices: ['null', '1', '0', 'undefined'], answer: 2 },
+    { prompt: 'Which keyword prevents a method from being overridden?', choices: ['static', 'private', 'final', 'abstract'], answer: 2 },
+    { prompt: 'What is the difference between == and .equals() for String in Java?', choices: ['They are identical', '== compares references; .equals() compares content', '.equals() compares references', '== compares content'], answer: 1 },
+    { prompt: 'Which access modifier makes a member visible only within the same class?', choices: ['protected', 'default', 'public', 'private'], answer: 3 },
+    { prompt: 'What does the new keyword do in Java?', choices: ['Declares a type', 'Allocates memory and calls a constructor', 'Copies an object', 'Imports a class'], answer: 1 },
+    { prompt: 'Which of the following is a valid integer literal in Java?', choices: ['0x1F', '1_000', '0b1010', 'All of the above'], answer: 3 },
   ],
   medium: [
-    { prompt: 'new ArrayList<>() creates:', choices: ['A fixed primitive array only', 'A resizable list', 'A database', 'A thread pool'], answer: 1 },
-    { prompt: 'Which keyword inherits a class?', choices: ['implements only', 'extends', 'imports', 'throws'], answer: 1 },
-    { prompt: 'System.out.println is used to:', choices: ['Compile the file', 'Print a line', 'Open a socket', 'Delete a class'], answer: 1 },
+    { prompt: 'What does ArrayList differ from LinkedList in Java?', choices: ['ArrayList is sorted by default', 'ArrayList uses a dynamic array (fast get); LinkedList uses nodes (fast insert/delete)', 'LinkedList allows duplicates; ArrayList does not', 'They are identical'], answer: 1 },
+    { prompt: 'What does the throws keyword in a method signature indicate?', choices: ['The method handles the exception', 'The method may propagate a checked exception to the caller', 'The method will always throw', 'The method is abstract'], answer: 1 },
+    { prompt: 'What is a lambda expression in Java?', choices: ['An anonymous inner class', 'A concise way to implement a functional interface', 'A recursive method', 'A static method reference'], answer: 1 },
+    { prompt: 'What does HashMap.get(key) return when the key is absent?', choices: ['0', 'An empty Optional', 'null', 'KeyError'], answer: 2 },
+    { prompt: 'What does the Optional class help avoid?', choices: ['ConcurrentModificationException', 'ClassCastException', 'NullPointerException', 'StackOverflowError'], answer: 2 },
+    { prompt: 'What is autoboxing in Java?', choices: ['Putting primitives in an array', 'Automatic conversion between primitives and their wrapper types', 'Casting between numeric types', 'Packing objects into collections'], answer: 1 },
+    { prompt: 'What does the Stream.filter() method return?', choices: ['A modified original stream', 'A new stream with only matching elements', 'A List of matching elements', 'An Optional'], answer: 1 },
+    { prompt: 'What is the difference between Comparable and Comparator?', choices: ['They are the same interface', 'Comparable defines natural order on the class; Comparator is an external ordering strategy', 'Comparator is built into the class', 'Comparable takes two arguments'], answer: 1 },
+    { prompt: 'What does try-with-resources guarantee?', choices: ['The resource is reused', 'The resource is closed automatically whether or not an exception occurs', 'Exceptions are suppressed', 'The block runs in a new thread'], answer: 1 },
+    { prompt: 'What does Collections.unmodifiableList() return?', choices: ['A deep copy', 'A view that throws UnsupportedOperationException on mutations', 'A sorted list', 'An immutable copy'], answer: 1 },
   ],
   hard: [
-    { prompt: 'An interface can be implemented by:', choices: ['Only one class in the whole program', 'Any class that supplies the methods', 'Only static methods', 'Only the main class'], answer: 1 },
-    { prompt: 'equals() is preferred over == for Strings because:', choices: ['== compares references, equals compares contents', '== is slower always', 'equals ignores the JVM', '== checks SQL'], answer: 0 },
-    { prompt: 'A checked exception must be:', choices: ['Ignored', 'Caught or declared with throws', 'Cast to int', 'Printed only'], answer: 1 },
+    { prompt: 'What is the difference between synchronized method and ReentrantLock in Java concurrency?', choices: ['They are identical', 'ReentrantLock offers tryLock, interruptible lock, and fairness; synchronized is simpler but less flexible', 'synchronized is non-blocking', 'ReentrantLock is slower always'], answer: 1 },
+    { prompt: 'What does volatile guarantee for a field in Java?', choices: ['Atomicity of compound operations', 'Visibility: writes are flushed to main memory and reads always see the latest value', 'Mutual exclusion', 'The field is immutable'], answer: 1 },
+    { prompt: 'What is the purpose of the ForkJoinPool?', choices: ['File I/O parallelism', 'Divide-and-conquer parallelism using work-stealing across threads', 'Network request batching', 'Connection pooling'], answer: 1 },
+    { prompt: 'What does the JIT compiler do at runtime?', choices: ['Parses bytecode to Java', 'Compiles frequently executed bytecode to native machine code for speed', 'Garbage-collects objects', 'Loads classes from disk'], answer: 1 },
+    { prompt: 'What is the difference between G1GC and ZGC?', choices: ['G1GC is concurrent; ZGC is not', 'ZGC targets sub-millisecond pauses; G1GC trades lower pause for higher throughput', 'ZGC is older than G1GC', 'They are identical garbage collectors'], answer: 1 },
+    { prompt: 'What is a deadlock and how is it prevented?', choices: ['A thread sleeping too long; prevented by sleep()', 'Two threads waiting on each other indefinitely; prevented by consistent lock ordering or timeouts', 'A StackOverflowError; prevented by recursion limits', 'A memory leak; prevented by finalize()'], answer: 1 },
+    { prompt: 'What does CompletableFuture.thenCompose() do vs thenApply()?', choices: ['They are identical', 'thenCompose flattens a nested CompletableFuture (flatMap); thenApply transforms the value (map)', 'thenApply flattens; thenCompose transforms', 'thenCompose is synchronous'], answer: 1 },
+    { prompt: 'What is a PhantomReference used for?', choices: ['Soft caching', 'Detecting when an object is about to be collected for cleanup actions', 'Weak event listeners', 'Strong references in pools'], answer: 1 },
+    { prompt: 'What does the invokedynamic bytecode instruction enable?', choices: ['Reflection bypasses', 'Dynamic method dispatch used by lambdas and scripting languages on the JVM', 'Native method calls', 'Direct memory access'], answer: 1 },
+    { prompt: 'What is the difference between a checked and an unchecked exception in Java?', choices: ['Checked extends Error; unchecked extends Exception', 'Checked must be declared or caught at compile time; unchecked (RuntimeException) need not be', 'Unchecked is always fatal', 'Checked cannot be caught'], answer: 1 },
   ],
 };
 
+// ─── C++ ─────────────────────────────────────────────────────────────────────
 const cpp: Bank = {
   easy: [
-    { prompt: 'Which header lets you use cout?', choices: ['<iostream>', '<python.h>', '<sql>', '<react>'], answer: 0 },
-    { prompt: 'A whole number variable is often:', choices: ['int', 'cout', 'include', 'class only'], answer: 0 },
-    { prompt: 'A line comment starts with:', choices: ['#', '//', '<!--', '"""'], answer: 1 },
+    { prompt: 'What does the * operator do when applied to a pointer variable?', choices: ['Gets the address', 'Dereferences the pointer to access the value', 'Multiplies by zero', 'Creates a new pointer'], answer: 1 },
+    { prompt: 'What is the difference between stack and heap allocation in C++?', choices: ['Stack is slower', 'Stack is automatic/scoped; heap uses new/delete and is manual', 'Heap is faster always', 'No difference in C++'], answer: 1 },
+    { prompt: 'What does cout << "Hi" << endl; do?', choices: ['Reads input', 'Prints "Hi" followed by a newline and flushes', 'Declares a stream', 'Throws an exception'], answer: 1 },
+    { prompt: 'What is a reference variable in C++?', choices: ['A pointer to a pointer', 'An alias for another variable', 'A const pointer', 'A dangling variable'], answer: 1 },
+    { prompt: 'Which of the following declares a constant integer in C++?', choices: ['int const x = 5;', 'const int x = 5;', 'Both A and B', 'constant int x = 5;'], answer: 2 },
+    { prompt: 'What does delete[] p; do?', choices: ['Deletes the pointer variable', 'Frees memory allocated for an array', 'Clears the array elements', 'Calls destructor once'], answer: 1 },
+    { prompt: 'What is the default access specifier for members of a struct in C++?', choices: ['private', 'protected', 'public', 'internal'], answer: 2 },
+    { prompt: 'What does the :: operator denote?', choices: ['Namespace/scope resolution', 'Pointer dereference', 'Member access through pointer', 'Bitwise OR'], answer: 0 },
+    { prompt: 'What is the difference between ++i and i++ in an expression?', choices: ['No difference', '++i increments then returns new value; i++ returns old value then increments', 'i++ is faster', '++i is undefined'], answer: 1 },
+    { prompt: 'What does #include <iostream> do?', choices: ['Links the iostream library', 'Includes declarations for standard I/O objects like cin and cout', 'Runs the iostream program', 'Defines main()'], answer: 1 },
   ],
   medium: [
-    { prompt: 'What does std::vector give you?', choices: ['A resizable array', 'A web server', 'A CSS grid', 'A git remote'], answer: 0 },
-    { prompt: 'A pointer stores:', choices: ['The color of a button', 'An address', 'A database URL only', 'A JSX tag'], answer: 1 },
-    { prompt: 'Which loop runs while a condition is true?', choices: ['while', 'class', 'namespace', 'template'], answer: 0 },
+    { prompt: 'What is RAII?', choices: ['A sorting algorithm', 'Resource Acquisition Is Initialisation — tying resource lifetime to object lifetime', 'A compiler optimisation', 'A template technique'], answer: 1 },
+    { prompt: 'What does std::unique_ptr guarantee?', choices: ['Shared ownership', 'Exclusive ownership and automatic deletion when it goes out of scope', 'Thread safety', 'Reference counting'], answer: 1 },
+    { prompt: 'What is a copy constructor?', choices: ['A constructor that takes no arguments', 'A constructor that creates a new object as a copy of another object of the same type', 'A constructor called by move', 'A default constructor'], answer: 1 },
+    { prompt: 'What does the override keyword do in C++11?', choices: ['Hides the base method', 'Explicitly marks a virtual method as overriding a base class virtual', 'Makes the method final', 'Makes the method virtual'], answer: 1 },
+    { prompt: 'What does std::vector::reserve() do?', choices: ['Adds elements', 'Pre-allocates capacity without changing size', 'Clears the vector', 'Sorts the vector'], answer: 1 },
+    { prompt: 'What is a virtual destructor and why is it needed?', choices: ['It runs in reverse order', 'Ensures the derived destructor is called when deleting through a base pointer', 'Prevents object deletion', 'It is only cosmetic'], answer: 1 },
+    { prompt: 'What is the difference between std::map and std::unordered_map?', choices: ['unordered_map is sorted', 'map uses a balanced BST (O(log n)); unordered_map uses a hash table (O(1) average)', 'map allows duplicate keys', 'They are identical'], answer: 1 },
+    { prompt: 'What does the explicit keyword on a constructor do?', choices: ['Makes construction faster', 'Prevents implicit conversions from using that constructor', 'Makes the constructor virtual', 'Disables copy construction'], answer: 1 },
+    { prompt: 'What is an initialiser list (member initialiser list) used for?', choices: ['Initialising STL containers', 'Initialising member variables before the constructor body runs', 'Initialising global variables', 'Declaring member functions'], answer: 1 },
+    { prompt: 'What does std::move() do?', choices: ['Copies the object', 'Casts the argument to an rvalue reference to enable move semantics', 'Moves memory on the heap', 'Swaps two objects'], answer: 1 },
   ],
   hard: [
-    { prompt: 'A reference parameter differs from pass-by-value because:', choices: ['The function can use the caller’s object', 'It always copies 1 byte', 'It deletes the caller', 'It only works for strings'], answer: 0 },
-    { prompt: 'delete is paired with memory from:', choices: ['new', 'cout', 'include', 'return'], answer: 0 },
-    { prompt: 'A class destructor runs when:', choices: ['The object’s lifetime ends', 'The file is named .cpp', 'main starts', 'You print Hello'], answer: 0 },
+    { prompt: 'What is undefined behaviour (UB) in C++ and why is it dangerous?', choices: ['A runtime error that is always caught', 'Code whose semantics are not defined by the standard — the compiler may do anything', 'A compile warning only', 'An exception type'], answer: 1 },
+    { prompt: 'What is the rule of five in C++11?', choices: ['Five things to initialise', 'If you define destructor/copy-ctor/copy-assign, also define move-ctor and move-assign', 'Five base classes max', 'Five virtual methods limit'], answer: 1 },
+    { prompt: 'What is template specialisation?', choices: ['Picking a template at random', 'Providing a custom implementation of a template for a specific type', 'Disabling a template', 'Inheriting from a template'], answer: 1 },
+    { prompt: 'What is SFINAE?', choices: ['A linker flag', 'Substitution Failure Is Not An Error — failed template substitution removes an overload silently', 'A runtime check', 'A memory model term'], answer: 1 },
+    { prompt: 'What is the difference between std::shared_ptr and std::weak_ptr?', choices: ['They are identical', 'shared_ptr owns the resource; weak_ptr observes without owning (breaks cycles)', 'weak_ptr owns; shared_ptr observes', 'weak_ptr is thread-safe; shared_ptr is not'], answer: 1 },
+    { prompt: 'What does constexpr mean in C++11?', choices: ['A runtime constant', 'The value or function can be evaluated at compile time', 'An immutable type', 'A linker optimisation'], answer: 1 },
+    { prompt: 'What is a variadic template?', choices: ['A template with one type parameter', 'A template that accepts a variable number of type parameters', 'A template for containers only', 'A macro replacement'], answer: 1 },
+    { prompt: 'What is copy elision / RVO?', choices: ['Skipping copy construction via compiler optimisation when creating from a return value', 'Erasing elements from a vector', 'Disabling the copy constructor', 'Moving instead of copying always'], answer: 0 },
+    { prompt: 'What does std::atomic<int> guarantee?', choices: ['Mutex-level locking', 'Lock-free or hardware-level atomic read-modify-write operations', 'No concurrency support', 'Thread-local storage'], answer: 1 },
+    { prompt: 'What is the strict aliasing rule in C++?', choices: ['Pointers of different types can freely alias', 'Accessing an object through a pointer of an incompatible type is UB', 'All pointers alias to void*', 'Aliasing applies only to structs'], answer: 1 },
   ],
 };
 
-const sql: Bank = {
-  easy: [
-    { prompt: 'Which statement reads rows?', choices: ['SELECT', 'DELETE TABLE', 'PUSH', 'RENDER'], answer: 0 },
-    { prompt: 'WHERE is used to:', choices: ['Filter rows', 'Draw a button', 'Compile Java', 'Start git'], answer: 0 },
-    { prompt: 'A table is made of:', choices: ['Rows and columns', 'Only CSS', 'Only functions', 'Threads'], answer: 0 },
-  ],
-  medium: [
-    { prompt: 'COUNT(*) returns:', choices: ['The first name', 'How many rows match', 'A foreign key file', 'The server port'], answer: 1 },
-    { prompt: 'INNER JOIN keeps rows that:', choices: ['Match in both tables', 'Exist only on the left always', 'Have no key', 'Are comments'], answer: 0 },
-    { prompt: 'ORDER BY name ASC sorts:', choices: ['A to Z', 'Randomly', 'By file size', 'By CSS color'], answer: 0 },
-  ],
-  hard: [
-    { prompt: 'A primary key should be:', choices: ['Unique for each row', 'Repeated on every row', 'A CSS class', 'Optional and duplicated'], answer: 0 },
-    { prompt: 'An index mainly helps:', choices: ['Lookups on a column', 'Printing HTML', 'Renaming a repo', 'Closing a laptop'], answer: 0 },
-    { prompt: 'GROUP BY is used when you want:', choices: ['One result per group, often with COUNT or SUM', 'To delete the database', 'To join CSS', 'To start a transaction named git'], answer: 0 },
-  ],
-};
-
+// ─── DSA ─────────────────────────────────────────────────────────────────────
 const dsa: Bank = {
   easy: [
-    { prompt: 'An array gives you:', choices: ['Indexed items in order', 'A CSS layout', 'A remote server', 'An email inbox'], answer: 0 },
-    { prompt: 'A stack removes the item that was:', choices: ['Added last', 'Added first only', 'Random', 'Never stored'], answer: 0 },
-    { prompt: 'Big-O describes:', choices: ['How the work grows as input grows', 'The font size', 'The college name', 'A password'], answer: 0 },
+    { prompt: 'What is the time complexity of accessing an element in an array by index?', choices: ['O(n)', 'O(log n)', 'O(1)', 'O(n²)'], answer: 2 },
+    { prompt: 'Which data structure follows FIFO (First In First Out) order?', choices: ['Stack', 'Queue', 'Tree', 'Heap'], answer: 1 },
+    { prompt: 'What is the worst-case time complexity of linear search?', choices: ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)'], answer: 2 },
+    { prompt: 'Which data structure uses LIFO (Last In First Out)?', choices: ['Queue', 'Stack', 'LinkedList', 'Deque'], answer: 1 },
+    { prompt: 'What does Big-O notation describe?', choices: ['Exact runtime in ms', 'The growth rate of an algorithm as input size grows', 'Memory used in bytes', 'Number of function calls'], answer: 1 },
+    { prompt: 'What is a singly linked list?', choices: ['A list stored in contiguous memory', 'Nodes where each has a value and a pointer to the next node', 'A list with two pointers per node', 'A circular array'], answer: 1 },
+    { prompt: 'What is the height of a balanced binary tree with n nodes?', choices: ['O(n)', 'O(log n)', 'O(1)', 'O(n²)'], answer: 1 },
+    { prompt: 'Which sorting algorithm has O(n) best-case complexity when input is nearly sorted?', choices: ['Merge sort', 'Heap sort', 'Insertion sort', 'Quick sort'], answer: 2 },
+    { prompt: 'What is a hash collision?', choices: ['When two keys produce the same hash value', 'When a hash table is full', 'When a key is not found', 'When a hash function is slow'], answer: 0 },
+    { prompt: 'What is the space complexity of storing n elements in an array?', choices: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'], answer: 2 },
   ],
   medium: [
-    { prompt: 'A queue removes the item that was:', choices: ['Added first', 'Added last', 'Largest only', 'A pointer'], answer: 0 },
-    { prompt: 'Binary search needs the array to be:', choices: ['Sorted', 'Empty', 'Only strings of length 1', 'Unsorted on purpose'], answer: 0 },
-    { prompt: 'A linked list node stores:', choices: ['A value and a link to the next node', 'Only CSS', 'A whole database', 'A git commit message only'], answer: 0 },
+    { prompt: 'What is the average time complexity of quicksort?', choices: ['O(n²)', 'O(n log n)', 'O(n)', 'O(log n)'], answer: 1 },
+    { prompt: 'What is an in-order traversal of a BST?', choices: ['Root, Left, Right', 'Left, Right, Root', 'Left, Root, Right — produces sorted order', 'Right, Root, Left'], answer: 2 },
+    { prompt: 'What does BFS use to track nodes to visit?', choices: ['Stack', 'Queue', 'Priority queue', 'Recursion stack'], answer: 1 },
+    { prompt: 'What is a min-heap?', choices: ['A heap where the max element is at the root', 'A complete binary tree where each parent is smaller than its children', 'A sorted array', 'A balanced BST'], answer: 1 },
+    { prompt: 'What is the purpose of a sentinel node in a linked list?', choices: ['To store the size', 'A dummy node at head/tail to simplify edge-case handling', 'To mark deleted nodes', 'To improve cache performance'], answer: 1 },
+    { prompt: 'What is the time complexity of heapify on an array of n elements?', choices: ['O(n log n)', 'O(n)', 'O(log n)', 'O(n²)'], answer: 1 },
+    { prompt: 'What does the two-pointer technique typically require as a precondition?', choices: ['A hash map', 'The array to be sorted or for pointers to move in opposite directions', 'A stack', 'A queue'], answer: 1 },
+    { prompt: 'What is a trie (prefix tree) primarily used for?', choices: ['Sorting numbers', 'Fast prefix-based string lookup and autocomplete', 'Graph traversal', 'Hashing strings'], answer: 1 },
+    { prompt: 'What distinguishes a spanning tree from a minimum spanning tree?', choices: ['A spanning tree must be directed', 'A minimum spanning tree has the smallest total edge weight', 'Spanning trees have cycles', 'They are identical'], answer: 1 },
+    { prompt: 'What is amortised O(1) complexity for dynamic array append?', choices: ['Every append is exactly O(1)', 'Most appends are O(1); occasional resizes cost O(n) but average out to O(1)', 'Only the first append is O(1)', 'It applies only to deletion'], answer: 1 },
   ],
   hard: [
-    { prompt: 'A hash map average lookup is:', choices: ['Constant time if the hash spreads well', 'Always slower than linear search', 'Impossible', 'Equal to n!'], answer: 0 },
-    { prompt: 'DFS on a graph needs a visited set so you:', choices: ['Do not loop forever on a cycle', 'Sort the alphabet', 'Print HTML', 'Drop every edge'], answer: 0 },
-    { prompt: 'A balanced BST keeps search near:', choices: ['log n', 'n squared always, even when balanced', 'The size of the monitor', '1 byte total'], answer: 0 },
+    { prompt: 'What does Dijkstra algorithm fail on?', choices: ['Disconnected graphs', 'Graphs with negative-weight edges', 'Dense graphs', 'Undirected graphs'], answer: 1 },
+    { prompt: 'What is the time complexity of Floyd-Warshall?', choices: ['O(V + E)', 'O(V²)', 'O(V³)', 'O(E log V)'], answer: 2 },
+    { prompt: 'What is the optimal substructure property required for DP?', choices: ['Overlapping subproblems only', 'The optimal solution to the whole contains optimal solutions to subproblems', 'Greedy choice sufficiency', 'No repeated subproblems'], answer: 1 },
+    { prompt: 'What does the Bellman-Ford algorithm handle that Dijkstra cannot?', choices: ['Undirected graphs', 'Negative weight edges (and detects negative cycles)', 'Disconnected graphs', 'Weighted trees'], answer: 1 },
+    { prompt: 'What is a topological sort used for?', choices: ['Sorting numbers', 'Ordering vertices in a DAG such that all edges go from earlier to later', 'Finding shortest paths', 'Detecting cycles in undirected graphs'], answer: 1 },
+    { prompt: 'What is the time complexity of LCS (Longest Common Subsequence) DP?', choices: ['O(n)', 'O(n log n)', 'O(nm) where n and m are string lengths', 'O(2^n)'], answer: 2 },
+    { prompt: 'What is the purpose of Union-Find (Disjoint Set Union)?', choices: ['Topological sorting', 'Efficiently merging sets and checking if two elements are in the same set', 'Shortest path finding', 'Minimum spanning tree only'], answer: 1 },
+    { prompt: 'What is a segment tree used for?', choices: ['String matching', 'Range queries and point updates in O(log n)', 'Graph colouring', 'Hash collision resolution'], answer: 1 },
+    { prompt: 'What is the difference between memoisation and tabulation in DP?', choices: ['They produce different results', 'Memoisation is top-down with a cache; tabulation is bottom-up filling a table', 'Tabulation is recursive', 'Memoisation is always faster'], answer: 1 },
+    { prompt: 'What is the knapsack problem and its DP complexity?', choices: ['A graph problem, O(V+E)', 'An optimisation problem: maximise value within weight capacity, O(nW)', 'A sorting problem, O(n log n)', 'A string problem, O(n²)'], answer: 1 },
   ],
 };
 
+// ─── SQL ─────────────────────────────────────────────────────────────────────
+const sql: Bank = {
+  easy: [
+    { prompt: 'Which SQL clause filters rows in a query?', choices: ['GROUP BY', 'HAVING', 'WHERE', 'ORDER BY'], answer: 2 },
+    { prompt: 'What does SELECT * FROM employees; return?', choices: ['Only the first row', 'All columns and all rows from employees', 'Only distinct rows', 'The column names only'], answer: 1 },
+    { prompt: 'What does an INNER JOIN return?', choices: ['All rows from both tables', 'Only rows with matching keys in both tables', 'All rows from the left table', 'All rows from the right table'], answer: 1 },
+    { prompt: 'What does ORDER BY salary DESC do?', choices: ['Sorts ascending', 'Sorts descending by salary', 'Filters by salary', 'Groups by salary'], answer: 1 },
+    { prompt: 'Which aggregate function counts all rows including NULLs?', choices: ['COUNT(column)', 'COUNT(*)', 'SUM(*)', 'TOTAL()'], answer: 1 },
+    { prompt: 'What does DISTINCT do in a SELECT statement?', choices: ['Sorts results', 'Removes duplicate rows from the result set', 'Filters NULL values', 'Joins two tables'], answer: 1 },
+    { prompt: 'What does the LIMIT clause do?', choices: ['Filters rows by condition', 'Limits the number of rows returned', 'Limits columns returned', 'Limits table size'], answer: 1 },
+    { prompt: 'What is a primary key?', choices: ['Any column in a table', 'A column (or set) that uniquely identifies each row and cannot be NULL', 'A foreign key reference', 'An indexed column'], answer: 1 },
+    { prompt: 'What does a LEFT JOIN return that INNER JOIN does not?', choices: ['Matching rows only', 'All rows from the left table, with NULLs for unmatched right rows', 'All rows from both tables', 'Only unmatched rows'], answer: 1 },
+    { prompt: 'What does IS NULL check?', choices: ['Whether a value equals the string "NULL"', 'Whether a column value is absent/undefined', 'Whether a row is empty', 'Whether a column exists'], answer: 1 },
+  ],
+  medium: [
+    { prompt: 'What is the difference between WHERE and HAVING?', choices: ['They are identical', 'WHERE filters rows before aggregation; HAVING filters after aggregation', 'HAVING filters raw rows; WHERE filters groups', 'WHERE applies only to JOINs'], answer: 1 },
+    { prompt: 'What does a correlated subquery do differently from a plain subquery?', choices: ['Nothing', 'It references a column from the outer query and re-executes per outer row', 'It runs only once', 'It cannot use aggregate functions'], answer: 1 },
+    { prompt: 'What does BEGIN TRANSACTION guarantee when combined with COMMIT/ROLLBACK?', choices: ['Faster queries', 'Atomicity: all statements succeed or all are rolled back', 'Locking the whole database', 'Automatic indexing'], answer: 1 },
+    { prompt: 'What does GROUP BY do?', choices: ['Sorts results', 'Collapses rows with the same group-by values so aggregates apply per group', 'Removes duplicates from one column', 'Joins two tables'], answer: 1 },
+    { prompt: 'What is a foreign key constraint?', choices: ['A key shared between two indexes', 'A column whose value must match a primary key in another table', 'A unique constraint', 'A NULL constraint'], answer: 1 },
+    { prompt: 'What does COALESCE(a, b, c) return?', choices: ['The sum of a, b, c', 'The first non-NULL value among a, b, c', 'NULL if any argument is NULL', 'The count of non-NULL arguments'], answer: 1 },
+    { prompt: 'What is a CTE (Common Table Expression)?', choices: ['A temporary stored procedure', 'A named temporary result set defined with WITH for use in the main query', 'A materialised view', 'A recursive index'], answer: 1 },
+    { prompt: 'What does EXPLAIN (or EXPLAIN ANALYZE) show?', choices: ['The query syntax errors', 'The query execution plan chosen by the optimiser', 'Column data types', 'Index definitions'], answer: 1 },
+    { prompt: 'What is the difference between UNION and UNION ALL?', choices: ['They are identical', 'UNION removes duplicates; UNION ALL keeps all rows including duplicates', 'UNION ALL removes duplicates', 'UNION is faster always'], answer: 1 },
+    { prompt: 'What does a self-join do?', choices: ['Joins the table to itself to compare rows within the same table', 'Joins two different tables with the same schema', 'Creates a recursive CTE', 'Removes duplicate rows'], answer: 0 },
+  ],
+  hard: [
+    { prompt: 'What is an index scan vs a sequential scan?', choices: ['They are identical', 'Index scan uses the B-tree to find rows quickly; sequential scan reads every row', 'Sequential scan uses the index', 'Index scan reads every page'], answer: 1 },
+    { prompt: 'What is a covering index?', choices: ['An index on every column', 'An index that contains all columns needed by a query so the table row is never read', 'An index covering a foreign key', 'A partial index'], answer: 1 },
+    { prompt: 'What does MVCC (Multi-Version Concurrency Control) achieve?', choices: ['Serialises all writes', 'Allows readers to see a consistent snapshot without blocking writers', 'Removes the need for indexes', 'Prevents all deadlocks'], answer: 1 },
+    { prompt: 'What is the difference between SERIALIZABLE and READ COMMITTED isolation levels?', choices: ['They are identical', 'SERIALIZABLE prevents phantom reads and all anomalies; READ COMMITTED only prevents dirty reads', 'READ COMMITTED is stricter', 'SERIALIZABLE allows dirty reads'], answer: 1 },
+    { prompt: 'What does a window function ROW_NUMBER() OVER (PARTITION BY dept ORDER BY salary DESC) compute?', choices: ['Rank per salary globally', 'A unique sequential number per row within each department ordered by salary descending', 'The sum per department', 'A moving average'], answer: 1 },
+    { prompt: 'What is the difference between RANK() and DENSE_RANK()?', choices: ['They are identical', 'RANK() skips numbers after ties; DENSE_RANK() does not skip', 'DENSE_RANK() skips; RANK() does not', 'RANK() is unique always'], answer: 1 },
+    { prompt: 'What is a partial index?', choices: ['An index on part of a string', 'An index built only on rows satisfying a WHERE condition', 'An index with half the columns', 'A temporary index'], answer: 1 },
+    { prompt: 'What does VACUUM do in PostgreSQL?', choices: ['Drops unused indexes', 'Reclaims storage from dead rows and updates statistics for the planner', 'Encrypts the database', 'Compresses table data'], answer: 1 },
+    { prompt: 'What is a deadlock in a database and how is it resolved?', choices: ['A slow query; resolved by an index', 'Two transactions each waiting for a lock the other holds; the DB kills one transaction', 'A missing index; resolved by VACUUM', 'A corrupt index; resolved by REINDEX'], answer: 1 },
+    { prompt: 'What does LATERAL in a SQL join allow?', choices: ['A cross join', 'The right side to reference columns from the left side of the join (like a correlated subquery in FROM)', 'Pagination', 'Recursive queries'], answer: 1 },
+  ],
+};
+
+// ─── Git ─────────────────────────────────────────────────────────────────────
 const git: Bank = {
   easy: [
-    { prompt: 'git status shows:', choices: ['What changed in the working folder', 'Your CGPA', 'Open browser tabs', 'SQL tables'], answer: 0 },
-    { prompt: 'git commit records:', choices: ['A snapshot with a message', 'A React component', 'A placement year', 'A PDF certificate'], answer: 0 },
-    { prompt: 'A repository is:', choices: ['The project history', 'A CSS color', 'A quiz score only', 'A phone number'], answer: 0 },
+    { prompt: 'What does git init do?', choices: ['Clones a repository', 'Creates a new local Git repository', 'Pushes to remote', 'Commits all files'], answer: 1 },
+    { prompt: 'What does git status show?', choices: ['The commit history', 'The staged, unstaged, and untracked changes', 'Remote branches', 'Merge conflicts only'], answer: 1 },
+    { prompt: 'What does git add . do?', choices: ['Commits all changes', 'Stages all changes in the current directory', 'Pushes to origin', 'Creates a new branch'], answer: 1 },
+    { prompt: 'What does git commit -m "msg" do?', choices: ['Stages changes', 'Records staged changes as a commit with the message', 'Pushes to remote', 'Creates a tag'], answer: 1 },
+    { prompt: 'What does git log show?', choices: ['Working directory state', 'The commit history with messages, authors, and hashes', 'The diff of the last commit', 'Remote branches'], answer: 1 },
+    { prompt: 'What does git clone <url> do?', choices: ['Creates a bare repository', 'Copies a remote repository to your local machine', 'Forks the repository', 'Initialises a local repo'], answer: 1 },
+    { prompt: 'What does git pull do?', choices: ['Pushes local commits to remote', 'Fetches and merges remote changes into the current branch', 'Creates a new branch from remote', 'Stashes local changes'], answer: 1 },
+    { prompt: 'What does git push do?', choices: ['Downloads remote commits', 'Uploads local commits to the remote repository', 'Merges branches', 'Creates a pull request'], answer: 1 },
+    { prompt: 'What is the purpose of .gitignore?', choices: ['Lists files to auto-commit', 'Specifies files and patterns Git should not track', 'Defines remote URLs', 'Sets the default branch name'], answer: 1 },
+    { prompt: 'What does git diff show?', choices: ['Staged files only', 'Line-by-line changes between working directory and staged/committed state', 'Commit messages', 'Branch list'], answer: 1 },
   ],
   medium: [
-    { prompt: 'A branch lets you:', choices: ['Work on a change without overwriting main', 'Delete the remote always', 'Skip commits', 'Compile C++'], answer: 0 },
-    { prompt: 'git pull brings:', choices: ['Remote commits into your copy', 'A new laptop', 'Node modules only', 'The quiz answers'], answer: 0 },
-    { prompt: 'A merge conflict means:', choices: ['Two edits touched the same lines', 'The file is a video', 'Git is uninstalled', 'The year is wrong'], answer: 0 },
+    { prompt: 'What is the difference between git merge and git rebase?', choices: ['They are identical', 'merge preserves branch history with a merge commit; rebase replays commits on a new base for a linear history', 'rebase merges and deletes the branch', 'merge rewrites history'], answer: 1 },
+    { prompt: 'What does git stash do?', choices: ['Deletes uncommitted changes', 'Saves uncommitted changes temporarily so the working directory is clean', 'Commits with a draft tag', 'Pushes a draft branch'], answer: 1 },
+    { prompt: 'What does git cherry-pick <hash> do?', choices: ['Reverts a commit', 'Applies a specific commit from another branch to the current branch', 'Tags a commit', 'Reorders commits'], answer: 1 },
+    { prompt: 'What is a fast-forward merge?', choices: ['A merge that creates a merge commit', 'A merge where the target branch is simply moved to the latest commit of the source', 'A forced push', 'A squash merge'], answer: 1 },
+    { prompt: 'What does git reset --soft HEAD~1 do?', choices: ['Discards the last commit and its changes', 'Undoes the last commit but keeps changes staged', 'Reverts the last commit with a new commit', 'Stashes the last commit'], answer: 1 },
+    { prompt: 'What does git revert <hash> do?', choices: ['Deletes the commit from history', 'Creates a new commit that undoes the changes of the specified commit', 'Resets the branch to that commit', 'Cherry-picks the commit'], answer: 1 },
+    { prompt: 'What is a detached HEAD state?', choices: ['A missing HEAD file', 'HEAD points directly to a commit rather than a branch', 'A corrupted repository', 'A merge conflict state'], answer: 1 },
+    { prompt: 'What does git fetch do compared to git pull?', choices: ['They are identical', 'git fetch downloads remote changes without merging; git pull fetches and merges', 'git fetch also merges', 'git pull does not download'], answer: 1 },
+    { prompt: 'What is the purpose of git tag?', choices: ['Marks a file as important', 'Creates a named reference to a specific commit, often used for releases', 'Renames a branch', 'Tracks large files'], answer: 1 },
+    { prompt: 'What does --no-ff flag do in git merge?', choices: ['Disables the merge', 'Forces a merge commit even when a fast-forward is possible', 'Squashes commits', 'Rebases instead of merging'], answer: 1 },
   ],
   hard: [
-    { prompt: 'git rebase replays commits to:', choices: ['Put your work on a newer base', 'Erase the remote for everyone with no warning', 'Change file permissions only', 'Create a PDF'], answer: 0 },
-    { prompt: 'HEAD points at:', choices: ['The commit you currently have checked out', 'The oldest commit only', 'Your email', 'The main CSS file'], answer: 0 },
-    { prompt: 'A pull request is:', choices: ['A proposal to merge one branch into another', 'A SQL join', 'A React prop', 'A certificate upload'], answer: 0 },
+    { prompt: 'What is a Git object and what are the four types?', choices: ['Files on disk: data, index, config, pack', 'Content-addressable objects: blob, tree, commit, tag', 'Branches, remotes, stashes, tags', 'Refs, packs, indexes, configs'], answer: 1 },
+    { prompt: 'What does git reflog track?', choices: ['Remote branch history', 'Every movement of HEAD (including resets/checkouts) allowing recovery of lost commits', 'Only merge commits', 'File rename history'], answer: 1 },
+    { prompt: 'What is the difference between --rebase and --merge in git pull?', choices: ['No difference', '--rebase replays local commits on top of fetched commits for linear history; --merge creates a merge commit', '--merge replays commits', '--rebase creates a merge commit'], answer: 1 },
+    { prompt: 'What does git bisect do?', choices: ['Splits a repository in two', 'Performs a binary search through commit history to find the commit that introduced a bug', 'Merges two branches', 'Removes bisected commits'], answer: 1 },
+    { prompt: 'What is the purpose of git worktree?', choices: ['Manages submodules', 'Allows multiple working trees from the same repository so you can check out multiple branches simultaneously', 'Tracks large binary files', 'Manages git hooks'], answer: 1 },
+    { prompt: 'What does git filter-repo (or git filter-branch) do?', choices: ['Filters the commit log view', 'Rewrites history to remove files, change emails, or restructure the entire repository', 'Filters untracked files', 'Applies a patch to commits'], answer: 1 },
+    { prompt: 'What is an octopus merge?', choices: ['A conflict-heavy merge', 'A merge of three or more branches simultaneously', 'A fast-forward of multiple commits', 'A rebase of two branches'], answer: 1 },
+    { prompt: 'What does ORIG_HEAD store?', choices: ['The original remote HEAD', 'The previous HEAD position before a merge, rebase, or reset, enabling easy undo', 'The first commit of the repo', 'A backup of the index'], answer: 1 },
+    { prompt: 'What is a packfile in Git?', choices: ['A compressed zip of the repo', 'A binary file that packs loose objects together using delta compression for efficiency', 'A bundle of branches', 'A staging area backup'], answer: 1 },
+    { prompt: 'What does git submodule add <url> do?', choices: ['Forks a repository', 'Embeds another Git repository as a versioned subdirectory within the current repo', 'Creates a monorepo', 'Links an external package manager'], answer: 1 },
   ],
 };
 
+// ─── Machine Learning ────────────────────────────────────────────────────────
 const ml: Bank = {
   easy: [
-    { prompt: 'Supervised learning uses:', choices: ['Examples with known answers', 'Only unlabeled noise', 'A CSS grid', 'A git tag'], answer: 0 },
-    { prompt: 'A training set is:', choices: ['Data the model learns from', 'The final exam hall', 'A Docker image', 'A navbar'], answer: 0 },
-    { prompt: 'Accuracy means:', choices: ['How often the prediction matches the label', 'The file size', 'The number of semesters', 'The font weight'], answer: 0 },
+    { prompt: 'What is supervised learning?', choices: ['Learning without any data', 'Training on labelled input-output pairs', 'Clustering unlabelled data', 'Learning by reward signals'], answer: 1 },
+    { prompt: 'What is the purpose of a training set?', choices: ['To evaluate final model performance', 'To fit the model parameters', 'To tune hyperparameters', 'To deploy the model'], answer: 1 },
+    { prompt: 'What does a classification model predict?', choices: ['A continuous numeric value', 'A discrete category or class label', 'A probability distribution', 'A sequence'], answer: 1 },
+    { prompt: 'What is overfitting?', choices: ['The model performs well on training and test data', 'The model memorises training data and fails to generalise', 'The model is too simple', 'The model converges too slowly'], answer: 1 },
+    { prompt: 'What is a feature in machine learning?', choices: ['A model parameter', 'An input variable used to make predictions', 'A label', 'A loss function'], answer: 1 },
+    { prompt: 'What does unsupervised learning do?', choices: ['Learns from labelled data', 'Finds patterns or structure in unlabelled data', 'Uses rewards for training', 'Requires a test set'], answer: 1 },
+    { prompt: 'What is a loss function?', choices: ['A data preprocessing step', 'A measure of how wrong the model predictions are', 'An activation function', 'A regularisation term'], answer: 1 },
+    { prompt: 'What does gradient descent minimise?', choices: ['The accuracy', 'The loss function by iteratively updating parameters', 'The dataset size', 'The model depth'], answer: 1 },
+    { prompt: 'What is the test set used for?', choices: ['Fitting model parameters', 'Tuning hyperparameters', 'Evaluating generalisation on unseen data', 'Data augmentation'], answer: 2 },
+    { prompt: 'What is a hyperparameter?', choices: ['A learned model weight', 'A setting configured before training (e.g. learning rate, tree depth)', 'A feature in the dataset', 'A type of loss function'], answer: 1 },
   ],
   medium: [
-    { prompt: 'Overfitting looks like:', choices: ['Great on training data, weak on new data', 'Weak on everything including training', 'A SQL syntax error', 'A missing import only'], answer: 0 },
-    { prompt: 'A feature is:', choices: ['An input column the model can use', 'The page footer', 'A git branch', 'A certificate'], answer: 0 },
-    { prompt: 'A validation split is for:', choices: ['Checking the model before the final test', 'Storing passwords', 'Drawing charts only', 'Uploading video'], answer: 0 },
+    { prompt: 'What does cross-validation do?', choices: ['Splits data once into train/test', 'Rotates multiple train/validation splits to get a more reliable performance estimate', 'Increases the dataset size', 'Removes outliers'], answer: 1 },
+    { prompt: 'What is the difference between L1 and L2 regularisation?', choices: ['They are identical', 'L1 (Lasso) promotes sparsity; L2 (Ridge) shrinks all weights evenly', 'L2 promotes sparsity', 'L1 is for classification only'], answer: 1 },
+    { prompt: 'What does precision measure in a classification model?', choices: ['TP / (TP + FN)', 'TP / (TP + FP) — of all positive predictions, how many were correct', 'TN / (TN + FP)', '(TP + TN) / total'], answer: 1 },
+    { prompt: 'What is the ROC-AUC score?', choices: ['Average precision', 'Area under the ROC curve measuring separability across all classification thresholds', 'Log loss', 'F1 score'], answer: 1 },
+    { prompt: 'What does a confusion matrix show?', choices: ['Feature correlations', 'Counts of true positives, false positives, true negatives, and false negatives', 'Model weights', 'Training loss per epoch'], answer: 1 },
+    { prompt: 'What is the bias-variance trade-off?', choices: ['Accuracy vs speed', 'High bias = underfitting; high variance = overfitting; the trade-off balances both', 'Precision vs recall', 'Training vs test size'], answer: 1 },
+    { prompt: 'What does feature scaling (normalisation/standardisation) help with?', choices: ['Increasing dataset size', 'Ensuring features on different scales contribute equally and speed up gradient descent', 'Removing missing values', 'Handling class imbalance'], answer: 1 },
+    { prompt: 'What is a decision tree split criterion like Gini impurity measuring?', choices: ['Feature variance', 'The purity of the resulting child nodes after a split', 'The depth of the tree', 'The number of features'], answer: 1 },
+    { prompt: 'What does a random forest improve over a single decision tree?', choices: ['Training speed', 'Variance reduction by averaging many trees trained on random subsets', 'Interpretability', 'Memory usage'], answer: 1 },
+    { prompt: 'What does SMOTE do?', choices: ['Removes outliers', 'Generates synthetic minority class samples to handle class imbalance', 'Normalises features', 'Reduces dimensionality'], answer: 1 },
   ],
   hard: [
-    { prompt: 'Precision matters when:', choices: ['False alarms are costly', 'You only care about file names', 'The label is a color', 'The dataset is a single row you memorized'], answer: 0 },
-    { prompt: 'A learning rate that is too high can:', choices: ['Make training jump past a good solution', 'Guarantee 100% on new data', 'Remove the need for features', 'Sort the labels alphabetically'], answer: 0 },
-    { prompt: 'Leakage happens when:', choices: ['Test information sneaks into training', 'The notebook is closed', 'You use Python', 'The quiz is easy'], answer: 0 },
+    { prompt: 'What is the vanishing gradient problem in deep neural networks?', choices: ['Gradients grow too large during backprop', 'Gradients shrink exponentially through layers making early layers learn very slowly', 'The loss becomes NaN', 'Overfitting in deep layers'], answer: 1 },
+    { prompt: 'What does batch normalisation do?', choices: ['Shuffles training batches', 'Normalises layer inputs to stabilise training and allow higher learning rates', 'Increases batch size', 'Clips gradients'], answer: 1 },
+    { prompt: 'What is the kernel trick in SVM?', choices: ['A data preprocessing step', 'Implicitly maps data to a high-dimensional space via a kernel function without computing the mapping', 'A regularisation method', 'A tree-splitting rule'], answer: 1 },
+    { prompt: 'What is the expectation-maximisation (EM) algorithm used for?', choices: ['Supervised regression', 'Fitting latent variable models by alternating E-step (soft assignments) and M-step (parameter update)', 'Gradient boosting', 'Feature selection'], answer: 1 },
+    { prompt: 'What does the attention mechanism in transformers compute?', choices: ['Convolution over sequences', 'A weighted sum of values using query-key dot-product scores', 'Recurrent hidden states', 'Gradient checkpoints'], answer: 1 },
+    { prompt: 'What is dropout regularisation?', choices: ['Removing training examples', 'Randomly zeroing neuron outputs during training to prevent co-adaptation', 'Reducing learning rate', 'Pruning tree branches'], answer: 1 },
+    { prompt: 'What is the difference between generative and discriminative models?', choices: ['They are identical', 'Generative models learn P(X,Y); discriminative models learn P(Y|X) directly', 'Discriminative models learn P(X)', 'Generative models classify only'], answer: 1 },
+    { prompt: 'What is gradient boosting?', choices: ['Averaging many trees', 'Sequentially adding weak learners that fit the residuals of previous learners', 'Bagging decision trees', 'A neural network technique'], answer: 1 },
+    { prompt: 'What does principal component analysis (PCA) do?', choices: ['Classifies data', 'Projects data onto orthogonal directions of maximum variance to reduce dimensionality', 'Clusters data', 'Removes outliers'], answer: 1 },
+    { prompt: 'What is a variational autoencoder (VAE)?', choices: ['A deterministic encoder-decoder', 'A generative model that learns a latent distribution and can sample new data', 'A supervised classifier', 'A convolutional network'], answer: 1 },
   ],
 };
 
-const docker: Bank = {
-  easy: [
-    { prompt: 'A container packages:', choices: ['An app and what it needs to run', 'Only a PDF', 'Your CGPA', 'A git username'], answer: 0 },
-    { prompt: 'A Dockerfile is:', choices: ['The recipe for an image', 'A SQL table', 'A React hook', 'A quiz'], answer: 0 },
-    { prompt: 'docker run is used to:', choices: ['Start a container', 'Delete git history', 'Compile a resume theme', 'Set the placement year'], answer: 0 },
-  ],
-  medium: [
-    { prompt: 'An image differs from a container because:', choices: ['The image is the template; the container is a running instance', 'They are the same word', 'The image is a video file', 'The container is a certificate'], answer: 0 },
-    { prompt: 'A port mapping like 3000:3000:', choices: ['Lets your machine reach the app inside the container', 'Uploads a certificate', 'Sets CGPA', 'Creates a branch'], answer: 0 },
-    { prompt: 'A volume is used to:', choices: ['Keep files after the container stops', 'Minify CSS', 'Hash passwords in the quiz', 'Change your branch'], answer: 0 },
-  ],
-  hard: [
-    { prompt: 'A multi-stage build helps you:', choices: ['Copy only the built app into a smaller final image', 'Store the quiz score', 'Skip tests in college', 'Remove the need for a base image entirely with no OS'], answer: 0 },
-    { prompt: '.dockerignore is for:', choices: ['Keeping secrets and junk out of the image', 'Ignoring SQL', 'Hiding the placement year', 'Commenting JSX'], answer: 0 },
-    { prompt: 'If a container exits immediately, you check:', choices: ['The command it was told to run and its logs', 'The navbar color', 'The student phone field', 'The quiz timer'], answer: 0 },
-  ],
-};
-
-const node: Bank = {
-  easy: [
-    { prompt: 'Node.js runs JavaScript:', choices: ['Outside the browser, on a machine', 'Only inside Photoshop', 'Only as SQL', 'Only as CSS'], answer: 0 },
-    { prompt: 'package.json lists:', choices: ['The project and its dependencies', 'Your CGPA history', 'Placement drives', 'Quiz photos'], answer: 0 },
-    { prompt: 'npm install:', choices: ['Downloads the packages the project needs', 'Starts a placement drive', 'Compiles C++ only', 'Uploads a certificate'], answer: 0 },
-  ],
-  medium: [
-    { prompt: 'An HTTP server in Node listens so it can:', choices: ['Answer requests', 'Draw a Figma file', 'Replace git', 'Grade CGPA'], answer: 0 },
-    { prompt: 'process.env is where you read:', choices: ['Configuration such as a port or secret name', 'JSX', 'A student photo', 'CSS variables only'], answer: 0 },
-    { prompt: 'A JSON body from a client is:', choices: ['Text you parse into an object', 'A video', 'A branch name', 'A quiz level'], answer: 0 },
-  ],
-  hard: [
-    { prompt: 'The event loop lets Node:', choices: ['Keep serving other work while one task waits', 'Run only one line per day', 'Skip errors', 'Block every request until midnight'], answer: 0 },
-    { prompt: 'An unhandled rejected promise should be:', choices: ['Caught and turned into a clear error response', 'Ignored in production', 'Printed as CGPA', 'Saved as a certificate'], answer: 0 },
-    { prompt: 'A middleware function runs:', choices: ['Before the route handler, and can stop the request', 'After the student graduates only', 'Inside CSS', 'Only on git push'], answer: 0 },
-  ],
-};
-
-const cloud: Bank = {
-  easy: [
-    { prompt: 'A cloud account lets you:', choices: ['Rent compute and storage instead of buying a server', 'Replace your degree', 'Skip labs', 'Edit the navbar only'], answer: 0 },
-    { prompt: 'An object storage bucket holds:', choices: ['Files', 'Only SQL joins', 'Quiz personalities', 'Git commits by themselves'], answer: 0 },
-    { prompt: 'A free tier is:', choices: ['A limited amount you can use without paying first', 'Unlimited GPUs', 'A certificate', 'A branch change'], answer: 0 },
-  ],
-  medium: [
-    { prompt: 'A region is:', choices: ['The geographic place where the resources run', 'A React prop', 'A quiz difficulty', 'Your section'], answer: 0 },
-    { prompt: 'IAM is about:', choices: ['Who can do what in the account', 'Image alt text', 'CGPA formulas', 'CSS grids'], answer: 0 },
-    { prompt: 'You shut unused resources so:', choices: ['The bill and the attack surface stay small', 'Git history grows', 'The quiz gets harder', 'The placement year changes'], answer: 0 },
-  ],
-  hard: [
-    { prompt: 'A security group should allow:', choices: ['Only the ports your app needs', 'Every port from the whole internet by default', 'SSH for the world with password "admin"', 'Nothing, including your own app'], answer: 0 },
-    { prompt: 'Infrastructure as code means:', choices: ['The servers are described in a file you can review', 'You click 40 screens and hope', 'You email a coordinator the IP', 'You store passwords in the repo'], answer: 0 },
-    { prompt: 'Least privilege means:', choices: ['A key can do only the job it was made for', 'One admin key for every student', 'Public buckets for resumes', 'Sharing the root password'], answer: 0 },
-  ],
-};
-
-const communication: Bank = {
-  easy: [
-    { prompt: 'Active listening includes:', choices: ['Restating the other person’s point before you answer', 'Waiting to talk over them', 'Checking your phone', 'Sending a blank email'], answer: 0 },
-    { prompt: 'A clear update names:', choices: ['What happened, what is next, and who owns it', 'Only a greeting', 'Your CGPA three times', 'A private joke'], answer: 0 },
-    { prompt: 'In a team chat, a good question is:', choices: ['Specific about what you tried', '“It doesn’t work” with no detail', 'All caps', 'A forwarded meme'], answer: 0 },
-  ],
-  medium: [
-    { prompt: 'When two ideas clash, a useful first step is:', choices: ['Separate the goal from the personal disagreement', 'Pick a side loudly', 'Leave the group', 'Change the subject to marks'], answer: 0 },
-    { prompt: 'A short talk for a drive should:', choices: ['Lead with the result, then the work behind it', 'Start with every subject you ever took', 'Avoid numbers', 'Read the resume word for word'], answer: 0 },
-    { prompt: 'Feedback is easier to use when it is:', choices: ['About the work and one next step', 'About the person’s character', 'Public and vague', 'Only praise'], answer: 0 },
-  ],
-  hard: [
-    { prompt: 'A coordinator email that gets a reply includes:', choices: ['A subject, a one-line ask, and the time you are free', 'A novel', 'No name', 'Three different requests in the subject'], answer: 0 },
-    { prompt: 'In a conflict on a project, you document:', choices: ['The decision, the reason, and the date', 'Only who was loudest', 'Nothing', 'The other person’s phone contacts'], answer: 0 },
-    { prompt: 'Leading a small team means:', choices: ['You make the next step obvious and check blockers', 'You do every task yourself in silence', 'You skip standups', 'You grade teammates'], answer: 0 },
-  ],
-};
-
+// ─── System Design ───────────────────────────────────────────────────────────
 const systemDesign: Bank = {
   easy: [
-    { prompt: 'A client and a server talk so that:', choices: ['The app can ask for data and get a response', 'CSS loads SQL', 'Git commits the UI', 'A quiz replaces the database'], answer: 0 },
-    { prompt: 'A database is where you:', choices: ['Store records you need again', 'Only draw buttons', 'Host the placement year', 'Compile C++'], answer: 0 },
-    { prompt: 'An API is:', choices: ['A agreed way for programs to request work', 'A font', 'A certificate scan', 'A branch name'], answer: 0 },
+    { prompt: 'What is the difference between a client and a server?', choices: ['They are identical machines', 'A client requests resources; a server responds to those requests', 'A server initiates connections', 'Clients store data permanently'], answer: 1 },
+    { prompt: 'What is horizontal scaling?', choices: ['Adding more CPU/RAM to one machine', 'Adding more machines to distribute load', 'Increasing disk storage', 'Upgrading the network card'], answer: 1 },
+    { prompt: 'What is a load balancer?', choices: ['A database optimisation tool', 'A component that distributes incoming requests across multiple servers', 'A caching layer', 'A message queue'], answer: 1 },
+    { prompt: 'What does CDN stand for and what does it do?', choices: ['Central Data Network; stores backups', 'Content Delivery Network; serves static assets from edge nodes close to users', 'Cached DNS Node; resolves domains faster', 'Clustered Data Node; replicates databases'], answer: 1 },
+    { prompt: 'What is a cache?', choices: ['A permanent database', 'A fast temporary store that reduces expensive repeated computations or database reads', 'A message queue', 'A load balancer'], answer: 1 },
+    { prompt: 'What is REST in the context of APIs?', choices: ['A database type', 'An architectural style for networked applications using standard HTTP methods', 'A protocol like TCP', 'A framework'], answer: 1 },
+    { prompt: 'What does DNS do?', choices: ['Encrypts HTTP traffic', 'Translates domain names to IP addresses', 'Routes packets across networks', 'Authenticates users'], answer: 1 },
+    { prompt: 'What is a monolith vs a microservice architecture?', choices: ['Identical deployment models', 'Monolith: one deployable unit; microservices: independently deployed small services', 'Microservices are always faster', 'Monolith is always larger in code'], answer: 1 },
+    { prompt: 'What is a SQL database?', choices: ['A graph database', 'A relational database that stores data in tables with structured schemas', 'A key-value store', 'A document store'], answer: 1 },
+    { prompt: 'What is latency?', choices: ['The number of requests per second', 'The time for a request to travel from client to server and back', 'The storage capacity', 'The error rate'], answer: 1 },
   ],
   medium: [
-    { prompt: 'A cache is useful when:', choices: ['The same answer is read often and can be slightly stale', 'Every request must hit disk', 'You want slower pages', 'You are storing passwords in the browser'], answer: 0 },
-    { prompt: 'Horizontal scaling means:', choices: ['Adding more machines', 'Buying a taller monitor', 'Increasing CGPA', 'One bigger laptop only'], answer: 0 },
-    { prompt: 'A load balancer:', choices: ['Spreads requests across servers', 'Writes your resume', 'Grades quizzes', 'Replaces SQL joins'], answer: 0 },
+    { prompt: 'What does the CAP theorem state?', choices: ['A distributed system can have all three: Consistency, Availability, and Partition tolerance', 'A distributed system can guarantee at most two of Consistency, Availability, and Partition tolerance', 'CAP applies only to SQL databases', 'Partition tolerance is always sacrificed'], answer: 1 },
+    { prompt: 'What is a message queue used for?', choices: ['Storing user sessions', 'Decoupling producers and consumers asynchronously to handle load spikes', 'Caching database reads', 'Routing HTTP traffic'], answer: 1 },
+    { prompt: 'What is database sharding?', choices: ['Replicating a database', 'Horizontally partitioning data across multiple database instances by a shard key', 'Adding indexes to a database', 'Caching query results'], answer: 1 },
+    { prompt: 'What is the difference between a primary replica and a read replica?', choices: ['They are identical', 'Primary handles all writes; read replicas serve read traffic to reduce primary load', 'Read replicas handle writes too', 'Primary is a backup'], answer: 1 },
+    { prompt: 'What is an idempotent operation?', choices: ['An operation that always fails', 'An operation that produces the same result whether applied once or multiple times', 'An operation that is atomic', 'An operation that is eventually consistent'], answer: 1 },
+    { prompt: 'What is consistent hashing used for?', choices: ['Hashing passwords', 'Distributing keys across nodes so adding/removing nodes minimises remapping', 'Ordering requests', 'Encrypting cache keys'], answer: 1 },
+    { prompt: 'What is the difference between SQL and NoSQL databases?', choices: ['SQL is newer', 'SQL is relational with ACID; NoSQL trades some consistency for scalability and flexible schemas', 'NoSQL always uses tables', 'SQL cannot scale horizontally'], answer: 1 },
+    { prompt: 'What is a circuit breaker in distributed systems?', choices: ['A network hardware component', 'A pattern that stops sending requests to a failing service to prevent cascading failures', 'A load balancing algorithm', 'A database failover mechanism'], answer: 1 },
+    { prompt: 'What does eventual consistency mean?', choices: ['The system is always consistent', 'All replicas will converge to the same value given no new updates — not immediately', 'Only one replica is ever correct', 'Writes are synchronous'], answer: 1 },
+    { prompt: 'What is rate limiting?', choices: ['Limiting database row size', 'Restricting how many requests a client can make in a time window', 'Capping CPU usage', 'Limiting queue size'], answer: 1 },
   ],
   hard: [
-    { prompt: 'You pick a queue when:', choices: ['Work can finish a moment later and must not be lost', 'The user must see the pixel change in the same millisecond always', 'You have one user total', 'You want to skip errors'], answer: 0 },
-    { prompt: 'A single leader for writes avoids:', choices: ['Two writers inventing different values for the same row', 'All reads', 'Backups', 'Indexes'], answer: 0 },
-    { prompt: 'You state a bottleneck by naming:', choices: ['The slowest step and what happens when traffic doubles', 'The logo color', 'The student’s hobby', 'The quiz difficulty'], answer: 0 },
+    { prompt: 'What is the difference between strong and eventual consistency?', choices: ['They are identical', 'Strong: reads always reflect the latest write; eventual: replicas converge over time but may lag', 'Eventual is always faster', 'Strong consistency is only for NoSQL'], answer: 1 },
+    { prompt: 'What is a two-phase commit (2PC) and what is its main drawback?', choices: ['A network handshake; too fast', 'A protocol to atomically commit across multiple nodes; it blocks if the coordinator fails', 'A caching strategy; too slow', 'A replication protocol; uses too much disk'], answer: 1 },
+    { prompt: 'What is the Saga pattern used for?', choices: ['Schema migrations', 'Managing distributed transactions via a sequence of local transactions with compensating rollbacks', 'Caching strategies', 'Service discovery'], answer: 1 },
+    { prompt: 'What is leader election in distributed systems?', choices: ['Choosing a database primary manually', 'An algorithm (e.g. Raft, Paxos) for nodes to agree on a single coordinator', 'A load balancing decision', 'A DNS round-robin strategy'], answer: 1 },
+    { prompt: 'What does the Raft consensus algorithm guarantee?', choices: ['Maximum throughput', 'That a cluster of nodes agrees on a log of operations even with node failures', 'Zero latency', 'Eventual consistency only'], answer: 1 },
+    { prompt: 'What is backpressure in a streaming system?', choices: ['Network congestion', 'A mechanism for a consumer to signal a producer to slow down when it cannot keep up', 'A caching eviction policy', 'A retry strategy'], answer: 1 },
+    { prompt: 'What is the write-ahead log (WAL) used for in databases?', choices: ['Pre-loading data into cache', 'Recording changes before applying them so the database can recover after a crash', 'Indexing writes', 'Replicating to replicas only'], answer: 1 },
+    { prompt: 'What is the difference between blue-green and canary deployments?', choices: ['They are identical', 'Blue-green switches all traffic at once between two environments; canary gradually shifts a small percentage', 'Canary uses two full environments', 'Blue-green is slower'], answer: 1 },
+    { prompt: 'What is a bloom filter?', choices: ['A sorting algorithm', 'A space-efficient probabilistic structure that can say "definitely not in set" or "possibly in set"', 'A cache eviction policy', 'A hash join algorithm'], answer: 1 },
+    { prompt: 'What is tail latency and why does it matter at scale?', choices: ['Average response time', 'The slowest responses (e.g. p99/p999); at scale even rare outliers affect many users', 'The first request latency', 'The median latency'], answer: 1 },
+  ],
+};
+
+// ─── Docker ──────────────────────────────────────────────────────────────────
+const docker: Bank = {
+  easy: [
+    { prompt: 'What is a Docker container?', choices: ['A virtual machine', 'A lightweight isolated process that runs an application with its dependencies', 'A cloud service', 'A compiled binary'], answer: 1 },
+    { prompt: 'What is a Docker image?', choices: ['A running container', 'A read-only template used to create containers', 'A Dockerfile', 'A Docker registry'], answer: 1 },
+    { prompt: 'Which command lists all running containers?', choices: ['docker images', 'docker ps', 'docker list', 'docker status'], answer: 1 },
+    { prompt: 'What does docker pull <image> do?', choices: ['Builds an image', 'Downloads an image from a registry', 'Runs a container', 'Removes an image'], answer: 1 },
+    { prompt: 'What does docker build -t myapp . do?', choices: ['Runs the container', 'Builds an image from the Dockerfile in the current directory and tags it as myapp', 'Pulls the myapp image', 'Pushes to a registry'], answer: 1 },
+    { prompt: 'What is a Dockerfile?', choices: ['A runtime config file', 'A script of instructions to build a Docker image', 'A container log', 'A network config'], answer: 1 },
+    { prompt: 'What does the FROM instruction in a Dockerfile specify?', choices: ['The maintainer', 'The base image to build from', 'The entry point command', 'The working directory'], answer: 1 },
+    { prompt: 'What does docker stop <container> do?', choices: ['Deletes the container', 'Removes all images', 'Sends SIGTERM and stops the container gracefully', 'Pauses the container'], answer: 2 },
+    { prompt: 'What does docker run -p 8080:80 do?', choices: ['Runs on port 80 internally only', 'Maps host port 8080 to container port 80', 'Opens port 8080 on the registry', 'Restricts to port 80 traffic'], answer: 1 },
+    { prompt: 'What is Docker Hub?', choices: ['A local Docker dashboard', 'A public cloud registry for Docker images', 'A container orchestration platform', 'A build server'], answer: 1 },
+  ],
+  medium: [
+    { prompt: 'What does docker-compose up do?', choices: ['Builds and pushes images', 'Creates and starts all services defined in docker-compose.yml', 'Stops all services', 'Lists running services'], answer: 1 },
+    { prompt: 'What is a named volume in Docker?', choices: ['A host directory mount', 'A Docker-managed storage that persists data across container restarts', 'A read-only config file', 'An in-memory filesystem'], answer: 1 },
+    { prompt: 'What is the difference between COPY and ADD in a Dockerfile?', choices: ['They are identical', 'COPY copies files; ADD also supports URL downloads and auto-extracting tar archives', 'ADD copies only directories', 'COPY supports URLs'], answer: 1 },
+    { prompt: 'What does the ENTRYPOINT instruction do?', choices: ['Sets environment variables', 'Defines the main command that always runs when the container starts', 'Exposes a port', 'Copies files into the image'], answer: 1 },
+    { prompt: 'What is a multi-stage build in Docker?', choices: ['Building in multiple registries', 'Using multiple FROM statements to build artefacts in one stage and copy only what is needed into the final image', 'Running multiple containers simultaneously', 'Building for multiple architectures'], answer: 1 },
+    { prompt: 'What does docker network create do?', choices: ['Connects to an external network', 'Creates a user-defined network for containers to communicate', 'Exposes ports to the internet', 'Lists current networks'], answer: 1 },
+    { prompt: 'What is the difference between bridge and host network modes?', choices: ['They are identical', 'Bridge isolates containers on a virtual network; host shares the host network stack directly', 'Host is more isolated', 'Bridge uses the host IP'], answer: 1 },
+    { prompt: 'What does docker exec -it <container> sh do?', choices: ['Builds a new container', 'Opens an interactive shell inside a running container', 'Copies files into the container', 'Restarts the container'], answer: 1 },
+    { prompt: 'What does --restart=always do when running a container?', choices: ['Restarts the Docker daemon', 'Restarts the container automatically when it stops or on Docker daemon restart', 'Sets max restart count to unlimited', 'Only restarts on failure'], answer: 1 },
+    { prompt: 'What is a Docker bind mount?', choices: ['A named Docker volume', 'A host file or directory mounted directly into a container', 'An in-memory mount', 'A read-only layer'], answer: 1 },
+  ],
+  hard: [
+    { prompt: 'What is BuildKit and what does it improve over the classic builder?', choices: ['A runtime for containers', 'A more efficient build backend with parallel stage execution, cache mounts, and secret mounts', 'A registry optimisation', 'A networking plugin'], answer: 1 },
+    { prompt: 'What does --no-cache flag do in docker build?', choices: ['Disables layer caching at runtime', 'Forces all build steps to run without using the layer cache', 'Clears the registry cache', 'Prevents writing a new layer'], answer: 1 },
+    { prompt: 'What is a Docker layer and how does caching work?', choices: ['Each instruction creates an immutable layer; unchanged instructions use cached layers', 'Layers are mutable and rebuilt every time', 'Only FROM creates layers', 'Layers are compressed on every build'], answer: 0 },
+    { prompt: 'What is the principle of least privilege as applied to Docker containers?', choices: ['Run all containers as root for simplicity', 'Run as a non-root user, drop capabilities, use read-only filesystem where possible', 'Only use official images', 'Never expose ports'], answer: 1 },
+    { prompt: 'What does the --cap-drop flag do?', choices: ['Reduces image size', 'Removes Linux capabilities from the container to reduce attack surface', 'Drops all environment variables', 'Lowers CPU priority'], answer: 1 },
+    { prompt: 'What is a Docker secret and how does it differ from an environment variable?', choices: ['They are identical', 'Secrets are encrypted at rest and in transit, mounted as files, not exposed in process env or image layers', 'Environment variables are more secure', 'Secrets are only for Kubernetes'], answer: 1 },
+    { prompt: 'What does HEALTHCHECK in a Dockerfile do?', choices: ['Monitors the host', 'Defines a command Docker runs to check if the container is healthy', 'Sets resource limits', 'Restricts network access'], answer: 1 },
+    { prompt: 'What is the difference between docker rm and docker rmi?', choices: ['They are identical', 'docker rm removes a container; docker rmi removes an image', 'docker rmi removes containers', 'docker rm removes images'], answer: 1 },
+    { prompt: 'What is an OCI image and why does it matter?', choices: ['A proprietary Docker format', 'An Open Container Initiative standard image format ensuring portability across runtimes (Docker, Podman, containerd)', 'An operating system image', 'An image for Oracle Cloud'], answer: 1 },
+    { prompt: 'What does docker system prune do?', choices: ['Updates Docker', 'Removes all stopped containers, unused networks, dangling images, and build cache', 'Restarts all containers', 'Backs up all images'], answer: 1 },
+  ],
+};
+
+// ─── Cloud / AWS ─────────────────────────────────────────────────────────────
+const cloud: Bank = {
+  easy: [
+    { prompt: 'What does IaaS stand for?', choices: ['Internet as a Service', 'Infrastructure as a Service', 'Integration as a Service', 'Identity as a Service'], answer: 1 },
+    { prompt: 'What is a region in AWS?', choices: ['A single data centre', 'A geographic area containing multiple Availability Zones', 'A network subnet', 'An IAM boundary'], answer: 1 },
+    { prompt: 'What is Amazon S3 primarily used for?', choices: ['Relational databases', 'Object storage for files, backups, and static assets', 'Virtual machines', 'DNS management'], answer: 1 },
+    { prompt: 'What is an EC2 instance?', choices: ['A managed database', 'A virtual server in the AWS cloud', 'A serverless function', 'A CDN edge node'], answer: 1 },
+    { prompt: 'What does serverless mean?', choices: ['No servers exist', 'You run code without managing the underlying server infrastructure', 'The app runs in a browser', 'Only static files are served'], answer: 1 },
+    { prompt: 'What is AWS Lambda?', choices: ['A container service', 'A serverless compute service that runs code in response to events', 'A NoSQL database', 'A load balancer'], answer: 1 },
+    { prompt: 'What is the purpose of an IAM role?', choices: ['Store files securely', 'Grant permissions to AWS services or users without embedding credentials', 'Route traffic between services', 'Monitor application health'], answer: 1 },
+    { prompt: 'What does a VPC provide?', choices: ['A managed database cluster', 'An isolated virtual network in AWS where you control IP ranges and routing', 'A content delivery network', 'A serverless runtime'], answer: 1 },
+    { prompt: 'What is AWS RDS?', choices: ['A file storage service', 'A managed relational database service', 'A message queue', 'A DNS service'], answer: 1 },
+    { prompt: 'What is the difference between SaaS and PaaS?', choices: ['They are identical', 'SaaS delivers complete software to end users; PaaS provides a platform for developers to build apps', 'PaaS is for end users', 'SaaS requires the user to manage the OS'], answer: 1 },
+  ],
+  medium: [
+    { prompt: 'What is an Auto Scaling Group in AWS?', choices: ['A manual scaling dashboard', 'A service that automatically adjusts EC2 instance count based on demand', 'A fixed cluster of servers', 'A database connection pool'], answer: 1 },
+    { prompt: 'What does AWS CloudFront do?', choices: ['Manages databases', 'A CDN that caches content at edge locations to reduce latency', 'Monitors EC2 health', 'Provides VPN access'], answer: 1 },
+    { prompt: 'What is the principle of least privilege in IAM?', choices: ['Grant all permissions by default', 'Grant only the minimum permissions needed to perform a task', 'Use root credentials everywhere', 'Share access keys across services'], answer: 1 },
+    { prompt: 'What is AWS SQS used for?', choices: ['Object storage', 'A managed message queue for decoupling distributed systems', 'Log aggregation', 'DNS routing'], answer: 1 },
+    { prompt: 'What is the difference between an S3 bucket policy and an IAM policy?', choices: ['They are identical', 'Bucket policies are attached to the resource and control cross-account access; IAM policies are attached to identities', 'IAM policies control S3 only', 'Bucket policies only allow public access'], answer: 1 },
+    { prompt: 'What does AWS CloudWatch do?', choices: ['Provides version control', 'Monitors AWS resources and applications through metrics, logs, and alarms', 'Manages DNS', 'Runs containerised workloads'], answer: 1 },
+    { prompt: 'What is a security group in AWS?', choices: ['An IAM group for security users', 'A stateful virtual firewall controlling inbound and outbound traffic at the instance level', 'A VPN connection', 'A WAF rule set'], answer: 1 },
+    { prompt: 'What is AWS ECS?', choices: ['A key-value store', 'A container orchestration service for running Docker containers', 'A serverless function service', 'A managed Kubernetes service'], answer: 1 },
+    { prompt: 'What is a NAT Gateway used for?', choices: ['Connecting VPCs together', 'Allowing private subnet instances to access the internet without being directly reachable from outside', 'Load balancing HTTP traffic', 'Managing SSL certificates'], answer: 1 },
+    { prompt: 'What is AWS Elasticache?', choices: ['A file storage service', 'A managed in-memory caching service (Redis or Memcached)', 'A blob storage service', 'A container registry'], answer: 1 },
+  ],
+  hard: [
+    { prompt: 'What is the difference between AWS ECS and EKS?', choices: ['They are identical', 'ECS is a proprietary AWS container orchestrator; EKS is a managed Kubernetes service', 'EKS is proprietary; ECS runs Kubernetes', 'ECS is for serverless only'], answer: 1 },
+    { prompt: 'What is AWS Transit Gateway used for?', choices: ['Connecting a VPC to the internet', 'Acting as a hub to interconnect multiple VPCs and on-premises networks at scale', 'Managing IAM roles', 'Routing Lambda invocations'], answer: 1 },
+    { prompt: 'What is the difference between RTO and RPO in disaster recovery?', choices: ['They are identical', 'RTO is the max acceptable downtime; RPO is the max acceptable data loss window', 'RPO is downtime; RTO is data loss', 'Both measure storage only'], answer: 1 },
+    { prompt: 'What is an AWS Availability Zone?', choices: ['A geographic region', 'An isolated data centre or group of data centres within a region with independent power and networking', 'A VPC subnet', 'A CDN edge location'], answer: 1 },
+    { prompt: 'What is AWS Step Functions used for?', choices: ['Storing workflow state in S3', 'Orchestrating multi-step serverless workflows with retry logic and branching', 'Running long EC2 jobs', 'Managing SQS queues'], answer: 1 },
+    { prompt: 'What is a blue-green deployment strategy on AWS?', choices: ['Using two regions simultaneously', 'Maintaining two identical environments and switching traffic from old (blue) to new (green)', 'A colour-coding convention for security groups', 'Running two Lambda versions in parallel'], answer: 1 },
+    { prompt: 'What does AWS PrivateLink provide?', choices: ['A public API gateway', 'Private connectivity to AWS services and third-party services without traffic leaving the AWS network', 'A VPN between regions', 'A private S3 bucket policy'], answer: 1 },
+    { prompt: 'What is AWS WAF?', choices: ['A firewall protecting VPC subnets', 'A web application firewall that filters HTTP/S traffic based on rules (e.g. SQLi, XSS)', 'A network ACL', 'An IAM policy type'], answer: 1 },
+    { prompt: 'What is AWS Service Control Policy (SCP)?', choices: ['An IAM user policy', 'An organisational policy that sets maximum permission boundaries for accounts in AWS Organisations', 'A security group rule', 'A VPC routing table'], answer: 1 },
+    { prompt: 'What is the purpose of AWS Secrets Manager vs Parameter Store?', choices: ['They are identical', 'Secrets Manager rotates secrets automatically and is designed for credentials; Parameter Store is cheaper for general config', 'Parameter Store rotates secrets; Secrets Manager stores config', 'Secrets Manager is free'], answer: 1 },
+  ],
+};
+
+// ─── Communication ───────────────────────────────────────────────────────────
+const communication: Bank = {
+  easy: [
+    { prompt: 'What is active listening?', choices: ['Hearing words without paying attention', 'Fully concentrating, understanding, and responding to a speaker', 'Interrupting to show engagement', 'Preparing your response while the other speaks'], answer: 1 },
+    { prompt: 'What does clear written communication require?', choices: ['Long complex sentences', 'Concise language with one idea per sentence and an explicit subject', 'Extensive jargon', 'Passive voice throughout'], answer: 1 },
+    { prompt: 'What is non-verbal communication?', choices: ['Email', 'Body language, facial expressions, and tone of voice', 'Technical documentation', 'Code comments'], answer: 1 },
+    { prompt: 'Why is feedback important in communication?', choices: ['It is not important', 'It confirms understanding and allows the sender to correct misunderstandings', 'It slows down the conversation', 'It replaces verbal updates'], answer: 1 },
+    { prompt: 'What is the purpose of an agenda in a meeting?', choices: ['To fill time', 'To set clear topics so participants prepare and stay focused', 'To exclude people from speaking', 'To replace meeting notes'], answer: 1 },
+    { prompt: 'What is empathy in communication?', choices: ['Agreeing with everything said', 'Understanding and acknowledging another person\'s feelings and perspective', 'Giving unsolicited advice', 'Staying silent always'], answer: 1 },
+    { prompt: 'What does it mean to ask clarifying questions?', choices: ['Challenging the speaker aggressively', 'Requesting more information to ensure you correctly understand what was said', 'Repeating back word for word', 'Ending the conversation'], answer: 1 },
+    { prompt: 'What is the most effective way to present a complex idea?', choices: ['Dump all details at once', 'Start with the key point, then supporting details, then a summary', 'Use maximum technical jargon', 'Read a script verbatim'], answer: 1 },
+    { prompt: 'What is a stakeholder in a project context?', choices: ['Only the project manager', 'Anyone who has an interest in or is affected by the project outcome', 'Only paying customers', 'Only technical team members'], answer: 1 },
+    { prompt: 'What does professional written communication avoid?', choices: ['Clear structure', 'Ambiguous pronouns, unexplained acronyms, and aggressive tone', 'Concise sentences', 'Explicit subject lines'], answer: 1 },
+  ],
+  medium: [
+    { prompt: 'What is a growth mindset in a team context?', choices: ['Believing talent is fixed', 'Believing abilities can develop through effort, feedback, and learning from failure', 'Avoiding all challenges', 'Blaming others for setbacks'], answer: 1 },
+    { prompt: 'What does effective conflict resolution involve?', choices: ['Avoiding the conflict entirely', 'Addressing the issue directly, focusing on behaviour and impact rather than personality', 'Always deferring to seniority', 'Winning the argument'], answer: 1 },
+    { prompt: 'What is the purpose of a blameless post-mortem?', choices: ['To identify who to fire', 'To analyse what went wrong in a system/process to improve it without blaming individuals', 'To document blame for legal purposes', 'To cancel the project'], answer: 1 },
+    { prompt: 'What is psychological safety in a team?', choices: ['Physical workplace safety', 'An environment where members feel safe to speak up, ask questions, and admit mistakes without fear', 'Keeping team members comfortable by avoiding hard topics', 'Having strict communication rules'], answer: 1 },
+    { prompt: 'What does it mean to give actionable feedback?', choices: ['Criticise without solutions', 'Point to a specific behaviour and suggest a concrete way to change it', 'Praise only', 'Delay feedback indefinitely'], answer: 1 },
+    { prompt: 'What is an RACI matrix used for?', choices: ['Risk assessment', 'Clarifying Responsible, Accountable, Consulted, and Informed roles for tasks', 'Ranking team members', 'Tracking meeting attendance'], answer: 1 },
+    { prompt: 'What is the difference between assertive and aggressive communication?', choices: ['They are identical', 'Assertive expresses your needs clearly while respecting others; aggressive disregards others', 'Aggressive is always effective', 'Assertive is passive'], answer: 1 },
+    { prompt: 'What is a retrospective in agile teams?', choices: ['A project kickoff meeting', 'A meeting at the end of a sprint to reflect on what went well, what did not, and what to improve', 'A code review session', 'A stakeholder demo'], answer: 1 },
+    { prompt: 'What does the SBI (Situation-Behaviour-Impact) model structure?', choices: ['A project timeline', 'Feedback by describing the situation, the observed behaviour, and its impact', 'A risk register', 'A meeting agenda'], answer: 1 },
+    { prompt: 'How should a team member handle receiving critical feedback?', choices: ['Defend immediately', 'Listen fully, ask clarifying questions, acknowledge valid points, and act on them', 'Dismiss it as opinion', 'Escalate to management'], answer: 1 },
+  ],
+  hard: [
+    { prompt: 'What is Tuckman\'s model of team development?', choices: ['Plan, Do, Check, Act', 'Forming, Storming, Norming, Performing (and Adjourning)', 'Initiate, Plan, Execute, Close', 'Kickoff, Sprint, Review, Retro'], answer: 1 },
+    { prompt: 'What is the difference between a manager and a leader?', choices: ['Identical roles', 'Managers focus on processes and deliverables; leaders inspire direction, trust, and culture', 'Leaders only manage senior staff', 'Managers have no authority'], answer: 1 },
+    { prompt: 'What is a high-context vs low-context communication culture?', choices: ['A measure of meeting frequency', 'High-context relies on implicit shared understanding; low-context is explicit and direct', 'High-context uses more words', 'Low-context is less polite'], answer: 1 },
+    { prompt: 'What does servant leadership mean?', choices: ['The leader takes all decisions alone', 'The leader prioritises team needs, removes blockers, and enables others to do their best work', 'The leader delegates all responsibility', 'The leader only reports to executives'], answer: 1 },
+    { prompt: 'What is the STAR method used for in interviews?', choices: ['A project estimation technique', 'Structuring answers by Situation, Task, Action, Result to demonstrate competencies clearly', 'A code review format', 'A conflict resolution framework'], answer: 1 },
+    { prompt: 'What is executive communication and how does it differ from peer communication?', choices: ['They are identical', 'Executive communication leads with the conclusion and business impact; peer communication includes full technical context', 'Executive communication is more technical', 'Peer communication is more concise'], answer: 1 },
+    { prompt: 'What is the role of a facilitator in a workshop?', choices: ['The subject matter expert who decides outcomes', 'A neutral party who structures the session, ensures participation, and keeps the group on track', 'The person who writes meeting notes only', 'The most senior person in the room'], answer: 1 },
+    { prompt: 'What does radical candour mean as a management philosophy?', choices: ['Being brutally harsh without empathy', 'Caring personally about people while challenging them directly with honest feedback', 'Avoiding all difficult conversations', 'Praising publicly and criticising privately only'], answer: 1 },
+    { prompt: 'What is cross-functional communication and why is it challenging?', choices: ['Communication within one team; easy because of shared context', 'Communication across teams with different goals and vocabularies; challenging due to misaligned priorities and jargon', 'Communicating with external clients only', 'Communication across time zones only'], answer: 1 },
+    { prompt: 'What is a communication anti-pattern called "HiPPO effect"?', choices: ['A collaboration framework', 'When decisions are driven by the Highest Paid Person\'s Opinion rather than data or expertise', 'An agile ceremony', 'A negotiation tactic'], answer: 1 },
   ],
 };
 
@@ -284,8 +573,8 @@ const BANKS: Record<string, Bank> = {
   typescript,
   'react.js': react,
   react,
-  'node.js': node,
-  node,
+  'node.js': javascript,
+  node: javascript,
   java,
   'c++': cpp,
   cpp,
@@ -295,203 +584,59 @@ const BANKS: Record<string, Bank> = {
   dsa,
   git,
   'machine learning': ml,
+  ml,
   docker,
   'cloud / aws': cloud,
   aws: cloud,
+  cloud,
   'communication & leadership': communication,
-  communication: communication,
+  communication,
   'system design': systemDesign,
 };
 
 function generic(skill: string): Bank {
   return {
     easy: [
-      {
-        prompt: `A first check that you can use ${skill} is:`,
-        choices: ['You have only heard the name', 'You finish a small guided exercise and can repeat it', 'You saved a logo', 'You changed your branch'],
-        answer: 1,
-      },
-      {
-        prompt: `When a beginner ${skill} step fails, you:`,
-        choices: ['Delete the project', 'Guess ten changes at once', 'Read the error and change one thing', 'Skip to a certificate'],
-        answer: 2,
-      },
-      {
-        prompt: `Basic ${skill} practice looks like:`,
-        choices: ['A full production system on day one', 'Only watching others', 'A blank file with no run', 'Short repetitions on one idea'],
-        answer: 3,
-      },
+      { prompt: `Which best describes beginner ${skill}?`, choices: ['Only watching tutorials', 'Short repetitions on one concept with a reference', 'A full production system on day one', 'Skipping to a certificate'], answer: 1 },
+      { prompt: `When a basic ${skill} step fails, you:`, choices: ['Delete the project', 'Guess ten changes at once', 'Read the error and change one thing', 'Skip to a certificate'], answer: 2 },
+      { prompt: `A first check that you use ${skill} is:`, choices: ['You have only heard the name', 'You finish a small exercise and can repeat it', 'You saved a logo', 'You changed a branch'], answer: 1 },
+      { prompt: `Basic ${skill} practice looks like:`, choices: ['A full production system day one', 'Only watching others', 'A blank file with no run', 'Short focused repetitions'], answer: 3 },
+      { prompt: `Basic vocabulary in ${skill} lets you:`, choices: ['Replace practice', 'Follow a lab handout and ask precise questions', 'Set the placement year', 'Skip assignments'], answer: 1 },
+      { prompt: `Finishing a ${skill} tutorial means:`, choices: ['You can build anything', 'You have a runnable starting point to learn from', 'You are an expert', 'You can skip intermediate level'], answer: 1 },
+      { prompt: `The right attitude when stuck in ${skill} is:`, choices: ['Give up and move on', 'Search the error, check docs, ask a specific question', 'Rewrite everything', 'Skip to another skill'], answer: 1 },
+      { prompt: `A beginner ${skill} project should:`, choices: ['Solve a complex open problem', 'Implement one small feature you can explain and demo', 'Have 10 integrations', 'Avoid all documentation'], answer: 1 },
+      { prompt: `Peer review helps at basic ${skill} because:`, choices: ['Peers know less', 'They spot mistakes and suggest simpler approaches', 'It wastes time', 'Only for experts'], answer: 1 },
+      { prompt: `Which output proves basic ${skill} knowledge?`, choices: ['A certificate from a 1-hour course', 'A working small project you can explain step by step', 'A LinkedIn endorsement', 'A screenshot of a homepage'], answer: 1 },
     ],
     medium: [
-      {
-        prompt: `Working knowledge of ${skill} means you can:`,
-        choices: ['Recite the definition only', 'Build a small piece without a line-by-line guide', 'Name the tool and stop', 'Wait for a teammate on every step'],
-        answer: 1,
-      },
-      {
-        prompt: `A useful debug loop in ${skill} is:`,
-        choices: ['Rewrite everything', 'Hide the error', 'Reproduce, change one cause, check the result', 'Ask for the answer key first'],
-        answer: 2,
-      },
-      {
-        prompt: `You would show intermediate ${skill} work as:`,
-        choices: ['A private note with no steps', 'A file name only', 'A screenshot of a course homepage', 'A small result someone else can run or review'],
-        answer: 3,
-      },
+      { prompt: `Intermediate ${skill} work includes:`, choices: ['Only watching full playlists', 'Building a feature without a step-by-step guide', 'Renaming folders', 'Copying unexplained answers'], answer: 1 },
+      { prompt: `A useful debug loop in ${skill} is:`, choices: ['Rewrite everything first', 'Reproduce, isolate one cause, test the fix', 'Hide the error', 'Ask for the answer sheet'], answer: 1 },
+      { prompt: `You show intermediate ${skill} work by:`, choices: ['A file name only', 'A demo or repo someone can run or review', 'A course homepage screenshot', 'A note on your phone'], answer: 1 },
+      { prompt: `Intermediate ${skill} means you can:`, choices: ['Recite definitions only', 'Adapt a pattern to a new context without copying it', 'Only pair program', 'Only use GUI tools'], answer: 1 },
+      { prompt: `To confirm intermediate ${skill} knowledge:`, choices: ['Take a quiz alone', 'Build something, hit a real error, debug and explain what changed', 'Watch 50 hours of video', 'Memorise API names'], answer: 1 },
+      { prompt: `A classmate can review your intermediate ${skill} work when:`, choices: ['You share the concept only', 'They can run your steps or read your reasoning end-to-end', 'You send a screenshot', 'You hide the code'], answer: 1 },
+      { prompt: `Intermediate ${skill} debugging is about:`, choices: ['Restarting the computer', 'Forming a hypothesis, testing it, narrowing the root cause', 'Copy-pasting the first search result', 'Asking someone to fix it immediately'], answer: 1 },
+      { prompt: `Which shows real intermediate ${skill} progress?`, choices: ['Completing 10 courses', 'Shipping a small working project and iterating on feedback', 'Earning a logo badge', 'Having 1000 GitHub stars'], answer: 1 },
+      { prompt: `Intermediate ${skill} learners struggle most with:`, choices: ['Basic syntax', 'Knowing when to use which approach and why', 'Environment setup', 'Reading documentation'], answer: 1 },
+      { prompt: `Reviewing intermediate ${skill} code means checking:`, choices: ['Font size', 'Correctness, edge cases, and readability', 'Comment count only', 'File permissions'], answer: 1 },
     ],
     hard: [
-      {
-        prompt: `Advanced ${skill} includes explaining:`,
-        choices: ['Only the happy path', 'The trade-off you chose and what breaks if the input grows', 'The course thumbnail', 'Your placement year'],
-        answer: 1,
-      },
-      {
-        prompt: `Before you call a ${skill} design done, you:`,
-        choices: ['Assume it never fails', 'Hide the steps', 'Name the failure case and how you would notice it', 'Skip review'],
-        answer: 2,
-      },
-      {
-        prompt: `A strong ${skill} review comment points at:`,
-        choices: ['“Looks fine” with no look', 'The font', 'Someone else’s CGPA', 'A concrete risk and a smaller alternative'],
-        answer: 3,
-      },
+      { prompt: `Advanced ${skill} includes explaining:`, choices: ['Only the happy path', 'Trade-offs chosen and what breaks when load grows', 'The course thumbnail', 'Your placement year'], answer: 1 },
+      { prompt: `Before calling a ${skill} design done, you:`, choices: ['Assume it never fails', 'Name the failure cases and how to detect them', 'Hide the steps', 'Skip review'], answer: 1 },
+      { prompt: `A strong ${skill} review comment points at:`, choices: ['"Looks fine" with no detail', 'A concrete risk and a smaller alternative', 'The font', 'Someone else\'s marks'], answer: 1 },
+      { prompt: `Advanced ${skill} differs from intermediate by:`, choices: ['Knowing more syntax', 'Understanding the why behind decisions and trade-offs at scale', 'Working faster', 'Using more tools'], answer: 1 },
+      { prompt: `When an advanced ${skill} design is challenged, you:`, choices: ['Defend without listening', 'Engage with the concern, evaluate alternatives, update if warranted', 'Reject all feedback', 'Defer to authority without thinking'], answer: 1 },
+      { prompt: `A production-grade ${skill} solution accounts for:`, choices: ['Only the happy path', 'Edge cases, failure modes, observability, and rollback', 'Speed only', 'Developer convenience only'], answer: 1 },
+      { prompt: `Mentoring others on ${skill} requires:`, choices: ['Giving answers directly', 'Asking questions that lead discovery, then explaining why', 'Sending documentation links only', 'Doing the task for them'], answer: 1 },
+      { prompt: `Advanced ${skill} is validated when you can:`, choices: ['Complete a tutorial', 'Diagnose an unfamiliar production failure and explain the fix to a non-expert', 'Recite documentation', 'List ten tools'], answer: 1 },
+      { prompt: `Keeping advanced ${skill} current means:`, choices: ['Reading one blog post a year', 'Following release notes and experimenting with new patterns', 'Only watching conferences', 'Ignoring new versions'], answer: 1 },
+      { prompt: `Expert ${skill} judgement means:`, choices: ['Always choosing the newest tool', 'Knowing when NOT to use a technique and explaining the simpler alternative', 'Using the most complex solution', 'Following trends without evaluation'], answer: 1 },
     ],
   };
 }
 
-function genericExtra(skill: string): Bank {
-  return {
-    easy: [
-      { prompt: `A beginner exercise in ${skill} is done when:`, choices: ['You can run it again without the walkthrough', 'You only saved the link', 'The file name contains the skill', 'You changed your branch'], answer: 0 },
-      { prompt: `The first thing you check when a basic ${skill} step fails is:`, choices: ['The exact error and the last change', 'A new certificate', 'Your CGPA', 'A different career goal'], answer: 0 },
-      { prompt: `Basic ${skill} vocabulary is useful because:`, choices: ['You can follow a lab handout and ask a precise question', 'It replaces practice', 'It sets the placement year', 'It skips the assignment'], answer: 0 },
-    ],
-    medium: [
-      { prompt: `Intermediate ${skill} work includes:`, choices: ['Changing one part and predicting the result', 'Watching a full playlist with no file of your own', 'Renaming folders only', 'Copying an answer you cannot explain'], answer: 0 },
-      { prompt: `You would debug ${skill} by:`, choices: ['Reproducing the failure, then testing one cause', 'Rewriting the whole project first', 'Hiding the error', 'Asking for the scored sheet'], answer: 0 },
-      { prompt: `A classmate can review your ${skill} work when:`, choices: ['They can run or read the steps you kept', 'You only name the tool', 'The screenshot is a homepage', 'The note is on your phone with no file'], answer: 0 },
-    ],
-    hard: [
-      { prompt: `An advanced ${skill} choice should name:`, choices: ['What you gained and what gets worse if the input grows', 'Only the happy path', 'The course thumbnail', 'Your section'], answer: 0 },
-      { prompt: `Before calling a ${skill} design finished, you:`, choices: ['Write the failure you expect and how you would notice it', 'Assume it never fails', 'Hide the steps', 'Skip review'], answer: 0 },
-      { prompt: `A useful critique of ${skill} work points at:`, choices: ['A concrete risk and a smaller alternative', '“Looks fine” with no look', 'The font', 'Someone else’s marks'], answer: 0 },
-    ],
-  };
-}
-
-const EXTRAS: Record<string, Bank> = {
-  python: {
-    easy: [
-      { prompt: 'Which value is an int?', choices: ['"3"', '3', '3.0 only as text', '[3]'], answer: 1 },
-      { prompt: 'input() returns:', choices: ['Always an int', 'A string', 'A list', 'A file'], answer: 1 },
-      { prompt: 'Indentation in Python:', choices: ['Is optional decoration', 'Groups the lines inside a block', 'Replaces the colon', 'Only matters in comments'], answer: 1 },
-    ],
-    medium: [
-      { prompt: 'range(2) yields:', choices: ['1, 2', '0, 1', '2, 3', '0, 2'], answer: 1 },
-      { prompt: 'A for loop over a list visits:', choices: ['Each item, in order', 'Only the last item', 'The indexes as strings only', 'Nothing unless you call len'], answer: 0 },
-      { prompt: 's.lower() on "Py" returns:', choices: ['"PY"', '"Py"', '"py"', '"pY"'], answer: 2 },
-    ],
-    hard: [
-      { prompt: 'A function that returns None and one that prints a value differ because:', choices: ['Return gives a value the caller can use; print only shows it', 'They are the same', 'Print stores the value in a list', 'Return always writes a file'], answer: 0 },
-      { prompt: 'Why keep a virtual environment for a project?', choices: ['The project’s packages stay separate from other projects', 'Python refuses global installs always', 'It compiles C++', 'It sets your CGPA'], answer: 0 },
-      { prompt: 'An exception you do not catch will:', choices: ['Stop that run and show a traceback', 'Turn into an empty list', 'Be ignored in every program', 'Convert the value to 0'], answer: 0 },
-    ],
-  },
-  javascript: {
-    easy: [
-      { prompt: 'Which pair of quotes starts a string?', choices: ['/* */', '"hello"', '#hello', '<hello>'], answer: 1 },
-      { prompt: 'An array is written with:', choices: ['( )', '{ } only', '[ ]', '<% %>'], answer: 2 },
-      { prompt: 'true is a:', choices: ['string', 'boolean', 'number', 'element'], answer: 1 },
-    ],
-    medium: [
-      { prompt: 'What is "5" + 1 in JavaScript?', choices: ['6', '"51"', 'NaN always', '1'], answer: 1 },
-      { prompt: 'A function saved in a const is called with:', choices: ['the name and parentheses', 'git commit', 'SELECT', 'a CSS class'], answer: 0 },
-      { prompt: 'obj.name reads:', choices: ['The name property', 'The file name on disk', 'The git branch', 'The quiz level'], answer: 0 },
-    ],
-    hard: [
-      { prompt: 'const user = { city: "Bhopal" }; user.city = "Indore" is:', choices: ['Allowed, because the binding is fixed but the object can change', 'A syntax error always', 'A SQL update', 'Impossible with const'], answer: 0 },
-      { prompt: 'filter returns:', choices: ['A new array of items that pass the test', 'The original array, emptied', 'A single boolean', 'A promise only'], answer: 0 },
-      { prompt: 'await can be used:', choices: ['Inside an async function, in front of a promise', 'Before any const', 'Only in CSS', 'Only on numbers'], answer: 0 },
-    ],
-  },
-  java: {
-    easy: [
-      { prompt: 'A class is saved in a file that usually ends with:', choices: ['.py', '.java', '.jsx', '.sql'], answer: 1 },
-      { prompt: 'int age = 20; stores:', choices: ['Text', 'A whole number', 'A table', 'A webpage'], answer: 1 },
-      { prompt: 'public static void main is:', choices: ['Where a simple program starts', 'A CSS selector', 'A git command', 'A React hook'], answer: 0 },
-    ],
-    medium: [
-      { prompt: 'A constructor runs when:', choices: ['The object is created with new', 'The file is renamed', 'You print the class name only', 'The semester ends'], answer: 0 },
-      { prompt: 'An ArrayList index starts at:', choices: ['1', '0', '-1', 'The length'], answer: 1 },
-      { prompt: 'private on a field means:', choices: ['Other classes should use methods instead of touching it directly', 'The field is global', 'The field is a web route', 'The field is deleted'], answer: 0 },
-    ],
-    hard: [
-      { prompt: 'Overriding a method means:', choices: ['A subclass supplies its own version of a parent method', 'You delete the JDK', 'You rename the file twice', 'You skip main'], answer: 0 },
-      { prompt: 'A NullPointerException often means:', choices: ['You used an object reference that was null', 'The class name is too long', 'The file compiled to Python', 'The list is merely empty and that is always this error'], answer: 0 },
-      { prompt: 'try / catch is for:', choices: ['Handling a failure you expect might happen', 'Declaring a variable', 'Importing a package', 'Printing every line twice'], answer: 0 },
-    ],
-  },
-  'data structures & algorithms': {
-    easy: [
-      { prompt: 'The item at the front of a queue is the one:', choices: ['Inserted most recently', 'Waiting the longest', 'With the longest name', 'Never inserted'], answer: 1 },
-      { prompt: 'Linear search checks items:', choices: ['One by one until it finds a match or finishes', 'Only at the middle', 'In random pairs', 'By compiling them'], answer: 0 },
-      { prompt: 'O(1) means the work:', choices: ['Grows with every extra item', 'Stays about the same as the input grows', 'Is always one byte of RAM', 'Is impossible'], answer: 1 },
-    ],
-    medium: [
-      { prompt: 'A binary search on 1000 sorted items needs about:', choices: ['1000 checks', 'A handful of checks, around log2 of 1000', 'One check only if the item is last', 'n! checks'], answer: 1 },
-      { prompt: 'Push then pop on a stack returns:', choices: ['The older item underneath', 'The item you just pushed', 'A sorted copy', 'Nothing, stacks cannot pop'], answer: 1 },
-      { prompt: 'A hash collision is when:', choices: ['Two keys land in the same slot', 'The array is unsorted on purpose', 'The stack is empty', 'The graph has no edges'], answer: 0 },
-    ],
-    hard: [
-      { prompt: 'Merge sort’s usual time is:', choices: ['O(n log n)', 'O(1) for any input', 'O(n!) always', 'The length of the longest string only'], answer: 0 },
-      { prompt: 'BFS on an unweighted graph finds:', choices: ['A shortest path in number of edges', 'The maximum spanning tree only', 'A CSS layout', 'A sorted hash'], answer: 0 },
-      { prompt: 'You pick a linked list over an array when:', choices: ['You insert and delete in the middle often and can afford slower index lookup', 'You need O(1) index every time', 'The data must be a video', 'You need SQL joins'], answer: 0 },
-    ],
-  },
-  sql: {
-    easy: [
-      { prompt: 'SELECT name FROM students limits the result to:', choices: ['Every column', 'The name column', 'The database server log', 'A React list'], answer: 1 },
-      { prompt: 'INSERT adds:', choices: ['A new row', 'A new programming language', 'A CSS file', 'A git branch'], answer: 0 },
-      { prompt: 'NULL means:', choices: ['The number 0', 'An empty string always', 'No value is stored', 'The row is deleted'], answer: 2 },
-    ],
-    medium: [
-      { prompt: 'WHERE cgpa >= 8 keeps rows that:', choices: ['Have CGPA of 8 or more', 'Have any CGPA', 'Are the first row only', 'Have a null name'], answer: 0 },
-      { prompt: 'COUNT(branch) skips:', choices: ['Rows where branch is NULL', 'Every row', 'Rows where branch is CSE', 'Nothing, it equals COUNT(*)'], answer: 0 },
-      { prompt: 'A foreign key points at:', choices: ['A primary key in another table', 'A CSS class', 'A file path only', 'The query’s comment'], answer: 0 },
-    ],
-    hard: [
-      { prompt: 'LEFT JOIN keeps:', choices: ['Every row from the left table, with matches from the right when they exist', 'Only rows that match', 'Only the right table', 'A cartesian product with no condition you can filter'], answer: 0 },
-      { prompt: 'An index you never use still:', choices: ['Can slow writes, because it must be updated', 'Makes every SELECT instant with no cost', 'Replaces the primary key', 'Deletes duplicate rows'], answer: 0 },
-      { prompt: 'A transaction COMMIT means:', choices: ['The grouped changes are saved together', 'The database is dropped', 'The query is only printed', 'The table is renamed to git'], answer: 0 },
-    ],
-  },
-  react: {
-    easy: [
-      { prompt: 'You pass a title into a component through:', choices: ['props', 'the file extension', 'a SQL column', 'git status'], answer: 0 },
-      { prompt: 'A component name in JSX should start with:', choices: ['a lowercase tag like a plain div only', 'a capital letter', 'a number', 'a #'], answer: 1 },
-      { prompt: 'useState’s first value is:', choices: ['The initial state', 'The CSS file', 'The server port', 'The route list'], answer: 0 },
-    ],
-    medium: [
-      { prompt: 'Changing state with the setter:', choices: ['Schedules a re-render with the new value', 'Edits the DOM string in place and skips React', 'Writes a database row', 'Renames the component'], answer: 0 },
-      { prompt: 'Conditional rendering {ok && <Badge />} shows the badge when:', choices: ['ok is truthy', 'ok is always false', 'the file is .css', 'the key is missing'], answer: 0 },
-      { prompt: 'A controlled input’s value comes from:', choices: ['React state', 'A random attribute each keystroke', 'The database only', 'The component’s file name'], answer: 0 },
-    ],
-    hard: [
-      { prompt: 'A missing effect dependency can:', choices: ['Show stale state inside the effect', 'Make JSX illegal', 'Turn props into SQL', 'Disable the bundler'], answer: 0 },
-      { prompt: 'You lift state when:', choices: ['Two children must share the same value', 'You want each child to invent a different copy on purpose', 'The value is a CSS color only', 'The component is a string'], answer: 0 },
-      { prompt: 'React.memo skips a re-render when:', choices: ['The props you compare have not changed', 'Any parent state changes, always', 'The component uses useState', 'The file is named page.tsx'], answer: 0 },
-    ],
-  },
-};
-
-export function questionsFor(skill: string, level: QuizLevel): QuizQuestion[] {
-  const key = skill.trim().toLowerCase();
-  const alias = key.replace(/\.js$/, '');
-  const bank = BANKS[key] ?? BANKS[alias] ?? generic(skill.trim() || 'this skill');
-  const extra =
-    EXTRAS[key]?.[level] ??
-    EXTRAS[alias]?.[level] ??
-    (alias === 'postgresql' || alias === 'dsa' ? EXTRAS[alias === 'dsa' ? 'data structures & algorithms' : 'sql']?.[level] : undefined) ??
-    genericExtra(skill.trim() || 'this skill')[level];
-  return [...bank[level], ...extra].slice(0, 6);
+export function questionsFor(skillName: string, level: QuizLevel): QuizQuestion[] {
+  const key = skillName.toLowerCase();
+  const bank = BANKS[key] ?? generic(skillName);
+  return bank[level];
 }

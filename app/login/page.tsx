@@ -4,7 +4,7 @@ import React, { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { GraduationCap, Lock, Mail, ArrowRight, AlertCircle } from "lucide-react";
+import { GraduationCap, Lock, Mail, ArrowRight, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -23,6 +23,7 @@ function LoginForm() {
   const [passwordMessage, setPasswordMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const goAfterAuth = (isOnboarded: boolean, role?: string) => {
     if (role === 'ADMIN') {
@@ -118,7 +119,7 @@ function LoginForm() {
             <Input
               label="Password *"
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               required
               placeholder="••••••••••••"
@@ -130,6 +131,16 @@ function LoginForm() {
                 setPasswordMessage("");
               }}
               leftIcon={<Lock className="w-4 h-4" />}
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              }
             />
 
             <Button

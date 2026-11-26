@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { GraduationCap, Lock, Mail, ArrowRight, AlertCircle } from "lucide-react";
+import { GraduationCap, Lock, Mail, ArrowRight, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -22,6 +22,8 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const submitting = useRef(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,7 +93,7 @@ export default function RegisterPage() {
 
             <Input
               label="Password *"
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               autoComplete="new-password"
               minLength={8}
@@ -104,11 +106,21 @@ export default function RegisterPage() {
                 setPasswordMessage("");
               }}
               leftIcon={<Lock className="w-4 h-4" />}
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              }
             />
 
             <Input
               label="Confirm Password *"
-              type="password"
+              type={showConfirm ? "text" : "password"}
               required
               autoComplete="new-password"
               placeholder="••••••••••••"
@@ -119,6 +131,16 @@ export default function RegisterPage() {
                 setConfirmMessage("");
               }}
               leftIcon={<Lock className="w-4 h-4" />}
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm((v) => !v)}
+                  aria-label={showConfirm ? "Hide password" : "Show password"}
+                  className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
+                >
+                  {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              }
             />
 
             <Button

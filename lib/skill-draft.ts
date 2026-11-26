@@ -8,7 +8,7 @@ import {
   type SkillProof,
 } from '@/lib/skill-assessment';
 
-export const QUIZ_LENGTH = 6;
+export const QUIZ_LENGTH = 10;
 
 export interface SkillDraft {
   name: string;

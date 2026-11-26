@@ -83,8 +83,8 @@ export default function ProjectsPage() {
     <div className="space-y-8 py-6">
       <PageHeader
         badge="Projects"
-        title="Feasible builds and department briefs"
-        description="Catalog builds sit beside live problems faculty drop in. Pick a brief, ship a demo, and take it to the lab."
+        title="Build ideas and department problem briefs"
+        description="Browse year-wise project blueprints — each with a working description, tech stack, step-by-step guide, and a demo hint. Faculty can also post real lab problems for students to claim and ship."
         actions={
           <div className="flex flex-wrap gap-1.5 p-1 rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)]">
             <button
@@ -94,7 +94,7 @@ export default function ProjectsPage() {
                 tab === 'builds' ? 'bg-[var(--primary)] text-[var(--primary-fg)]' : 'text-[var(--text-muted)]'
               }`}
             >
-              Catalog
+              Project blueprints
             </button>
             <button
               type="button"
@@ -103,7 +103,7 @@ export default function ProjectsPage() {
                 tab === 'briefs' ? 'bg-[var(--primary)] text-[var(--primary-fg)]' : 'text-[var(--text-muted)]'
               }`}
             >
-              Department briefs
+              Faculty problem briefs
             </button>
           </div>
         }
@@ -115,10 +115,10 @@ export default function ProjectsPage() {
             <Card className="p-5 sm:p-6 space-y-4">
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-[var(--primary)]" />
-                <h2 className="font-bold text-sm">Faculty: drop a department problem</h2>
+                <h2 className="font-bold text-sm">Faculty: post a real lab problem for students to solve</h2>
               </div>
               <p className="text-xs text-[var(--text-secondary)]">
-                Name the lab pain in one paragraph. Students pick it up from this board and can call you from Coordinators.
+                Describe the problem in one paragraph. Students claim it from this board and can reach you via Coordinators. The best demos can be presented at the next department showcase.
               </p>
               <form onSubmit={postBrief} className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Input
@@ -146,7 +146,7 @@ export default function ProjectsPage() {
                 </div>
                 <div className="md:col-span-2 space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] block">
-                    What students should build *
+                    What a working demo should do *
                   </label>
                   <textarea
                     required
@@ -167,7 +167,7 @@ export default function ProjectsPage() {
                 </div>
                 <div className="md:col-span-2">
                   <Button type="submit" variant="gradient" size="sm">
-                    Post for students
+                    Post problem brief for students
                   </Button>
                 </div>
               </form>
@@ -222,7 +222,7 @@ export default function ProjectsPage() {
 
           {mine.length > 0 && (
             <section className="space-y-3">
-              <h2 className="text-sm font-bold">On your profile</h2>
+              <h2 className="text-sm font-bold">Your saved projects</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {mine.map((p) => (
                   <Card key={p.id} className="p-5 space-y-2">
@@ -274,7 +274,7 @@ export default function ProjectsPage() {
                         leftIcon={<Wrench className="w-3.5 h-3.5" />}
                         onClick={() => setOpenId(open ? null : p.id)}
                       >
-                        {open ? 'Hide steps' : 'How it works'}
+                        {open ? 'Hide step-by-step guide' : 'View step-by-step guide'}
                       </Button>
                     </div>
                   </Card>

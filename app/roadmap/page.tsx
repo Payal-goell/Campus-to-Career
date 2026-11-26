@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import {
+  ChevronDown,
   Filter,
   List,
   Map as MapIcon,
@@ -62,6 +63,7 @@ export default function RoadmapPage() {
   const [view, setView] = useState<'map' | 'list'>('map');
   const [focusedId, setFocusedId] = useState<string | null>(roadmap.startHereId);
   const [openNode, setOpenNode] = useState<RoadmapNode | null>(null);
+  const [careerPathOpen, setCareerPathOpen] = useState(false);
   const [tuneOpen, setTuneOpen] = useState(false);
 
   const yearLocked = selectedYear > profile.currentYear;
@@ -156,8 +158,6 @@ export default function RoadmapPage() {
         </div>
       )}
 
-      <CareerPathPanel profileInput={careerProfileInput} />
-
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <Badge variant="primary" size="sm">
@@ -200,56 +200,87 @@ export default function RoadmapPage() {
         </div>
       </div>
 
+      {/* Career Path Panel — collapsible, sits below the heading */}
+      <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface)]">
+        <button
+          type="button"
+          onClick={() => setCareerPathOpen((v) => !v)}
+          className="w-full flex items-center justify-between gap-3 px-5 py-3.5 text-left"
+          aria-expanded={careerPathOpen}
+        >
+          <div className="flex items-center gap-2.5">
+            <svg className="w-4 h-4 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <span className="text-sm font-semibold text-[var(--text-primary)]">ML Career Path</span>
+            <span className="text-xs text-[var(--text-muted)]">AI-generated step list for your target role</span>
+          </div>
+          <ChevronDown className={cn('w-4 h-4 text-[var(--text-muted)] transition-transform duration-200', careerPathOpen && 'rotate-180')} />
+        </button>
+        {careerPathOpen && (
+          <div className="border-t border-[var(--color-border-subtle)] p-4 sm:p-5">
+            <CareerPathPanel profileInput={careerProfileInput} />
+          </div>
+        )}
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3" role="tablist" aria-label="Year switcher">
         {roadmap.yearSummaries.map((tab) => {
           const selected = selectedYear === tab.year;
+          const isFuture = tab.year > profile.currentYear;
           return (
             <button
               key={tab.year}
               type="button"
               role="tab"
               aria-selected={selected}
+              disabled={isFuture}
               onClick={() => {
+                if (isFuture) return;
                 setSelectedYear(tab.year as AcademicYear);
-                if (tab.year > profile.currentYear) setPreviewFuture(true);
               }}
               className={cn(
                 'p-4 rounded-2xl border text-left min-h-[96px] transition-colors',
                 selected
                   ? 'bg-[var(--primary)] text-[var(--primary-fg)] border-[var(--primary)] shadow-[var(--glow-primary)]'
-                  : 'bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)] hover:border-[var(--primary-border)]'
+                  : isFuture
+                    ? 'bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)] opacity-40 cursor-not-allowed'
+                    : 'bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)] hover:border-[var(--primary-border)]'
               )}
             >
               <div className="flex items-center justify-between">
                 <span className={cn('text-[10px] font-mono font-bold', selected ? 'text-[var(--primary-fg)]' : 'text-[var(--primary)]')}>
                   YEAR 0{tab.year}
                 </span>
-                <span
-                  className="relative w-8 h-8"
-                  aria-hidden
-                >
-                  <svg viewBox="0 0 36 36" className="-rotate-90">
-                    <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="14"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeDasharray={`${(tab.completionPct / 100) * 88} 88`}
-                    />
+                {isFuture ? (
+                  <svg className="w-4 h-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
-                </span>
+                ) : (
+                  <span className="relative w-8 h-8" aria-hidden>
+                    <svg viewBox="0 0 36 36" className="-rotate-90">
+                      <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="14"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeDasharray={`${(tab.completionPct / 100) * 88} 88`}
+                      />
+                    </svg>
+                  </span>
+                )}
               </div>
               <h3 className={cn('font-bold text-sm mt-1', selected ? 'text-[var(--primary-fg)]' : 'text-[var(--text-primary)]')}>
                 {YEAR_THEMES[tab.year as AcademicYear].split(' ').slice(0, 3).join(' ')}
               </h3>
               <p className={cn('text-[11px] mt-1', selected ? 'text-[var(--primary-fg)]/80' : 'text-[var(--text-secondary)]')}>
-                {tab.calendarRange || `${tab.completionPct}% · ${tab.xp} XP`}
-                {tab.year > profile.currentYear ? ' · locked' : ''}
+                {isFuture ? 'Complete Year ' + (tab.year - 1) + ' first' : (tab.calendarRange || `${tab.completionPct}% · ${tab.xp} XP`)}
               </p>
-              {tab.calendarRange && (
+              {!isFuture && tab.calendarRange && (
                 <p className={cn('text-[10px] mt-0.5', selected ? 'text-[var(--primary-fg)]/70' : 'text-[var(--text-muted)]')}>
                   {tab.completionPct}% · {tab.xp} XP
                 </p>
@@ -262,11 +293,8 @@ export default function RoadmapPage() {
       {yearLocked && (
         <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-inset)] px-4 py-2.5">
           <p className="text-xs text-[var(--text-secondary)]">
-            Year {selectedYear} stays locked until the Year {selectedYear - 1} reflection gate. Preview is on.
+            Year {selectedYear} stays locked until you complete Year {selectedYear - 1}.
           </p>
-          <Button variant="ghost" onClick={() => setPreviewFuture(!previewFuture)}>
-            {previewFuture ? 'Preview on' : 'Preview Year ' + selectedYear}
-          </Button>
         </div>
       )}
 
